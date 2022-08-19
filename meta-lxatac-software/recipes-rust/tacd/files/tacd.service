@@ -1,10 +1,16 @@
 [Unit]
 Description=LXA TAC Daemon
+Before=collectd.service
+# tacd depends on the dbus service being available right at the start.
+# It would be great to solve this via dbus activation, but NM does not seem
+# to support it (yet).
+After=NetworkManager.service
 
 [Service]
-Type=simple
+Type=notify
 Environment="RUST_LOG=tacd=warn"
 ExecStart=/usr/bin/tacd
+TimeoutStartSec=20
 Restart=on-failure
 RestartForceExitStatus=100
 RestartSec=30

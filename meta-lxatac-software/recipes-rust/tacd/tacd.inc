@@ -3,9 +3,10 @@ SRC_URI += " \
     file://de.pengutronix.tacd.conf \
     "
 
+inherit pkgconfig
 inherit systemd
 
-DEPENDS += "libiio"
+DEPENDS:append = " libiio "
 
 SYSTEMD_SERVICE:${PN} = "tacd.service"
 

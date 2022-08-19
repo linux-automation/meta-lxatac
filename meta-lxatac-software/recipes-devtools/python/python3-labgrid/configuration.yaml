@@ -7,18 +7,21 @@ serial:
     port: /dev/ttySTM1
     speed: 115200
 
-gpio0:
-  SysfsGPIO:
-    index: 115
-
-gpio1:
-  SysfsGPIO:
-    index: 114
+## FIXME: These should be accessed via the REST API at
+## - /v1/output/out_0/asserted
+## - /v1/output/out_1/asserted
+## gpio0:
+##   SysfsGPIO:
+##     index: 115
+##
+## gpio1:
+##   SysfsGPIO:
+##     index: 114
 
 dut_power:
   NetworkPowerPort:
     model: rest
-    host: 'http://{{ hostname }}/dut/enable'
+    host: 'http://{{ hostname }}/v1/dut/powered/compat'
     index: '0'   # this is 'don't care'
 
 ## LXATAC USB Ports
