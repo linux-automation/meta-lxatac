@@ -1,0 +1,30 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Tue, 25 Oct 2022 10:51:52 +0200
+Subject: [PATCH] ARM: dts: stm32: lxa-tac: manually set RGMII delay for
+ on-board switch
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Without these entries the correct delays are still infered from the "rgmii-id"
+phy-mode, but a warning is shown on boot.
+Provide the delays that would be used anyways to silence the warning.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 6f6c7733cb35..373c66aa9b19 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -528,6 +528,8 @@ port_cpu: port@2 {
+ 				label = "cpu";
+ 				ethernet = <&ethernet0>;
+ 				phy-mode = "rgmii-id";
++				rx-internal-delay-ps = <2000>;
++				tx-internal-delay-ps = <2000>;
+ 				fixed-link {
+ 					speed = <1000>;
+ 					full-duplex;

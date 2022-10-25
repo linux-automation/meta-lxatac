@@ -1,7 +1,6 @@
 From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
 Date: Fri, 6 May 2022 10:58:54 +0200
-Subject: [PATCH] dt-bindings:iio:adc: add documentation for TI LMP92064
- controller
+Subject: [PATCH] dt-bindings: iio: adc: add TI LMP92064 controller
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -10,16 +9,16 @@ Add binding documentation for the TI LMP92064 dual channel SPI ADC.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 ---
- .../devicetree/bindings/iio/adc/ti,lmp92064.yaml   | 60 ++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
+ .../devicetree/bindings/iio/adc/ti,lmp92064.yaml   | 70 ++++++++++++++++++++++
+ 1 file changed, 70 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/iio/adc/ti,lmp92064.yaml
 
 diff --git a/Documentation/devicetree/bindings/iio/adc/ti,lmp92064.yaml b/Documentation/devicetree/bindings/iio/adc/ti,lmp92064.yaml
 new file mode 100644
-index 000000000000..b7b5761baa10
+index 000000000000..5fb65bf7749d
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/iio/adc/ti,lmp92064.yaml
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,70 @@
 +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 +%YAML 1.2
 +---
@@ -36,7 +35,7 @@ index 000000000000..b7b5761baa10
 +  measurements.
 +
 +  The device contains two ADCs to allow simultaneous sampling of voltage and
-+  current and thus of instantanious power consumption.
++  current and thus of instantaneous power consumption.
 +
 +properties:
 +  compatible:
@@ -46,13 +45,18 @@ index 000000000000..b7b5761baa10
 +  reg:
 +    maxItems: 1
 +
-+  spi-max-frequency: true
++  vdd-supply:
++    description: Regulator that provides power to the main part of the chip
 +
-+  shunt-resistor:
++  vdig-supply:
++    description: |
++      Regulator that provides power to the digital I/O part of the chip
++
++  shunt-resistor-micro-ohms:
 +    description: |
 +      Value of the shunt resistor (in µΩ) connected between INCP and INCN,
 +      across which current is measured. Used to provide correct scaling of the
-+      raw adc measurement.
++      raw ADC measurement.
 +
 +  reset-gpios:
 +    maxItems: 1
@@ -60,9 +64,12 @@ index 000000000000..b7b5761baa10
 +required:
 +  - compatible
 +  - reg
-+  - shunt-resistor
++  - shunt-resistor-micro-ohms
 +
-+additionalProperties: false
++allOf:
++  - $ref: /schemas/spi/spi-peripheral-props.yaml#
++
++unevaluatedProperties: false
 +
 +examples:
 +  - |
@@ -74,8 +81,10 @@ index 000000000000..b7b5761baa10
 +        adc@0 {
 +            compatible = "ti,lmp92064";
 +            reg = <0>;
-+            spi-max-frequency = <1000000>;
-+            shunt-resistor = <15000>;
++            vdd-supply = <&vdd>;
++            vdig-supply = <&vdd>;
++            spi-max-frequency = <20000000>;
++            shunt-resistor-micro-ohms = <15000>;
 +            reset-gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
 +        };
 +    };

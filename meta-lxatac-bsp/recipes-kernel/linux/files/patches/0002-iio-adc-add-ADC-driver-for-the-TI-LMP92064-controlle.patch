@@ -9,23 +9,23 @@ The TI LMP92064 is a dual 12 Bit ADC connected via SPI.
 The two channels are intended for simultaneous measurements of the voltage
 across- and current through a load to allow accurate instantaneous power
 measurements.
-The driver does not yet take advantage of this feature, as buffering is not yet
-implemented.
+The driver does not yet take advantage of this feature, as buffering is not
+yet implemented.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 ---
- MAINTAINERS                   |   8 ++
+ MAINTAINERS                   |   8 +
  drivers/iio/adc/Kconfig       |  10 ++
  drivers/iio/adc/Makefile      |   1 +
- drivers/iio/adc/ti-lmp92064.c | 317 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 336 insertions(+)
+ drivers/iio/adc/ti-lmp92064.c | 332 ++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 351 insertions(+)
  create mode 100644 drivers/iio/adc/ti-lmp92064.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 72b9654f764c..75e3b6ae03d6 100644
+index d4822ae39e39..9b5f7a628888 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -20390,6 +20390,14 @@ S:	Maintained
+@@ -20637,6 +20637,14 @@ S:	Maintained
  F:	sound/soc/codecs/isabelle*
  F:	sound/soc/codecs/lm49453*
  
@@ -41,10 +41,10 @@ index 72b9654f764c..75e3b6ae03d6 100644
  M:	Kirill Marinushkin <kmarinushkin@birdec.com>
  L:	alsa-devel@alsa-project.org (moderated for non-subscribers)
 diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 7fe5930891e0..6c3d47130446 100644
+index 791612ca6012..6875fecc6360 100644
 --- a/drivers/iio/adc/Kconfig
 +++ b/drivers/iio/adc/Kconfig
-@@ -1219,6 +1219,16 @@ config TI_AM335X_ADC
+@@ -1234,6 +1234,16 @@ config TI_AM335X_ADC
  	  To compile this driver as a module, choose M here: the module will be
  	  called ti_am335x_adc.
  
@@ -62,10 +62,10 @@ index 7fe5930891e0..6c3d47130446 100644
  	tristate "Texas Instruments TLC4541 ADC driver"
  	depends on SPI
 diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
-index 1772a549a3c8..10a9c1d47033 100644
+index 46caba7a010c..e8175c97ebeb 100644
 --- a/drivers/iio/adc/Makefile
 +++ b/drivers/iio/adc/Makefile
-@@ -109,6 +109,7 @@ obj-$(CONFIG_TI_ADS8688) += ti-ads8688.o
+@@ -110,6 +110,7 @@ obj-$(CONFIG_TI_ADS8688) += ti-ads8688.o
  obj-$(CONFIG_TI_ADS124S08) += ti-ads124s08.o
  obj-$(CONFIG_TI_ADS131E08) += ti-ads131e08.o
  obj-$(CONFIG_TI_AM335X_ADC) += ti_am335x_adc.o
@@ -75,10 +75,10 @@ index 1772a549a3c8..10a9c1d47033 100644
  obj-$(CONFIG_TWL4030_MADC) += twl4030-madc.o
 diff --git a/drivers/iio/adc/ti-lmp92064.c b/drivers/iio/adc/ti-lmp92064.c
 new file mode 100644
-index 000000000000..b70193fc2c84
+index 000000000000..c30ed824924f
 --- /dev/null
 +++ b/drivers/iio/adc/ti-lmp92064.c
-@@ -0,0 +1,317 @@
+@@ -0,0 +1,332 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Texas Instruments LMP92064 SPI ADC driver
@@ -92,18 +92,22 @@ index 000000000000..b70193fc2c84
 +#include <linux/delay.h>
 +#include <linux/gpio/consumer.h>
 +#include <linux/module.h>
++#include <linux/regmap.h>
++#include <linux/regulator/consumer.h>
 +#include <linux/spi/spi.h>
 +
 +#include <linux/iio/iio.h>
 +#include <linux/iio/driver.h>
 +
-+#define TI_LMP92064_NAME "lmp92064"
-+
-+#define TI_LMP92064_CMD_READ BIT(15)
-+#define TI_LMP92064_CMD_WRITE 0
-+
 +#define TI_LMP92064_REG_CONFIG_A 0x0000
 +#define TI_LMP92064_REG_CONFIG_B 0x0001
++#define TI_LMP92064_REG_CHIP_REV 0x0006
++
++#define TI_LMP92064_REG_MFR_ID1 0x000C
++#define TI_LMP92064_REG_MFR_ID2 0x000D
++
++#define TI_LMP92064_REG_REG_UPDATE 0x000F
++#define TI_LMP92064_REG_CONFIG_REG 0x0100
 +#define TI_LMP92064_REG_STATUS 0x0103
 +
 +#define TI_LMP92064_REG_DATA_VOUT_LSB 0x0200
@@ -115,12 +119,51 @@ index 000000000000..b70193fc2c84
 +#define TI_LMP92064_VAL_CONFIG_B 0x00
 +#define TI_LMP92064_VAL_STATUS_OK 0x01
 +
++/*
++ * Channel number definitions for the two channels of the device
++ * - IN Current (INC)
++ * - IN Voltage (INV)
++ */
 +#define TI_LMP92064_CHAN_INC 0
 +#define TI_LMP92064_CHAN_INV 1
 +
++static const struct regmap_range lmp92064_readable_reg_ranges[] = {
++	regmap_reg_range(TI_LMP92064_REG_CONFIG_A, TI_LMP92064_REG_CHIP_REV),
++	regmap_reg_range(TI_LMP92064_REG_MFR_ID1, TI_LMP92064_REG_MFR_ID2),
++	regmap_reg_range(TI_LMP92064_REG_REG_UPDATE, TI_LMP92064_REG_REG_UPDATE),
++	regmap_reg_range(TI_LMP92064_REG_CONFIG_REG, TI_LMP92064_REG_CONFIG_REG),
++	regmap_reg_range(TI_LMP92064_REG_STATUS, TI_LMP92064_REG_STATUS),
++	regmap_reg_range(TI_LMP92064_REG_DATA_VOUT_LSB, TI_LMP92064_REG_DATA_COUT_MSB),
++};
++
++static const struct regmap_access_table lmp92064_readable_regs = {
++	.yes_ranges = lmp92064_readable_reg_ranges,
++	.n_yes_ranges = ARRAY_SIZE(lmp92064_readable_reg_ranges),
++};
++
++static const struct regmap_range lmp92064_writable_reg_ranges[] = {
++	regmap_reg_range(TI_LMP92064_REG_CONFIG_A, TI_LMP92064_REG_CONFIG_B),
++	regmap_reg_range(TI_LMP92064_REG_REG_UPDATE, TI_LMP92064_REG_REG_UPDATE),
++	regmap_reg_range(TI_LMP92064_REG_CONFIG_REG, TI_LMP92064_REG_CONFIG_REG),
++};
++
++static const struct regmap_access_table lmp92064_writable_regs = {
++	.yes_ranges = lmp92064_writable_reg_ranges,
++	.n_yes_ranges = ARRAY_SIZE(lmp92064_writable_reg_ranges),
++};
++
++static const struct regmap_config lmp92064_spi_regmap_config = {
++	.reg_bits = 16,
++	.val_bits = 8,
++	.max_register = TI_LMP92064_REG_DATA_COUT_MSB,
++	.rd_table = &lmp92064_readable_regs,
++	.wr_table = &lmp92064_writable_regs,
++};
++
 +struct lmp92064_adc_priv {
++	int shunt_resistor_uohm;
 +	struct spi_device *spi;
-+	int shunt_resistor;
++	struct regmap *regmap;
 +};
 +
 +static const struct iio_chan_spec lmp92064_adc_channels[] = {
@@ -140,94 +183,31 @@ index 000000000000..b70193fc2c84
 +	},
 +};
 +
-+static int lmp92064_write_reg(struct lmp92064_adc_priv *priv, u16 reg, u8 val)
++static int lmp92064_read_meas(struct lmp92064_adc_priv *priv, u16 *res)
 +{
-+	u16 cmd = TI_LMP92064_CMD_WRITE | reg;
++	__be16 raw[2];
 +	int ret;
-+	u8 __aligned(IIO_DMA_MINALIGN) tx_buf[3];
-+	struct spi_transfer xfer = {
-+		.tx_buf = tx_buf,
-+		.rx_buf = NULL,
-+		.len = 3,
-+	};
 +
-+	tx_buf[0] = cmd >> 8;
-+	tx_buf[1] = cmd & 0xff;
-+	tx_buf[2] = val;
-+
-+	ret = spi_sync_transfer(priv->spi, &xfer, 1);
-+	if (ret < 0) {
-+		dev_err(&priv->spi->dev, "spi_sync_transfer failed: %pe\n",
-+			ERR_PTR(ret));
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int lmp92064_read_reg(struct lmp92064_adc_priv *priv, u16 reg, u8 *val)
-+{
-+	u16 cmd = TI_LMP92064_CMD_READ | reg;
-+	int ret;
-+	u8 __aligned(IIO_DMA_MINALIGN) tx_buf[3] = { 0 };
-+	u8 __aligned(IIO_DMA_MINALIGN) rx_buf[3] = { 0 };
-+	struct spi_transfer xfer = {
-+		.tx_buf = tx_buf,
-+		.rx_buf = rx_buf,
-+		.len = 3,
-+	};
-+
-+	tx_buf[0] = cmd >> 8;
-+	tx_buf[1] = cmd & 0xff;
-+
-+	ret = spi_sync_transfer(priv->spi, &xfer, 1);
-+	if (ret < 0) {
-+		dev_err(&priv->spi->dev, "spi_sync_transfer failed: %pe\n",
-+			ERR_PTR(ret));
-+		return ret;
-+	}
-+
-+	*val = rx_buf[2];
-+
-+	return 0;
-+}
-+
-+static int lmp92064_read_meas(struct lmp92064_adc_priv *priv, int *cout,
-+			      int *vout)
-+{
 +	/*
-+         * The ADC only latches in new samples if all DATA registers are read
-+         * in descending sequential order.
-+         * The ADC auto-decrements the register index with each clocked byte.
-+         * Read both channels in single SPI transfer by selecting the highest
-+         * register using the command below and clocking out all four data
-+         * bytes.
-+         */
-+	u16 cmd = TI_LMP92064_CMD_READ | TI_LMP92064_REG_DATA_COUT_MSB;
-+	u8 __aligned(IIO_DMA_MINALIGN) tx_buf[6] = { 0 };
-+	u8 __aligned(IIO_DMA_MINALIGN) rx_buf[6] = { 0 };
-+	struct spi_transfer xfer = {
-+		.tx_buf = tx_buf,
-+		.rx_buf = rx_buf,
-+		.len = sizeof(tx_buf),
-+	};
-+	int ret;
++	 * The ADC only latches in new samples if all DATA registers are read
++	 * in descending sequential order.
++	 * The ADC auto-decrements the register index with each clocked byte.
++	 * Read both channels in single SPI transfer by selecting the highest
++	 * register using the command below and clocking out all four data
++	 * bytes.
++	 */
 +
-+	tx_buf[0] = cmd >> 8;
-+	tx_buf[1] = cmd & 0xff;
++	ret = regmap_bulk_read(priv->regmap, TI_LMP92064_REG_DATA_COUT_MSB,
++			 &raw, sizeof(raw));
 +
-+	ret = spi_sync_transfer(priv->spi, &xfer, 1);
-+	if (ret < 0) {
-+		dev_err(&priv->spi->dev, "spi_sync_transfer failed: %pe\n",
++	if (ret) {
++		dev_err(&priv->spi->dev, "regmap_bulk_read failed: %pe\n",
 +			ERR_PTR(ret));
 +		return ret;
 +	}
 +
-+	if (cout)
-+		*cout = (rx_buf[2] << 8) | (rx_buf[3]);
-+
-+	if (vout)
-+		*vout = (rx_buf[4] << 8) | (rx_buf[5]);
++	res[0] = be16_to_cpu(raw[0]);
++	res[1] = be16_to_cpu(raw[1]);
 +
 +	return 0;
 +}
@@ -237,35 +217,32 @@ index 000000000000..b70193fc2c84
 +			     int *val2, long mask)
 +{
 +	struct lmp92064_adc_priv *priv = iio_priv(indio_dev);
++	u16 raw[2];
 +	int ret;
 +
 +	switch (mask) {
 +	case IIO_CHAN_INFO_RAW:
-+		mutex_lock(&indio_dev->mlock);
-+		if (chan->address == TI_LMP92064_CHAN_INC)
-+			ret = lmp92064_read_meas(priv, val, NULL);
-+		else
-+			ret = lmp92064_read_meas(priv, NULL, val);
-+		mutex_unlock(&indio_dev->mlock);
-+
++		ret = lmp92064_read_meas(priv, raw);
 +		if (ret < 0)
 +			return ret;
++
++		*val = (chan->address == TI_LMP92064_CHAN_INC) ? raw[0] : raw[1];
 +
 +		return IIO_VAL_INT;
 +	case IIO_CHAN_INFO_SCALE:
 +		if (chan->address == TI_LMP92064_CHAN_INC) {
 +			/*
-+                         * processed (mA) = raw * current_lsb (mA)
-+                         * current_lsb (mA) = shunt_voltage_lsb (nV) / shunt_resistor (uOhm)
-+                         * shunt_voltage_lsb (nV) = 81920000 / 4096 = 20000
-+                         */
++			 * processed (mA) = raw * current_lsb (mA)
++			 * current_lsb (mA) = shunt_voltage_lsb (nV) / shunt_resistor (uOhm)
++			 * shunt_voltage_lsb (nV) = 81920000 / 4096 = 20000
++			 */
 +			*val = 20000;
-+			*val2 = priv->shunt_resistor;
++			*val2 = priv->shunt_resistor_uohm;
 +		} else {
 +			/*
-+                         * processed (mV) = raw * voltage_lsb (mV)
-+                         * voltage_lsb (mV) = 2048 / 4096
-+                         */
++			 * processed (mV) = raw * voltage_lsb (mV)
++			 * voltage_lsb (mV) = 2048 / 4096
++			 */
 +			*val = 2048;
 +			*val2 = 4096;
 +		}
@@ -278,33 +255,46 @@ index 000000000000..b70193fc2c84
 +static int lmp92064_reset(struct lmp92064_adc_priv *priv,
 +			  struct gpio_desc *gpio_reset)
 +{
-+	u8 status;
++	unsigned int status;
 +	int ret, i;
 +
-+	/* Perform a hard reset if possible */
 +	if (gpio_reset) {
++		/*
++		 * Perform a hard reset if gpio_reset is available.
++		 * The datasheet specifies a very low 3.5ns reset pulse duration and does not
++		 * specify how long to wait after a reset to access the device.
++		 * Use more conservative pulse lengths to allow analog RC filtering of the
++		 * reset line at the board level (as recommended in the datasheet).
++		 */
 +		gpiod_set_value_cansleep(gpio_reset, 1);
 +		usleep_range(1, 10);
 +		gpiod_set_value_cansleep(gpio_reset, 0);
 +		usleep_range(500, 750);
++	} else {
++		/*
++		 * Perform a soft-reset if not.
++		 * Also write default values to the config registers that are not
++		 * affected by soft reset.
++		 */
++		ret = regmap_write(priv->regmap, TI_LMP92064_REG_CONFIG_A,
++				   TI_LMP92064_VAL_CONFIG_A);
++		if (ret < 0)
++			return ret;
++
++		ret = regmap_write(priv->regmap, TI_LMP92064_REG_CONFIG_B,
++				   TI_LMP92064_VAL_CONFIG_B);
++		if (ret < 0)
++			return ret;
 +	}
 +
-+	/* Perform a soft-reset and write default values to config registers
-+         * that are not affected by soft reset */
-+	ret = lmp92064_write_reg(priv, TI_LMP92064_REG_CONFIG_A,
-+				 TI_LMP92064_VAL_CONFIG_A);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = lmp92064_write_reg(priv, TI_LMP92064_REG_CONFIG_B,
-+				 TI_LMP92064_VAL_CONFIG_B);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Wait for the device to signal readiness */
++	/*
++	 * Wait for the device to signal readiness to prevent reading bogus data
++	 * and make sure device is actually connected.
++	 * The datasheet does not specify how long this takes but usually it is
++	 * not more than 3-4 iterations of this loop.
++	 */
 +	for (i = 0; i < 10; i++) {
-+		ret = lmp92064_read_reg(priv, TI_LMP92064_REG_STATUS, &status);
-+
++		ret = regmap_read(priv->regmap, TI_LMP92064_REG_STATUS, &status);
 +		if (ret < 0)
 +			return ret;
 +
@@ -314,7 +304,11 @@ index 000000000000..b70193fc2c84
 +		usleep_range(1000, 2000);
 +	}
 +
-+	return -EBUSY;
++	/*
++	 * No (correct) response received.
++	 * Device is mostly likely not connected to the bus.
++	 */
++	return -ENXIO;
 +}
 +
 +static const struct iio_info lmp92064_adc_info = {
@@ -325,17 +319,20 @@ index 000000000000..b70193fc2c84
 +{
 +	struct device *dev = &spi->dev;
 +	struct lmp92064_adc_priv *priv;
-+	struct iio_dev *indio_dev;
 +	struct gpio_desc *gpio_reset;
++	struct iio_dev *indio_dev;
++	u32 shunt_resistor_uohm;
++	struct regmap *regmap;
 +	int ret;
-+	u32 shunt_resistor;
 +
-+	spi->bits_per_word = 8;
-+	spi->mode &= ~SPI_MODE_X_MASK;
-+	spi->mode |= SPI_MODE_0;
 +	ret = spi_setup(spi);
 +	if (ret < 0)
 +		return dev_err_probe(dev, ret, "Error in SPI setup\n");
++
++	regmap = devm_regmap_init_spi(spi, &lmp92064_spi_regmap_config);
++	if (IS_ERR(regmap))
++		return dev_err_probe(dev, PTR_ERR(regmap),
++				     "Failed to set up SPI regmap\n");
 +
 +	indio_dev = devm_iio_device_alloc(dev, sizeof(*priv));
 +	if (!indio_dev)
@@ -344,21 +341,32 @@ index 000000000000..b70193fc2c84
 +	priv = iio_priv(indio_dev);
 +
 +	priv->spi = spi;
++	priv->regmap = regmap;
 +
-+	ret = of_property_read_u32(dev->of_node, "shunt-resistor",
-+				   &shunt_resistor);
++	ret = device_property_read_u32(dev, "shunt-resistor-micro-ohms",
++				       &shunt_resistor_uohm);
 +	if (ret < 0)
 +		return dev_err_probe(dev, ret,
 +				     "Failed to get shunt-resistor value\n");
 +
-+	/* The shunt resistance is passed to userspace as the denominator of an iio
-+	 * fraction. Make sure it is in range for that. */
-+	if (shunt_resistor <= 0 || shunt_resistor > INT_MAX) {
++	/*
++	 * The shunt resistance is passed to userspace as the denominator of an iio
++	 * fraction. Make sure it is in range for that.
++	 */
++	if (shunt_resistor_uohm == 0 || shunt_resistor_uohm > INT_MAX) {
 +		dev_err(dev, "Shunt resistance is out of range\n");
 +		return -EINVAL;
 +	}
 +
-+	priv->shunt_resistor = shunt_resistor;
++	priv->shunt_resistor_uohm = shunt_resistor_uohm;
++
++	ret = devm_regulator_get_enable(dev, "vdd");
++	if (ret)
++		return ret;
++
++	ret = devm_regulator_get_enable(dev, "vdig");
++	if (ret)
++		return ret;
 +
 +	gpio_reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
 +	if (IS_ERR(gpio_reset))
@@ -369,7 +377,7 @@ index 000000000000..b70193fc2c84
 +	if (ret < 0)
 +		return dev_err_probe(dev, ret, "Failed to reset device\n");
 +
-+	indio_dev->name = TI_LMP92064_NAME;
++	indio_dev->name = "lmp92064";
 +	indio_dev->modes = INDIO_DIRECT_MODE;
 +	indio_dev->channels = lmp92064_adc_channels;
 +	indio_dev->num_channels = ARRAY_SIZE(lmp92064_adc_channels);
@@ -377,6 +385,12 @@ index 000000000000..b70193fc2c84
 +
 +	return devm_iio_device_register(dev, indio_dev);
 +}
++
++static const struct spi_device_id lmp92064_id_table[] = {
++	{ "lmp92064" },
++	{}
++};
++MODULE_DEVICE_TABLE(spi, lmp92064_id_table);
 +
 +static const struct of_device_id lmp92064_of_table[] = {
 +	{ .compatible = "ti,lmp92064" },
@@ -390,9 +404,10 @@ index 000000000000..b70193fc2c84
 +		.of_match_table = lmp92064_of_table,
 +	},
 +	.probe = lmp92064_adc_probe,
++	.id_table = lmp92064_id_table,
 +};
 +module_spi_driver(lmp92064_adc_driver);
 +
 +MODULE_AUTHOR("Leonard Göhrs <kernel@pengutronix.de>");
 +MODULE_DESCRIPTION("TI LMP92064 ADC");
-+MODULE_LICENSE("GPL v2");
++MODULE_LICENSE("GPL");
