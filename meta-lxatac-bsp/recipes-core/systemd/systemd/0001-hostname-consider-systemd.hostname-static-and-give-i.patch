@@ -1,0 +1,306 @@
+From db1459e8a01e24be09a0fe3dfd243fb384b932e0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 26 Oct 2022 14:20:43 +0200
+Subject: [PATCH] hostname: consider systemd.hostname= static and give it
+ precedence
+
+The systemd.hostname= kernel commandline can for example be used to set a
+unique hostname on embedded devices with read-only root file systems,
+by letting the bootloader generate it from factory data.
+
+The current semantics result in somewhat unexpected behaviour when doing so.
+Clean up the semantics of the systemd.hostname= kernel parameter to make it
+more useful and predictable.
+
+The previous semantics were:
+
+ - systemd.hostname= takes precedence over /etc/hostname during boot,
+   even though it is technically considered a transient hostname.
+ - In systemd-hostnamed however /etc/hostname takes precedence over
+   systemd.hostname= as it is considered transient again and the normal
+   priorities (static over transient over default) are followed.
+   This means if a new transient hostname is set, the hostname of the system
+   will be sethostname()'d to the one in /etc/hostname (if present) or
+   the new transient hostname.
+ - If /etc/hostname does not exist, systemd-hostnamed does not report a static
+   hostname via dbus to consumers like the NetworkManager dhcp client.
+   In the case of NetworkManager this results in no hostname being set in DHCP
+   requests.
+
+The new semantics are:
+
+ - systemd.hostname= is considered a static hostname during boot and in
+   systemd-hostnamed and as such takes precedence over transient or default
+   hostnames.
+ - systemd.hostname= takes precedence over /etc/hostname.
+---
+ man/hostname.xml                  |  7 ++--
+ man/org.freedesktop.hostname1.xml |  3 +-
+ src/hostname/hostnamed.c          | 20 +++++------
+ src/shared/hostname-setup.c       | 56 ++++++++++++++++++-------------
+ src/shared/hostname-setup.h       |  3 +-
+ src/test/test-hostname-setup.c    | 36 ++++++++++++++++++++
+ 6 files changed, 86 insertions(+), 39 deletions(-)
+
+diff --git a/man/hostname.xml b/man/hostname.xml
+index d050703792..d2dce1a684 100644
+--- a/man/hostname.xml
++++ b/man/hostname.xml
+@@ -84,9 +84,10 @@
+ 
+     <para>Effectively, the static hostname has higher priority than a transient hostname, which has higher
+     priority than the fallback hostname. Transient hostnames are equivalent, so setting a new transient
+-    hostname causes the previous transient hostname to be forgotten. The hostname specified on the kernel
+-    command line is like a transient hostname, with the exception that it has higher priority when the
+-    machine boots. Also note that those are the semantics implemented by systemd tools, but other programs
++    hostname causes the previous transient hostname to be forgotten.
++    The static hostname can be configured via <filename>/etc/hostname</filename> or the
++    <varname>systemd.hostname=</varname> kernel commandline parameter and the latter takes precedence over
++    the former. Also note that those are the semantics implemented by systemd tools, but other programs
+     may also set the hostname.</para>
+   </refsect1>
+ 
+diff --git a/man/org.freedesktop.hostname1.xml b/man/org.freedesktop.hostname1.xml
+index 4f51cd5e80..8d74beb8e0 100644
+--- a/man/org.freedesktop.hostname1.xml
++++ b/man/org.freedesktop.hostname1.xml
+@@ -167,7 +167,8 @@ node /org/freedesktop/hostname1 {
+     <title>Semantics</title>
+ 
+     <para>The <varname>StaticHostname</varname> property exposes the "static" hostname configured in
+-    <filename>/etc/hostname</filename>. It is not always in sync with the current hostname as returned by the
++    <filename>/etc/hostname</filename> or via the <varname>systemd.hostname=</varname> kernel commandline parameter.
++    It is not always in sync with the current hostname as returned by the
+     <citerefentry project="man-pages"><refentrytitle>gethostname</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+     system call. If no static hostname is configured this property will be the empty string.</para>
+ 
+diff --git a/src/hostname/hostnamed.c b/src/hostname/hostnamed.c
+index b20a93ad81..190ad27e82 100644
+--- a/src/hostname/hostnamed.c
++++ b/src/hostname/hostnamed.c
+@@ -44,7 +44,7 @@
+ /* Properties we cache are indexed by an enum, to make invalidation easy and systematic (as we can iterate
+  * through them all, and they are uniformly strings). */
+ enum {
+-        /* Read from /etc/hostname */
++        /* Read from kernel commandline or /etc/hostname */
+         PROP_STATIC_HOSTNAME,
+ 
+         /* Read from /etc/machine-info */
+@@ -92,7 +92,7 @@ static void context_destroy(Context *c) {
+         bus_verify_polkit_async_registry_free(c->polkit_registry);
+ }
+ 
+-static void context_read_etc_hostname(Context *c) {
++static void context_read_static_hostname(Context *c) {
+         struct stat current_stat = {};
+         int r;
+ 
+@@ -104,9 +104,9 @@ static void context_read_etc_hostname(Context *c) {
+ 
+         context_reset(c, UINT64_C(1) << PROP_STATIC_HOSTNAME);
+ 
+-        r = read_etc_hostname(NULL, &c->data[PROP_STATIC_HOSTNAME]);
++        r = read_static_hostname(NULL, &c->data[PROP_STATIC_HOSTNAME]);
+         if (r < 0 && r != -ENOENT)
+-                log_warning_errno(r, "Failed to read /etc/hostname, ignoring: %m");
++                log_warning_errno(r, "Failed to read static hostname, ignoring: %m");
+ 
+         c->etc_hostname_stat = current_stat;
+ }
+@@ -344,7 +344,7 @@ static int context_update_kernel_hostname(
+ 
+         assert(c);
+ 
+-        /* /etc/hostname has the highest preference ... */
++        /* kernel commandline and /etc/hostname have the highest preference ... */
+         if (c->data[PROP_STATIC_HOSTNAME]) {
+                 hn = c->data[PROP_STATIC_HOSTNAME];
+                 hns = HOSTNAME_STATIC;
+@@ -566,7 +566,7 @@ static int property_get_static_hostname(
+         Context *c = userdata;
+         assert(c);
+ 
+-        context_read_etc_hostname(c);
++        context_read_static_hostname(c);
+ 
+         return sd_bus_message_append(reply, "s", c->data[PROP_STATIC_HOSTNAME]);
+ }
+@@ -633,7 +633,7 @@ static int property_get_hostname_source(
+         Context *c = userdata;
+         assert(c);
+ 
+-        context_read_etc_hostname(c);
++        context_read_static_hostname(c);
+         context_determine_hostname_source(c);
+ 
+         return sd_bus_message_append(reply, "s", hostname_source_to_string(c->hostname_source));
+@@ -773,7 +773,7 @@ static int method_set_hostname(sd_bus_message *m, void *userdata, sd_bus_error *
+         if (name && !hostname_is_valid(name, 0))
+                 return sd_bus_error_setf(error, SD_BUS_ERROR_INVALID_ARGS, "Invalid hostname '%s'", name);
+ 
+-        context_read_etc_hostname(c);
++        context_read_static_hostname(c);
+ 
+         r = bus_verify_polkit_async(
+                         m,
+@@ -815,7 +815,7 @@ static int method_set_static_hostname(sd_bus_message *m, void *userdata, sd_bus_
+ 
+         name = empty_to_null(name);
+ 
+-        context_read_etc_hostname(c);
++        context_read_static_hostname(c);
+ 
+         if (streq_ptr(name, c->data[PROP_STATIC_HOSTNAME]))
+                 return sd_bus_reply_method_return(m, NULL);
+@@ -1049,7 +1049,7 @@ static int method_describe(sd_bus_message *m, void *userdata, sd_bus_error *erro
+          * the product ID which we'll check explicitly. */
+         privileged = r > 0;
+ 
+-        context_read_etc_hostname(c);
++        context_read_static_hostname(c);
+         context_read_machine_info(c);
+         context_read_os_release(c);
+         context_determine_hostname_source(c);
+diff --git a/src/shared/hostname-setup.c b/src/shared/hostname-setup.c
+index 0fac0ecab7..e48db4ba9b 100644
+--- a/src/shared/hostname-setup.c
++++ b/src/shared/hostname-setup.c
+@@ -124,6 +124,29 @@ int read_etc_hostname(const char *path, char **ret) {
+         return read_etc_hostname_stream(f, ret);
+ }
+ 
++int read_static_hostname(const char *etc_hostname_path, char **ret) {
++        _cleanup_free_ char *b = NULL;
++        int r;
++
++        assert(ret);
++
++        /* Check for a hostname on the kernel command line first */
++        r = proc_cmdline_get_key("systemd.hostname", 0, &b);
++        if (r < 0)
++                log_warning_errno(r, "Failed to retrieve system hostname from kernel command line, ignoring: %m");
++        else if (r > 0) {
++                if (hostname_is_valid(b, true)) {
++                        *ret = TAKE_PTR(b);
++                        return 0;
++                }
++
++                log_warning("Hostname specified on kernel command line is invalid, ignoring: %s", b);
++        }
++
++        /* Fall back to /etc/hostname if none was passed via cmdline */
++        return read_etc_hostname(etc_hostname_path, ret);
++}
++
+ void hostname_update_source_hint(const char *hostname, HostnameSource source) {
+         int r;
+ 
+@@ -147,30 +170,15 @@ int hostname_setup(bool really) {
+         bool enoent = false;
+         int r;
+ 
+-        r = proc_cmdline_get_key("systemd.hostname", 0, &b);
+-        if (r < 0)
+-                log_warning_errno(r, "Failed to retrieve system hostname from kernel command line, ignoring: %m");
+-        else if (r > 0) {
+-                if (hostname_is_valid(b, true)) {
+-                        hn = b;
+-                        source = HOSTNAME_TRANSIENT;
+-                } else  {
+-                        log_warning("Hostname specified on kernel command line is invalid, ignoring: %s", b);
+-                        b = mfree(b);
+-                }
+-        }
+-
+-        if (!hn) {
+-                r = read_etc_hostname(NULL, &b);
+-                if (r < 0) {
+-                        if (r == -ENOENT)
+-                                enoent = true;
+-                        else
+-                                log_warning_errno(r, "Failed to read configured hostname: %m");
+-                } else {
+-                        hn = b;
+-                        source = HOSTNAME_STATIC;
+-                }
++        r = read_static_hostname(NULL, &b);
++        if (r < 0) {
++                if (r == -ENOENT)
++                        enoent = true;
++                else
++                        log_warning_errno(r, "Failed to read configured hostname: %m");
++        } else {
++                hn = b;
++                source = HOSTNAME_STATIC;
+         }
+ 
+         if (!hn) {
+diff --git a/src/shared/hostname-setup.h b/src/shared/hostname-setup.h
+index 6def36c350..83856df9a7 100644
+--- a/src/shared/hostname-setup.h
++++ b/src/shared/hostname-setup.h
+@@ -5,7 +5,7 @@
+ #include <stdio.h>
+ 
+ typedef enum HostnameSource {
+-        HOSTNAME_STATIC,     /* from /etc/hostname */
++        HOSTNAME_STATIC,     /* from kernel commandline or /etc/hostname */
+         HOSTNAME_TRANSIENT,  /* a transient hostname set through systemd, hostnamed, the container manager, or otherwise */
+         HOSTNAME_DEFAULT,    /* the os-release default or the compiled-in fallback were used */
+         _HOSTNAME_INVALID = -EINVAL,
+@@ -20,6 +20,7 @@ int shorten_overlong(const char *s, char **ret);
+ 
+ int read_etc_hostname_stream(FILE *f, char **ret);
+ int read_etc_hostname(const char *path, char **ret);
++int read_static_hostname(const char *etc_hostname_path, char **ret);
+ 
+ void hostname_update_source_hint(const char *hostname, HostnameSource source);
+ int hostname_setup(bool really);
+diff --git a/src/test/test-hostname-setup.c b/src/test/test-hostname-setup.c
+index 241b197f47..8848ca7bc1 100644
+--- a/src/test/test-hostname-setup.c
++++ b/src/test/test-hostname-setup.c
+@@ -58,6 +58,42 @@ TEST(read_etc_hostname) {
+         unlink(path);
+ }
+ 
++TEST(read_static_hostname) {
++        char path[] = "/tmp/hostname.XXXXXX";
++        char *hostname;
++        int fd;
++
++        fd = mkostemp_safe(path);
++        assert_se(fd > 0);
++        close(fd);
++
++        assert_se(write_string_file(path, "foo", WRITE_STRING_FILE_CREATE) == 0);
++
++        /* kernel commandline takes precedence */
++        assert_se(putenv((char*) "SYSTEMD_PROC_CMDLINE=systemd.hostname=bar") == 0);
++        assert_se(read_static_hostname(path, &hostname) == 0);
++        assert_se(streq(hostname, "bar"));
++        hostname = mfree(hostname);
++
++        /* fallback to hostname file */
++        assert_se(putenv((char*) "SYSTEMD_PROC_CMDLINE=") == 0);
++        assert_se(read_static_hostname(path, &hostname) == 0);
++        assert_se(streq(hostname, "foo"));
++        hostname = mfree(hostname);
++
++        /* no value set if hostname file and cmdline are empty */
++        hostname = (char*) 0x1234;
++        assert_se(write_string_file(path, "# nothing here\n", WRITE_STRING_FILE_CREATE) == 0);
++        assert_se(read_static_hostname(path, &hostname) == -ENOENT);
++        assert_se(hostname == (char*) 0x1234);  /* does not touch argument on error */
++
++        /* nonexisting hostname file and empty cmdline */
++        assert_se(read_static_hostname("/non/existing", &hostname) == -ENOENT);
++        assert_se(hostname == (char*) 0x1234);  /* does not touch argument on error */
++
++        unlink(path);
++}
++
+ TEST(hostname_setup) {
+         hostname_setup(false);
+ }

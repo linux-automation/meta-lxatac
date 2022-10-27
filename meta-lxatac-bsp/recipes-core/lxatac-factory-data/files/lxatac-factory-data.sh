@@ -11,15 +11,6 @@ DST_LINK_FILE_BASE="/run/systemd/network/"
 mkdir -p "${DST_ENVS_BASE}"
 mkdir -p "${DST_LINK_FILE_BASE}"
 
-# Set the static hostname if it is not set yet
-# (The transient hostname is passed via systemd.hostname= commandline)
-# --------------------------------------------------------------------
-
-if [ ! -e /etc/hostname ]
-then
-    hostnamectl --static hostname $(hostnamectl --transient hostname)
-fi
-
 # Read Factory Data passed to us by barebox via the devicetree
 # ------------------------------------------------------------
 
