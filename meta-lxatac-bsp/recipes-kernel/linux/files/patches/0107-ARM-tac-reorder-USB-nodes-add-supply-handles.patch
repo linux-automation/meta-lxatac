@@ -1,0 +1,70 @@
+From: Rouven Czerwinski <rouven@czerwinskis.de>
+Date: Wed, 23 Jun 2021 07:21:43 +0200
+Subject: [PATCH] ARM: tac: reorder USB nodes, add supply handles
+
+With these changes USB works properly and detects the upstream USB hub.
+
+Signed-off-by: Rouven Czerwinski <rouven@czerwinskis.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index bab82bad6896..c6ae0b4a4ae8 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -139,10 +139,6 @@ fixed-link {
+ 
+ };
+ 
+-&usbotg_hs {
+-	status = "okay";
+-};
+-
+ &i2c1 {
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&i2c1_pins_b>;
+@@ -173,7 +169,6 @@ &i2c5 {
+ 	usbhub: usbhub@2c {
+ 		compatible ="microchip,usb2514b";
+ 		reg = <0x2c>;
+-		self-powered;
+ 		reset-gpios = <&gpiob 6 GPIO_ACTIVE_LOW>;
+ 	};
+ };
+@@ -220,7 +215,16 @@ fixed-link {
+ 	};
+ };
+ 
++&usbotg_hs {
++	phys = <&usbphyc_port1 0>;
++	phy-names = "usb2-phy";
++	status = "okay";
++};
++
++
+ &usbh_ehci {
++	phys = <&usbphyc_port0>;
++	phy-names = "usb";
+ 	status = "okay";
+ };
+ 
+@@ -231,9 +235,16 @@ &spi4 {
+ 	status = "okay";
+ };
+ 
+-&usbphyc_port0 {
++&usbphyc {
+ 	status = "okay";
+-	phy-supply = <&reg_3v3>;
++};
++
++&usbphyc_port0 {
++	phy-supply = <&vdd_usb>;
++};
++
++&usbphyc_port1 {
++	phy-supply = <&vdd_usb>;
+ };
+ 
+ &m_can1 {

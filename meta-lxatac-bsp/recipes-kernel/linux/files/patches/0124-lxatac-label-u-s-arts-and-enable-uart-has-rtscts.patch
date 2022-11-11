@@ -1,0 +1,32 @@
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Sat, 31 Jul 2021 22:51:48 +0200
+Subject: [PATCH] lxatac: label u(s)arts and enable uart-has-rtscts
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 4cac213bbc3b..e9369e15a125 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -342,6 +342,7 @@ &sdmmc2 {
+ };
+ 
+ &uart4 {
++	label = "debug";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart4_pins_a>;
+ 	status = "okay";
+@@ -501,8 +502,10 @@ &m_can2 {
+ };
+ 
+ &usart3 {
++	label = "dut";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&usart3_pins_d>;
++	uart-has-rtscts;
+ 	status = "okay";
+ };
+ 

@@ -1,0 +1,42 @@
+From: Holger Assmann <h.assmann@pengutronix.de>
+Date: Wed, 14 Jul 2021 09:25:24 +0200
+Subject: [PATCH] lxatac: add ADC ambient temperature sensor
+
+The STM32MP1 provides an additional internal temperature sensor whose
+output is connected to ADC2_INP12, which gets activated by this patch.
+
+Reading the actual temperature however takes a few more steps as
+mentioned in the Reference Manual (29.4.33 Temperature sensor).
+
+There originally was a compatible "st,stm32mp1-adc-temp" (see [1]),
+which however has been removed by ST.
+
+[1] https://github.com/STMicroelectronics/linux/blob/v4.19-stm32mp/arch/arm/boot/dts/stm32mp157c.dtsi#L1259
+
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index b0bf961c86fd..6e7280a90e15 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -86,11 +86,16 @@ &adc {
+ 	vdda-supply = <&vdda>;
+ 	vref-supply = <&vrefbuf>;
+ 	status = "okay";
+-	adc@0 {
++	adc1: adc@0 {
+ 		st,adc-channels = <0 1 2 5 6 9 10 11 13 14 15 18>;
+ 		st,min-sample-time-nsecs = <5000>;
+ 		status = "okay";
+ 	};
++	adc2: adc@100 {
++		st,adc-channels = <12>;
++		st,min-sample-time-nsecs = <500000>;
++		status = "okay";
++	};
+ };
+ 
+ &dts {

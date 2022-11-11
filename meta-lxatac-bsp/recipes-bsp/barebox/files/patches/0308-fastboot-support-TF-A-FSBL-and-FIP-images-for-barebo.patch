@@ -1,0 +1,28 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Tue, 31 May 2022 11:24:11 +0200
+Subject: [PATCH] fastboot: support TF-A FSBL and FIP images for barebox update
+
+Newly added stm32mp_bbu_mmc_fip_register() accepts two kinds of barebox
+images: A FIP image containing barebox as well as a FIP image preceded
+by TF-A as a STM32 FSBL image. Inform filetype_is_barebox_image of these
+file types, so the handler can be invoked via fastboot when
+global.fastboot.bbu=1.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ common/filetype.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/common/filetype.c b/common/filetype.c
+index 3e9e14c1d79e..8f79f48bc122 100644
+--- a/common/filetype.c
++++ b/common/filetype.c
+@@ -484,6 +484,8 @@ bool filetype_is_barebox_image(enum filetype ft)
+ 	case filetype_ch_image_be:
+ 	case filetype_layerscape_image:
+ 	case filetype_layerscape_qspi_image:
++	case filetype_stm32_image_fsbl_v1:
++	case filetype_fip:
+ 		return true;
+ 	default:
+ 		return false;

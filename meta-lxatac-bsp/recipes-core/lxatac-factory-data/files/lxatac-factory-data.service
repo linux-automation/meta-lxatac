@@ -1,0 +1,10 @@
+[Unit]
+Description=Gather and Distribute Factory Data
+Before=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/lxatac-factory-data
+
+[Install]
+WantedBy=multi-user.target

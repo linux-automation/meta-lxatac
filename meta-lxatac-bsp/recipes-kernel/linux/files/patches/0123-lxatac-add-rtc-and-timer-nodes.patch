@@ -1,0 +1,54 @@
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Sat, 31 Jul 2021 22:45:03 +0200
+Subject: [PATCH] lxatac: add rtc and timer nodes
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 34 +++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 0c6d0d3629d5..4cac213bbc3b 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -243,6 +243,40 @@ channel@12 {
+ 	};
+ };
+ 
++&rtc {
++	status = "okay";
++};
++
++&timers2 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++	timer@1 {
++		status = "okay";
++	};
++};
++
++&timers3 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++	timer@2 {
++		status = "okay";
++	};
++};
++
++&timers4 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++	timer@3 {
++		status = "okay";
++	};
++};
++
+ &dts {
+ 	status = "okay";
+ };

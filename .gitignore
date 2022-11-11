@@ -1,0 +1,12 @@
+/build*/
+*.swp
+*.orig
+*.rej
+*~
+
+# Place proprietary recipes and configs in a separate meta-lxatac-foo git
+# repository. These ignore rules make sure it will never get published when
+# contributing upstream.
+/meta-lxatac-*/
+!/meta-lxatac-software/
+!/meta-lxatac-bsp/

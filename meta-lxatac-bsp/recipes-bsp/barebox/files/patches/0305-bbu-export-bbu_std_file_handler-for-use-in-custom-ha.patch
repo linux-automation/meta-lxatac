@@ -1,0 +1,92 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Mon, 23 May 2022 12:56:23 +0200
+Subject: [PATCH] bbu: export bbu_std_file_handler for use in custom handlers
+
+bbu_register_std_file_update() registers an update handler that updates
+a single file, usually a partition. Depending on SoC, we may want to
+compute the file path at install time. To save custom bbu code the
+hassle of reimplementing bbu_std_file_handler(), export it.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ common/bbu.c  | 33 ++++++++++++++++++++-------------
+ include/bbu.h |  3 +++
+ 2 files changed, 23 insertions(+), 13 deletions(-)
+
+diff --git a/common/bbu.c b/common/bbu.c
+index 26b997c02ed1..d243ac89dd9f 100644
+--- a/common/bbu.c
++++ b/common/bbu.c
+@@ -371,23 +371,13 @@ out:
+ 	return ret;
+ }
+ 
+-static int bbu_std_file_handler(struct bbu_handler *handler,
+-					struct bbu_data *data)
++int bbu_std_file_handler(struct bbu_handler *handler,
++			 struct bbu_data *data)
+ {
+-	struct bbu_std *std = container_of(handler, struct bbu_std, handler);
+ 	int fd, ret;
+-	enum filetype filetype;
+ 	struct stat s;
+ 	unsigned oflags = O_WRONLY;
+ 
+-	filetype = file_detect_type(data->image, data->len);
+-	if (filetype != std->filetype) {
+-		if (!bbu_force(data, "incorrect image type. Expected: %s, got %s",
+-				file_type_to_string(std->filetype),
+-				file_type_to_string(filetype)))
+-			return -EINVAL;
+-	}
+-
+ 	device_detect_by_name(devpath_to_name(data->devicefile));
+ 
+ 	ret = stat(data->devicefile, &s);
+@@ -436,6 +426,23 @@ err_close:
+ 	return ret;
+ }
+ 
++static int bbu_std_file_handler_checked(struct bbu_handler *handler,
++					struct bbu_data *data)
++{
++	struct bbu_std *std = container_of(handler, struct bbu_std, handler);
++	enum filetype filetype;
++
++	filetype = file_detect_type(data->image, data->len);
++	if (filetype != std->filetype) {
++		if (!bbu_force(data, "incorrect image type. Expected: %s, got %s",
++				file_type_to_string(std->filetype),
++				file_type_to_string(filetype)))
++			return -EINVAL;
++	}
++
++	return bbu_std_file_handler(handler, data);
++}
++
+ /**
+  * bbu_register_std_file_update() - register a barebox update handler for a
+  *                                  standard file-to-device-copy operation
+@@ -466,7 +473,7 @@ int bbu_register_std_file_update(const char *name, unsigned long flags,
+ 	handler->flags = flags;
+ 	handler->devicefile = devicefile;
+ 	handler->name = name;
+-	handler->handler = bbu_std_file_handler;
++	handler->handler = bbu_std_file_handler_checked;
+ 
+ 	ret = bbu_register_handler(handler);
+ 	if (ret)
+diff --git a/include/bbu.h b/include/bbu.h
+index bd19fa187faf..2dad26a12788 100644
+--- a/include/bbu.h
++++ b/include/bbu.h
+@@ -54,6 +54,9 @@ struct file_list;
+ int bbu_mmcboot_handler(struct bbu_handler *, struct bbu_data *,
+ 			int (*chained_handler)(struct bbu_handler *, struct bbu_data *));
+ 
++int bbu_std_file_handler(struct bbu_handler *handler,
++			 struct bbu_data *data);
++
+ #ifdef CONFIG_BAREBOX_UPDATE
+ 
+ int bbu_register_handler(struct bbu_handler *);

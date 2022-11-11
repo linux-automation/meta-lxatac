@@ -1,0 +1,65 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Tue, 15 Feb 2022 14:21:47 +0100
+Subject: [PATCH] scripts: implement slurp, a read_file with fd as argument
+
+This is useful for host/target tools that use stdin as a fall back to
+read from when no file name is supplied.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ scripts/common.c | 29 +++++++++++++++++++++++++++++
+ scripts/common.h |  1 +
+ 2 files changed, 30 insertions(+)
+
+diff --git a/scripts/common.c b/scripts/common.c
+index 0eb263d041a5..0382c782311f 100644
+--- a/scripts/common.c
++++ b/scripts/common.c
+@@ -98,6 +98,35 @@ void *read_file(const char *filename, size_t *size)
+ 	return NULL;
+ }
+ 
++void *slurp(int fd, size_t *size)
++{
++	size_t buflen = 1024;
++	ssize_t readlen = 0;
++	void *buf, *tmp;
++
++	buf = malloc(buflen);
++	if (!buf)
++		return NULL;
++
++	while (1) {
++		readlen = read_full(fd, buf + readlen, 1024);
++		if (readlen < 0)
++			return NULL;
++		*size += readlen;
++		if (readlen != 1024)
++			return buf;
++
++		buflen += 1024;
++		tmp = realloc(buf, buflen);
++		if (!tmp) {
++			free(buf);
++			return NULL;
++		}
++		buf = tmp;
++	}
++
++}
++
+ int write_file(const char *filename, const void *buf, size_t size)
+ {
+ 	int fd, ret = 0;
+diff --git a/scripts/common.h b/scripts/common.h
+index 399729c338f3..4ee1278c6276 100644
+--- a/scripts/common.h
++++ b/scripts/common.h
+@@ -3,6 +3,7 @@
+ 
+ int read_file_2(const char *filename, size_t *size, void **outbuf, size_t max_size);
+ void *read_file(const char *filename, size_t *size);
++void *slurp(int fd, size_t *size);
+ int write_file(const char *filename, const void *buf, size_t size);
+ int read_full(int fd, void *buf, size_t size);
+ int write_full(int fd, const void *buf, size_t size);

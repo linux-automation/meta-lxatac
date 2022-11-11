@@ -1,0 +1,947 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Thu, 3 Mar 2022 08:32:30 +0100
+Subject: [PATCH] common: add barebox TLV support
+
+barebox TLV is a scheme for storing factory data on non-volatile
+storage. Unlike state, it's meant to be read-only and if content
+is limited to already specified tags, it can be extended later on,
+without modifying the bootloader binary.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ common/Kconfig        |  24 +++++++
+ common/Makefile       |   1 +
+ common/tlv/Makefile   |   4 ++
+ common/tlv/barebox.c  | 185 ++++++++++++++++++++++++++++++++++++++++++++++++
+ common/tlv/bus.c      | 132 ++++++++++++++++++++++++++++++++++
+ common/tlv/drv.c      |  35 +++++++++
+ common/tlv/parser.c   | 191 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ common/tlv/register.c |  92 ++++++++++++++++++++++++
+ include/string.h      |   5 ++
+ include/tlv/format.h  |  69 ++++++++++++++++++
+ include/tlv/tlv.h     |  98 ++++++++++++++++++++++++++
+ 11 files changed, 836 insertions(+)
+ create mode 100644 common/tlv/Makefile
+ create mode 100644 common/tlv/barebox.c
+ create mode 100644 common/tlv/bus.c
+ create mode 100644 common/tlv/drv.c
+ create mode 100644 common/tlv/parser.c
+ create mode 100644 common/tlv/register.c
+ create mode 100644 include/tlv/format.h
+ create mode 100644 include/tlv/tlv.h
+
+diff --git a/common/Kconfig b/common/Kconfig
+index 4aef0f6d19d9..06c59a567a59 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -998,6 +998,30 @@ config BTHREAD
+ 	  scheduled within delay loops and the console idle to asynchronously
+ 	  execute actions, like checking for link up or feeding a watchdog.
+ 
++config TLV
++	bool "barebox TLV support"
++	depends on OFDEVICE
++	help
++	  barebox TLV is a scheme for storing factory data on non-volatile
++	  storage. Unlike state, it's meant to be read-only.
++
++config TLV_DRV
++	bool "barebox TLV generic driver"
++	depends on TLV
++	default y
++	help
++	  barebox,tlv devices in the device tree will be matched against
++	  a compatible decoder via the 4-byte magic header.
++
++config TLV_BAREBOX
++	bool "barebox TLV common format"
++	depends on TLV
++	depends on PARAMETER
++	select PRINTF_HEXSTR
++	default y
++	help
++	  Decoder support for the common barebox TLV format.
++
+ config STATE
+ 	bool "generic state infrastructure"
+ 	select CRC32
+diff --git a/common/Makefile b/common/Makefile
+index 35f2120496ea..0fda62d2ea04 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -61,6 +61,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
+ obj-$(CONFIG_SHELL_HUSH)	+= hush.o
+ obj-$(CONFIG_SHELL_SIMPLE)	+= parser.o
+ obj-$(CONFIG_STATE)		+= state/
++obj-$(CONFIG_TLV)		+= tlv/
+ obj-$(CONFIG_RATP)		+= ratp/
+ obj-$(CONFIG_BOOTCHOOSER)	+= bootchooser.o
+ obj-$(CONFIG_UIMAGE)		+= image.o uimage.o
+diff --git a/common/tlv/Makefile b/common/tlv/Makefile
+new file mode 100644
+index 000000000000..ea982f229a08
+--- /dev/null
++++ b/common/tlv/Makefile
+@@ -0,0 +1,4 @@
++# SPDX-License-Identifier: GPL-2.0-only
++obj-y += parser.o bus.o register.o drv.o
++obj-$(CONFIG_TLV_DRV) += drv.o barebox.o
++obj-$(CONFIG_TLV_BAREBOX) += barebox.o
+diff --git a/common/tlv/barebox.c b/common/tlv/barebox.c
+new file mode 100644
+index 000000000000..ce9de914cec3
+--- /dev/null
++++ b/common/tlv/barebox.c
+@@ -0,0 +1,185 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#include <common.h>
++#include <net.h>
++#include <tlv/tlv.h>
++
++int tlv_handle_serial(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	const char *str;
++
++	str = __tlv_format_str(dev, map, len, val);
++	if (!str)
++		return -ENOMEM;
++
++	barebox_set_serial_number(str);
++	return 0;
++}
++
++int tlv_handle_eth_address(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	int i;
++
++	if (len % ETH_ALEN != 0)
++		return -EINVAL;
++
++	for (i = 0; i < len / ETH_ALEN; i++)
++		eth_register_ethaddr(i, val + i * ETH_ALEN);
++
++	return tlv_format_mac(dev, map, len, val);
++}
++
++int tlv_handle_eth_address_seq(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	const u8 *eth_addr;
++	u8 eth_base[6];
++	int i = 0, eth_count;
++
++	eth_count = *val;
++
++	if (len != 1 + ETH_ALEN)
++		return -EINVAL;
++
++	memcpy(eth_base, val + 1, ETH_ALEN);
++
++	for_each_seq_ethaddr(eth_addr, eth_base, &eth_count) {
++		eth_register_ethaddr(i, eth_addr);
++		tlv_format_mac(dev, map, ETH_ALEN, eth_addr);
++		i++;
++	}
++
++	return 0;
++}
++
++static const char *__tlv_format(struct tlv_device *dev, struct tlv_mapping *map, char *buf)
++{
++	struct param_d *param;
++	int ret;
++
++	if (!buf)
++		return NULL;
++
++	param = dev_add_param_fixed(&dev->dev, map->prop, NULL);
++	if (!IS_ERR(param))
++		param->value = buf; /* pass ownership */
++
++	ret = of_append_property(tlv_of_node(dev), map->prop, buf, strlen(buf) + 1);
++	if (ret)
++		return NULL;
++
++	return buf;
++}
++
++#define tlv_format(tlvdev, map, ...) ({ __tlv_format(tlvdev, map, basprintf(__VA_ARGS__)) ? 0 : -ENOMEM; })
++
++const char * __tlv_format_str(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	return __tlv_format(dev, map, basprintf("%.*s", len, val));
++}
++
++int tlv_format_str(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	return __tlv_format_str(dev, map, len, val) ? 0 : -ENOMEM;
++}
++
++int tlv_format_hex(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	return tlv_format(dev, map, "%*ph", len, val);
++}
++
++int tlv_format_blob(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	struct param_d *param;
++
++	param = dev_add_param_fixed(&dev->dev, map->prop, NULL);
++	if (!IS_ERR(param))
++		param->value = basprintf("%*phN", len, val);
++
++	return of_append_property(tlv_of_node(dev), map->prop, val, len);
++}
++
++static struct device_node *of_append_node(struct device_node *root, const char *name)
++{
++	struct device_node *np;
++
++	np = of_get_child_by_name(root, name);
++	if (np)
++		return np;
++
++	return of_new_node(root, name);
++}
++
++int tlv_format_mac(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	struct device_node *np = tlv_of_node(dev);
++	struct property *pp;
++	char propname[sizeof("address-4294967295")];
++	int base = 0, i, ret;
++
++	if (len % 6 != 0)
++		return -EINVAL;
++
++	np = of_append_node(np, map->prop);
++	if (!np)
++		return -ENOMEM;
++
++	for_each_property_of_node(np, pp)
++		base++;
++
++	for (i = base; i < base + len / 6; i++) {
++		snprintf(propname, sizeof(propname), "address-%u", i);
++		ret = of_property_sprintf(np, propname, "%*phC", 6, val);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
++
++int tlv_format_dec(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val)
++{
++	switch (len) {
++	case 1:
++		return tlv_format(dev, map, "%u", *(u8 *)val);
++	case 2:
++		return tlv_format(dev, map, "%u", get_unaligned_be16(val));
++	case 4:
++		return tlv_format(dev, map, "%u", get_unaligned_be32(val));
++	case 8:
++		return tlv_format(dev, map, "%llu", get_unaligned_be64(val));
++	default:
++		return tlv_format_hex(dev, map, len, val);
++	}
++}
++
++struct tlv_mapping barebox_tlv_v1_mappings[] = {
++	{ 0x0002, tlv_format_str, "device-hardware-release" },
++	{ 0x0003, tlv_format_dec, "factory-timestamp" },
++	{ 0x0004, tlv_handle_serial, "device-serial-number"},
++	{ 0x0005, tlv_format_dec, "modification" },
++	{ 0x0006, tlv_format_str, "featureset" },
++	{ 0x0007, tlv_format_str, "pcba-serial-number"},
++	{ 0x0008, tlv_format_str, "pcba-hardware-release"},
++	{ 0x0011, tlv_handle_eth_address, "ethernet-address" },
++	{ 0x0012, tlv_handle_eth_address_seq, "ethernet-address" },
++	{ /* sentintel */ },
++};
++
++static struct tlv_mapping *mappings[] = { barebox_tlv_v1_mappings, NULL };
++static struct of_device_id of_matches[] = {
++	{ .compatible = "barebox,tlv-v1" },
++	{ /* sentinel */}
++};
++
++static struct tlv_decoder barebox_tlv_v1 = {
++	.magic = TLV_MAGIC_BAREBOX_V1,
++	.driver.name = "barebox-tlv-v1",
++	.driver.of_compatible = of_matches,
++	.mappings = mappings,
++};
++
++static int tlv_register_default(void)
++{
++	return tlv_register_decoder(&barebox_tlv_v1);
++}
++device_initcall(tlv_register_default);
+diff --git a/common/tlv/bus.c b/common/tlv/bus.c
+new file mode 100644
+index 000000000000..713f5160bb26
+--- /dev/null
++++ b/common/tlv/bus.c
+@@ -0,0 +1,132 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#include <common.h>
++#include <driver.h>
++#include <init.h>
++#include <tlv/tlv.h>
++#include <linux/err.h>
++#include <of.h>
++
++static void tlv_devinfo(struct device_d *dev)
++{
++	struct tlv_device *tlvdev = to_tlv_device(dev);
++
++	printf("Magic: %08x\n", tlvdev->magic);
++}
++
++struct tlv_device *tlv_register_device(struct tlv_header *header,
++				       struct device_d *parent)
++{
++	struct tlv_device *tlvdev;
++	const char *name = NULL;
++	char *buf = NULL;
++	struct device_d *dev;
++	static int id = 0;
++
++	tlvdev = xzalloc(sizeof(*tlvdev));
++
++	dev = &tlvdev->dev;
++
++	dev->bus = &tlv_bus;
++	dev->info = tlv_devinfo;
++	dev->platform_data = header;
++	tlvdev->magic = be32_to_cpu(header->magic);
++	dev->parent = parent ?: tlv_bus.dev;
++	dev->id = DEVICE_ID_SINGLE;
++
++	if (parent)
++		name = of_alias_get(parent->device_node);
++	if (!name)
++		name = buf = basprintf("tlv%u", id);
++
++	dev->device_node = of_new_node(of_new_node(NULL, NULL), name);
++	dev_set_name(dev, name);
++	register_device(dev);
++
++	free(buf);
++	return tlvdev;
++}
++
++void tlv_free_device(struct tlv_device *tlvdev)
++{
++	unregister_device(&tlvdev->dev);
++
++	free(tlvdev->dev.platform_data);
++	of_delete_node(tlvdev->dev.device_node);
++
++	free(tlvdev);
++}
++
++static int tlv_bus_match(struct device_d *dev, struct driver_d *drv)
++{
++	struct tlv_decoder *decoder = to_tlv_decoder(drv);
++	struct tlv_device *tlvdev = to_tlv_device(dev);
++
++	return decoder->magic == tlvdev->magic ? 0 : -1;
++}
++
++static int tlv_bus_probe(struct device_d *dev)
++{
++	return dev->driver->probe(dev);
++}
++
++static void tlv_bus_remove(struct device_d *dev)
++{
++	if (dev->driver->remove)
++		dev->driver->remove(dev);
++}
++
++struct bus_type tlv_bus = {
++	.name = "barebox-tlv",
++	.match = tlv_bus_match,
++	.probe = tlv_bus_probe,
++	.remove = tlv_bus_remove,
++};
++
++struct tlv_device *tlv_ensure_probed_by_alias(const char *alias)
++{
++	struct device_node *np;
++	struct device_d *dev;
++	int ret;
++
++	np = of_find_node_by_alias(NULL, alias);
++	if (!np)
++		return ERR_PTR(-EINVAL);
++
++	ret = of_device_ensure_probed(np);
++	if (ret)
++		return ERR_PTR(ret);
++
++	bus_for_each_device(&tlv_bus, dev) {
++		if (dev->parent && dev->parent->device_node == np)
++			return to_tlv_device(dev);
++	}
++
++	return ERR_PTR(-EPROBE_DEFER);
++}
++
++static void tlv_bus_info(struct device_d *dev)
++{
++	struct driver_d *drv;
++
++	puts("Registered Magic:\n");
++	bus_for_each_driver(&tlv_bus, drv) {
++		struct tlv_decoder *tlvdrv = to_tlv_decoder(drv);
++
++		printf("  %08x (%s)\n", tlvdrv->magic, tlvdrv->driver.name);
++	}
++}
++
++static int tlv_bus_register(void)
++{
++	int ret;
++
++	ret = bus_register(&tlv_bus);
++	if (ret)
++		return ret;
++
++	tlv_bus.dev->info = tlv_bus_info;
++
++	return 0;
++}
++postcore_initcall(tlv_bus_register);
+diff --git a/common/tlv/drv.c b/common/tlv/drv.c
+new file mode 100644
+index 000000000000..835baa9d7832
+--- /dev/null
++++ b/common/tlv/drv.c
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#include <driver.h>
++#include <tlv/tlv.h>
++#include <init.h>
++#include <of.h>
++
++static int barebox_tlv_probe(struct device_d *dev)
++{
++	struct tlv_device *tlvdev;
++	char *backend_path;
++	int ret;
++
++	ret = of_find_path(dev->device_node, "backend", &backend_path,
++			   OF_FIND_PATH_FLAGS_PHANDLE0);
++	if (ret)
++		return ret;
++
++	tlvdev = tlv_register_device_by_path(backend_path, dev);
++	free(backend_path);
++
++	return PTR_ERR_OR_ZERO(tlvdev);
++}
++
++static const __maybe_unused struct of_device_id tlv_ids[] = {
++	{ .compatible = "barebox,tlv" },
++	{ /* sentinel */ }
++};
++
++static struct driver_d barebox_tlv_driver = {
++	.name = "tlv",
++	.probe = barebox_tlv_probe,
++	.of_compatible = tlv_ids,
++};
++core_platform_driver(barebox_tlv_driver);
+diff --git a/common/tlv/parser.c b/common/tlv/parser.c
+new file mode 100644
+index 000000000000..0fc0a5814916
+--- /dev/null
++++ b/common/tlv/parser.c
+@@ -0,0 +1,191 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#define pr_fmt(fmt) "barebox-tlv: " fmt
++
++#include <common.h>
++#include <tlv/tlv.h>
++#include <fcntl.h>
++#include <libfile.h>
++#include <crc.h>
++#include <net.h>
++
++int tlv_parse(struct tlv_device *tlvdev,
++	      const struct tlv_decoder *decoder)
++{
++	const struct tlv *tlv = NULL;
++	struct tlv_mapping *map = NULL;
++	struct tlv_header *header = tlv_device_header(tlvdev);
++	u32 magic, size;
++	int ret = 0;
++	u32 crc = ~0;
++
++
++	magic = be32_to_cpu(header->magic);
++
++	size = tlv_total_len(header);
++
++	crc = crc32_be(crc, header, size - 4);
++	if (crc != tlv_crc(header)) {
++		pr_warn("Invalid CRC32. Should be %08x\n", crc);
++		return -EILSEQ;
++	}
++
++	for_each_tlv(header, tlv) {
++		struct tlv_mapping **mappings;
++		u16 tag = TLV_TAG(tlv);
++		int len = TLV_LEN(tlv);
++		const void *val = TLV_VAL(tlv);
++
++		pr_debug("[%04x] %*ph\n", tag, len, val);
++
++		for (mappings = decoder->mappings; *mappings; mappings++) {
++			for (map = *mappings; map->tag; map++) {
++				if (map->tag == tag)
++					goto done;
++			}
++		}
++
++done:
++		if (!map || !map->tag) {
++			if (tag)
++				pr_warn("skipping unknown tag: %04x\n", tag);
++			continue;
++		}
++
++		ret = map->handle(tlvdev, map, len, val);
++		if (ret < 0)
++			return ret;
++	}
++
++	return PTR_ERR_OR_ZERO(tlv);
++}
++
++struct tlv_device *tlv_register_device_by_path(const char *path, struct device_d *parent)
++{
++	struct tlv_header *header;
++	struct tlv_device *tlvdev;
++	size_t size;
++
++	header = tlv_read(path, &size);
++	if (IS_ERR(header))
++		return ERR_CAST(header);
++
++	tlvdev = tlv_register_device(header, parent);
++	if (IS_ERR(tlvdev))
++		free(header);
++
++	return tlvdev;
++}
++
++int of_tlv_fixup(struct device_node *root, void *ctx)
++{
++	struct device_node *chosen, *conf, *ethaddrs;
++	struct eth_ethaddr *addr;
++
++	chosen = of_create_node(root, "/chosen");
++	if (!chosen)
++		return -ENOMEM;
++
++	conf = of_copy_node(chosen, ctx);
++
++	ethaddrs = of_get_child_by_name(conf, "ethernet-address");
++	if (!ethaddrs)
++		return 0;
++
++	list_for_each_entry(addr, &ethaddr_list, list) {
++		char propname[sizeof("address-4294967295")];
++		struct property *pp;
++
++		if (!eth_of_get_fixup_node(root, NULL, addr->ethid))
++			continue;
++
++		snprintf(propname, sizeof(propname), "address-%u", addr->ethid);
++		pp = of_find_property(ethaddrs, propname, NULL);
++		if (!pp)
++			continue;
++
++		if (ethaddr_string_cmp(addr->ethaddr, of_property_get_value(pp)))
++			continue;
++
++		of_delete_property(pp);
++	}
++
++	return 0;
++}
++
++int tlv_of_register_fixup(struct tlv_device *tlvdev)
++{
++	return of_register_fixup(of_tlv_fixup, tlv_of_node(tlvdev));
++}
++
++struct tlv_header *tlv_read(const char *filename, size_t *nread)
++{
++	struct tlv_header *header = NULL, *tmpheader;
++	int size, fd, ret;
++
++	fd = open(filename, O_RDONLY);
++	if (fd < 0)
++		return ERR_PTR(fd);
++
++	header = malloc(128);
++	if (!header) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ret = read_full(fd, header, sizeof(*header));
++	if (ret >= 0 && ret != sizeof(*header))
++		ret = -ENODATA;
++	if (ret < 0)
++		goto err;
++
++	size = tlv_total_len(header);
++
++	tmpheader = realloc(header, size);
++	if (!tmpheader) {
++		ret = -ENOMEM;
++		goto err;
++	}
++	header = tmpheader;
++
++	ret = read_full(fd, header->tlvs, size - sizeof(*header));
++	if (ret < 0)
++		goto err;
++
++	/* file might have been truncated, but this will be handled
++	 * in tlv_parse
++	 */
++
++	if (nread)
++		*nread = sizeof(*header) + ret;
++
++	close(fd);
++	return header;
++err:
++	free(header);
++	close(fd);
++	return ERR_PTR(ret);
++}
++
++static struct tlv *__tlv_next(const struct tlv *tlv)
++{
++	return (void *)tlv + 4 + TLV_LEN(tlv);
++}
++
++struct tlv *tlv_next(const struct tlv_header *header,
++			     const struct tlv *tlv)
++{
++	void *tlvs_start = (void *)&header->tlvs[0], *tlvs_end, *next_tlv;
++
++	tlv = tlv ? __tlv_next(tlv) : tlvs_start;
++
++	tlvs_end = tlvs_start + get_unaligned_be32(&header->length_tlv);
++	if (tlv == tlvs_end)
++		return NULL;
++
++	next_tlv = __tlv_next(tlv);
++	if (next_tlv > tlvs_end)
++		return ERR_PTR(-ENODATA);
++
++	return (void *)tlv;
++}
+diff --git a/common/tlv/register.c b/common/tlv/register.c
+new file mode 100644
+index 000000000000..7ba4ee5def7b
+--- /dev/null
++++ b/common/tlv/register.c
+@@ -0,0 +1,92 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2022 Ahmad Fatoum <a.fatoum@pengutronix.de>
++ */
++
++#include <common.h>
++#include <driver.h>
++#include <linux/nvmem-consumer.h>
++#include <of.h>
++#include <tlv/tlv.h>
++#include <libfile.h>
++#include <fcntl.h>
++
++#include <linux/err.h>
++
++static int tlv_probe_from_magic(struct device_d *dev)
++{
++	struct tlv_device *tlvdev = to_tlv_device(dev);
++	int ret;
++
++	ret = tlv_parse(tlvdev, to_tlv_decoder(dev->driver));
++	if (ret)
++		return ret;
++
++	return tlv_of_register_fixup(tlvdev);
++}
++
++static int tlv_probe_from_compatible(struct device_d *dev)
++{
++	struct tlv_decoder *decoder = to_tlv_decoder(dev->driver);
++	struct tlv_header *header;
++	struct tlv_device *tlvdev;
++	char *backend_path;
++	size_t size;
++	u32 magic;
++	int ret;
++
++	ret = of_find_path(dev->device_node, "backend", &backend_path,
++			   OF_FIND_PATH_FLAGS_PHANDLE0);
++	if (ret)
++		return ret;
++
++	header = tlv_read(backend_path, &size);
++	free(backend_path);
++
++	if (IS_ERR(header))
++		return PTR_ERR(header);
++
++	magic = be32_to_cpu(header->magic);
++	if (magic != decoder->magic) {
++		dev_err(dev, "got magic %08x, but %08x expected\n",
++			magic, decoder->magic);
++		ret = -EILSEQ;
++		goto err;
++	}
++
++	tlvdev = tlv_register_device(header, dev);
++	if (IS_ERR(tlvdev)) {
++		ret = PTR_ERR(tlvdev);
++		goto err;
++	}
++
++	return 0;
++err:
++	free(header);
++	return ret;
++}
++
++int tlv_register_decoder(struct tlv_decoder *decoder)
++{
++	int ret;
++
++	if (decoder->driver.bus)
++		return -EBUSY;
++
++	if (!decoder->driver.probe)
++		decoder->driver.probe = tlv_probe_from_magic;
++	decoder->driver.bus = &tlv_bus;
++
++	ret = register_driver(&decoder->driver);
++	if (ret)
++		return ret;
++
++	if (!decoder->driver.of_compatible)
++		return 0;
++
++	decoder->_platform_driver.name = basprintf("%s-pltfm", decoder->driver.name);
++	decoder->_platform_driver.of_compatible = decoder->driver.of_compatible;
++	decoder->_platform_driver.probe = tlv_probe_from_compatible;
++
++	return platform_driver_register(&decoder->_platform_driver);
++}
+diff --git a/include/string.h b/include/string.h
+index d423bee6fba5..e730f51b1bbe 100644
+--- a/include/string.h
++++ b/include/string.h
+@@ -17,4 +17,9 @@ void *__nokasan_default_memcpy(void * dest,const void *src,size_t count);
+ 
+ char *parse_assignment(char *str);
+ 
++static inline bool is_nul_terminated(const char *val, size_t len)
++{
++	return strnlen(val, len) != len;
++}
++
+ #endif /* __STRING_H */
+diff --git a/include/tlv/format.h b/include/tlv/format.h
+new file mode 100644
+index 000000000000..a32ec917a434
+--- /dev/null
++++ b/include/tlv/format.h
+@@ -0,0 +1,69 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later OR MIT
++ *
++ * barebox TLVs are preceded by a 12 byte header: 4 bytes for magic,
++ * 4 bytes for TLV sequence length (in bytes) and 4 bytes for
++ * the length of the signature. Each tag consists of at least four
++ * bytes: 2 bytes for the tag and two bytes for the length (in bytes)
++ * and as many bytes as the length. The TLV sequence must be equal
++ * to the TLV sequence length in the header. It can be followed by a
++ * signature of the length described in the header. At the end
++ * is a (big-endian) CRC-32/MPEG-2 of the whole structure. All
++ * integers are in big-endian. Tags and magic have their MSB set
++ * if they are vendor-specific. The second MSB is 0 for tag
++ * and 1 for magic.
++ */
++
++#ifndef __TLV_FORMAT_H_
++#define __TLV_FORMAT_H_
++
++#include <linux/compiler.h>
++#include <linux/types.h>
++#include <asm/unaligned.h>
++#include <linux/build_bug.h>
++
++#define TLV_MAGIC_BAREBOX_V1		0x61bb95f2
++
++#define TLV_IS_VENDOR_SPECIFIC(val)	((*(u8 *)&(val) & 0x80) == 0x80)
++#define TLV_IS_GENERIC(val)		((*(u8 *)&(val) & 0x80) != 0x80)
++
++struct tlv {
++	/*
++	 * _tag:15 (MSB): product specific
++	 */
++	__be16 _tag;
++	__be16 _len; /* in bytes */
++	u8 _payload[];
++} __packed;
++
++
++#define TLV_TAG(tlv) get_unaligned_be16(&(tlv)->_tag)
++#define TLV_LEN(tlv) get_unaligned_be16(&(tlv)->_len)
++#define TLV_VAL(tlv) ((tlv)->_payload)
++
++struct tlv_header {
++	__be32 magic;
++	__be32 length_tlv; /* in bytes */
++	__be32 length_sig; /* in bytes */
++	struct tlv tlvs[];
++};
++static_assert(sizeof(struct tlv_header) == 3 * 4);
++
++#define for_each_tlv(tlv_head, tlv) \
++	for (tlv = tlv_next(tlv_head, NULL); !IS_ERR_OR_NULL(tlv); tlv = tlv_next(tlv_head, tlv))
++
++static inline size_t tlv_total_len(const struct tlv_header *header)
++{
++	return sizeof(struct tlv_header) + get_unaligned_be32(&header->length_tlv)
++		+ get_unaligned_be32(&header->length_sig) + 4;
++}
++
++/*
++ * Retrieves the CRC-32/MPEG-2 CRC32 at the end of a TLV blob. Parameters:
++ * Poly=0x04C11DB7, Init=0xFFFFFFFF, RefIn=RefOut=false, XorOut=0x00000000
++ */
++static inline u32 tlv_crc(const struct tlv_header *header)
++{
++	return get_unaligned_be32((void *)header + tlv_total_len(header) - sizeof(__be32));
++}
++
++#endif
+diff --git a/include/tlv/tlv.h b/include/tlv/tlv.h
+new file mode 100644
+index 000000000000..cce3b96e3d17
+--- /dev/null
++++ b/include/tlv/tlv.h
+@@ -0,0 +1,98 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++#ifndef __TLV_H_
++#define __TLV_H_
++
++#include <linux/compiler.h>
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/err.h>
++#include <asm/unaligned.h>
++#include <unistd.h>
++#include <driver.h>
++
++#include <tlv/format.h>
++
++struct tlv *tlv_next(const struct tlv_header *header, const struct tlv *tlv);
++
++struct tlv_header *tlv_read(const char *filename, size_t *nread);
++
++struct device_node;
++struct tlv_device;
++struct tlv_mapping;
++
++struct tlv_mapping {
++	u16 tag;
++	int (*handle)(struct tlv_device *dev, struct tlv_mapping *map,
++		      u16 len, const u8 *val);
++	const char *prop;
++};
++
++extern struct tlv_mapping barebox_tlv_v1_mappings[];
++
++extern const char *__tlv_format_str(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_format_str(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_format_dec(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_format_hex(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_format_mac(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_format_blob(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_handle_serial(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_handle_eth_address(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++extern int tlv_handle_eth_address_seq(struct tlv_device *dev, struct tlv_mapping *map, u16 len, const u8 *val);
++
++struct tlv_decoder {
++	u32 magic;
++	void *driver_data;
++	struct tlv_mapping **mappings;
++	struct driver_d driver;
++	/* private members */
++	struct driver_d _platform_driver;
++	struct list_head list;
++};
++
++struct tlv_device {
++	struct device_d dev;
++	u32 magic;
++};
++
++static inline struct device_node *tlv_of_node(struct tlv_device *tlvdev)
++{
++	return tlvdev->dev.device_node;
++}
++
++struct tlv_device *tlv_register_device(struct tlv_header *header, struct device_d *parent);
++static inline struct tlv_header *tlv_device_header(struct tlv_device *tlvdev)
++{
++	return tlvdev->dev.platform_data;
++}
++
++void tlv_free_device(struct tlv_device *tlvdev);
++
++int tlv_register_decoder(struct tlv_decoder *decoder);
++
++int tlv_parse(struct tlv_device *tlvdev,
++	      const struct tlv_decoder *decoder);
++
++int of_tlv_fixup(struct device_node *root, void *ctx);
++
++int tlv_of_register_fixup(struct tlv_device *tlvdev);
++
++extern struct bus_type tlv_bus;
++
++static inline struct tlv_decoder *to_tlv_decoder(struct driver_d *drv)
++{
++	if (drv->bus == &tlv_bus)
++		return container_of(drv, struct tlv_decoder, driver);
++	if (drv->bus == &platform_bus)
++		return container_of(drv, struct tlv_decoder, _platform_driver);
++	return NULL;
++}
++
++static inline struct tlv_device *to_tlv_device(struct device_d *dev)
++{
++	return container_of(dev, struct tlv_device, dev);
++}
++
++struct tlv_device *tlv_register_device_by_path(const char *path, struct device_d *parent);
++struct tlv_device *tlv_ensure_probed_by_alias(const char *alias);
++
++#endif

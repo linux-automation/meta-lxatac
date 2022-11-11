@@ -1,0 +1,75 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Mon, 21 Mar 2022 15:28:39 +0100
+Subject: [PATCH] common: add optional systemd.hostname generation
+
+To maintain unique hostnames, having barebox fix up its own hostname
+appended by "-${global.serial_number} is a sane default. Add a Kconfig
+option to enable this.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ common/Kconfig |  9 +++++++++
+ common/misc.c  | 16 ++++++++++++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/common/Kconfig b/common/Kconfig
+index 19c844fb2ba3..4aef0f6d19d9 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -1076,6 +1076,15 @@ config SERIAL_NUMBER_FIXUP
+ 	help
+ 	  fixup serial number supplied by board code info device tree
+ 
++config SERIAL_NUMBER_FIXUP_SYSTEMD_HOSTNAME
++	bool "fix up board serial number into hostname"
++	depends on SERIAL_NUMBER_FIXUP
++	depends on FLEXIBLE_BOOTARGS
++	help
++	  add a systemd.hostname= kernel command line argument consisting
++	  of ${global.hostname}-${global.serial_number}. If either is not
++	  available, no hostname will be fixed up.
++
+ config SYSTEMD_OF_WATCHDOG
+ 	bool "inform devicetree-enabled kernel of used watchdog"
+ 	depends on WATCHDOG && OFTREE && FLEXIBLE_BOOTARGS
+diff --git a/common/misc.c b/common/misc.c
+index 3b3bc05bfdb5..9498bba4d9c6 100644
+--- a/common/misc.c
++++ b/common/misc.c
+@@ -151,6 +151,18 @@ BAREBOX_MAGICVAR(global.model, "Product name of this hardware");
+ static char *hostname;
+ static char *serial_number;
+ 
++static void linux_bootargs_set_hostname(void)
++{
++	char *buf;
++	if (!IS_ENABLED(CONFIG_SERIAL_NUMBER_FIXUP_SYSTEMD_HOSTNAME) ||
++	    !serial_number || !hostname)
++		return;
++
++	buf = basprintf("systemd.hostname=%s-%s", hostname, serial_number);
++	globalvar_add_simple("linux.bootargs.hostname", buf);
++	free(buf);
++}
++
+ /*
+  * The hostname is supposed to be the shortname of a board. It should
+  * contain only lowercase letters, numbers, '-', '_'. No whitespaces
+@@ -162,6 +174,8 @@ void barebox_set_hostname(const char *__hostname)
+ 
+ 	free(hostname);
+ 	hostname = xstrdup(__hostname);
++
++	linux_bootargs_set_hostname();
+ }
+ 
+ const char *barebox_get_hostname(void)
+@@ -186,6 +200,8 @@ void barebox_set_serial_number(const char *__serial_number)
+ 
+ 	free(serial_number);
+ 	serial_number = xstrdup(__serial_number);
++
++	linux_bootargs_set_hostname();
+ }
+ 
+ const char *barebox_get_serial_number(void)

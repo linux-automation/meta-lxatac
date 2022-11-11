@@ -1,0 +1,27 @@
+From: Holger Assmann <h.assmann@pengutronix.de>
+Date: Wed, 14 Jul 2021 08:47:21 +0200
+Subject: [PATCH] lxatac: activate Digital Temperature Sensor (DTS)
+
+Sensor measures the CPU temperature and provides it under
+/sys/class/hwmon/hwmon0/
+
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 5d93b520fb85..b0bf961c86fd 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -93,6 +93,10 @@ adc@0 {
+ 	};
+ };
+ 
++&dts {
++	status = "okay";
++};
++
+ &gpioa {
+ 	gpio-line-names = "", "", "", "", "", \
+ 	"", "", "", "", "", "", "", "", "BOOTROM_LED", "ETH_LAB_LEDRP", "";

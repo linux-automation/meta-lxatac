@@ -1,0 +1,15 @@
+[Unit]
+Description=LXA TAC Daemon
+
+[Service]
+Type=simple
+Environment="RUST_LOG=tacd=warn"
+ExecStart=/usr/bin/tacd
+Restart=on-failure
+RestartForceExitStatus=100
+RestartSec=30
+WatchdogSec=3
+ExecStopPost=gpioset gpiochip10 0=0 1=0
+
+[Install]
+WantedBy=multi-user.target

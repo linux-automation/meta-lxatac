@@ -1,0 +1,4 @@
+# This is a 'portable' labgrid configuration.
+# Make sure that a host 'labgrid' can be resolved using your DNS searchlist.
+LABGRID_COORDINATOR_IP=labgrid
+LABGRID_COORDINATOR_PORT=20408

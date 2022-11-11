@@ -1,0 +1,27 @@
+From: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+Date: Wed, 28 Jul 2021 09:44:03 +0200
+Subject: [PATCH] lxatac: add missing alias for usart3
+
+Otherwise the port can't be registered, with the following error:
+
+  [    0.348730] stm32-usart 4000f000.serial: failed to get alias id, errno -19
+
+Add the alias to fix this.
+
+Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index bc9912d6970c..2f05c61628d3 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -21,6 +21,7 @@ aliases {
+ 		ethernet0 = &ethernet0;
+ 		mmc1 = &sdmmc2;
+ 		serial0 = &uart4;
++		serial1 = &usart3;
+ 	};
+ 
+ 

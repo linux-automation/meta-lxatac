@@ -1,0 +1,3 @@
+#!/bin/sh
+
+mw 0x5c00a150 0xff && reset

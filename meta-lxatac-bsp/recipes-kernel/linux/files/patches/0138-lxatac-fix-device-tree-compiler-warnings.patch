@@ -1,0 +1,106 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Mon, 21 Mar 2022 17:26:18 +0100
+Subject: [PATCH] lxatac: fix device tree compiler warnings
+
+There is a whole slew of compiler warnings, especially around mismatched
+reg and #{address,size}-cells properties. Fix them.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 15a7ff08c085..c7b93718ebd2 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -117,7 +117,7 @@ reg_1v2: regulator_1v2 {
+ 		vin-supply = <&reg_5v>;
+ 	};
+ 
+-	iobus_curr: current-sense-amplifier@0 {
++	iobus_curr: current-sense-amplifier-0 {
+ 		compatible = "current-sense-amplifier";
+ 		io-channels = <&adc1 5>;
+ 		#io-channel-cells = <0>;
+@@ -127,7 +127,7 @@ iobus_curr: current-sense-amplifier@0 {
+ 		sense-gain-div = <1000000>;
+ 	};
+ 
+-	iobus_volt: voltage-divider@0 {
++	iobus_volt: voltage-divider {
+ 		compatible = "voltage-divider";
+ 		io-channels = <&adc1 9>;
+ 		#io-channel-cells = <0>;
+@@ -141,7 +141,7 @@ iobus {
+ 		io-channels = <&iobus_volt>, <&iobus_curr>;
+ 	};
+ 
+-	host_curr: current-sense-amplifier@1 {
++	host_curr: current-sense-amplifier-1 {
+ 		compatible = "current-sense-amplifier";
+ 		io-channels = <&adc1 13>;
+ 		#io-channel-cells = <0>;
+@@ -151,7 +151,7 @@ host_curr: current-sense-amplifier@1 {
+ 		sense-gain-div = <1000000>;
+ 	};
+ 
+-	host_1_curr: current-sense-amplifier@2 {
++	host_1_curr: current-sense-amplifier-2 {
+ 		compatible = "current-sense-amplifier";
+ 		io-channels = <&adc1 15>;
+ 		#io-channel-cells = <0>;
+@@ -161,7 +161,7 @@ host_1_curr: current-sense-amplifier@2 {
+ 		sense-gain-div = <1000000>;
+ 	};
+ 
+-	host_2_curr: current-sense-amplifier@3 {
++	host_2_curr: current-sense-amplifier-3 {
+ 		compatible = "current-sense-amplifier";
+ 		io-channels = <&adc1 0>; /* via ANA0 */
+ 		#io-channel-cells = <0>;
+@@ -171,7 +171,7 @@ host_2_curr: current-sense-amplifier@3 {
+ 		sense-gain-div = <1000000>;
+ 	};
+ 
+-	host_3_curr: current-sense-amplifier@4 {
++	host_3_curr: current-sense-amplifier-4 {
+ 		compatible = "current-sense-amplifier";
+ 		io-channels = <&adc1 1>; /* via ANA1 */
+ 		#io-channel-cells = <0>;
+@@ -222,6 +222,8 @@ &adc {
+ 	adc1: adc@0 {
+ 		st,adc-channels = <0 1 2 5 6 9 10 11 13 14 15 18>;
+ 		st,min-sample-time-nsecs = <5000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 		status = "okay";
+ 		channel@0 {
+ 			reg = <0>;
+@@ -243,7 +245,7 @@ channel@9 {
+ 			reg = <9>;
+ 			label = "IOBUS_VOLT_FB";
+ 		};
+-		channel10 {
++		channel@10 {
+ 			reg = <10>;
+ 			label = "OUT_1_FB";
+ 		};
+@@ -264,6 +266,8 @@ channel@18 {
+ 	adc2: adc@100 {
+ 		st,adc-channels = <12>;
+ 		st,min-sample-time-nsecs = <500000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 		status = "okay";
+ 		channel@12 {
+ 			reg = <12>;
+@@ -410,7 +414,7 @@ &i2c1 {
+ 	pinctrl-1 = <&i2c1_sleep_pins_b>;
+ 	status = "okay";
+ 
+-	powerboard_gpio: pca9570@48 {
++	powerboard_gpio: pca9570@24 {
+ 		compatible = "nxp,pca9570";
+ 		reg = <0x24>;
+ 		gpio-controller;

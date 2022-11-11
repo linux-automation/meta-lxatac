@@ -1,0 +1,55 @@
+## This file is overridden on update
+## Add your own exports to 'userconfig.yaml'
+
+
+serial:
+  RawSerialPort:
+    port: /dev/ttySTM1
+    speed: 115200
+
+gpio0:
+  SysfsGPIO:
+    index: 115
+
+gpio1:
+  SysfsGPIO:
+    index: 114
+
+dut_power:
+  NetworkPowerPort:
+    model: rest
+    host: 'http://{{ hostname }}/dut/enable'
+    index: '0'   # this is 'don't care'
+
+## LXATAC USB Ports
+{% for idx, sysfs in [
+        ('1',   'platform-5800d000.usb-usb-0:1.1'),
+        ('2',   'platform-5800d000.usb-usb-0:1.2'),
+        ('3',   'platform-5800d000.usb-usb-0:1.3')] %}
+
+lxatac-usb-ports-p{{idx}}:
+  USBSerialPort:
+    match:
+        '@ID_PATH': '{{sysfs}}'
+  IMXUSBLoader:
+    match:
+        'ID_PATH': '{{sysfs}}'
+  AndroidFastboot:
+    match:
+        'ID_PATH': '{{sysfs}}'
+  AlteraUSBBlaster:
+    match:
+        'ID_PATH': '{{sysfs}}'
+  USBSDMuxDevice:
+    match:
+        '@ID_PATH': '{{sysfs}}'
+  LXAUSBMux:
+    match:
+        '@ID_PATH': '{{sysfs}}'
+  USBMassStorage:
+    match:
+        '@ID_PATH': '{{sysfs}}'
+{% endfor %}
+
+
+{% include 'userconfig.yaml' %}

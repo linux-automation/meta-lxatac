@@ -1,0 +1,111 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Thu, 3 Mar 2022 08:29:03 +0100
+Subject: [PATCH] commands: add TLV debugging command
+
+The TLV command does the equivalent of having a "barebox,tlv"
+compatible node point at the file. It's meant as a debugging aid.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ commands/Kconfig  | 12 ++++++++++++
+ commands/Makefile |  1 +
+ commands/tlv.c    | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 68 insertions(+)
+ create mode 100644 commands/tlv.c
+
+diff --git a/commands/Kconfig b/commands/Kconfig
+index c5505321cfd9..846daaebf405 100644
+--- a/commands/Kconfig
++++ b/commands/Kconfig
+@@ -2257,6 +2257,18 @@ config CMD_STATE
+ 	depends on STATE
+ 	prompt "state"
+ 
++config CMD_TLV
++	tristate
++	depends on TLV
++	prompt "tlv"
++	help
++	  tlv - handle barebox TLV
++
++	  Usage: tlv [-f] FILE
++
++	  The TLV command does the equivalent of having a "barebox,tlv"
++	  compatible node point at the file. It's meant as a debugging aid.
++
+ config CMD_DHRYSTONE
+ 	bool
+ 	prompt "dhrystone"
+diff --git a/commands/Makefile b/commands/Makefile
+index b3b7bafe6b64..6c3a7a1dabcd 100644
+--- a/commands/Makefile
++++ b/commands/Makefile
+@@ -125,6 +125,7 @@ obj-$(CONFIG_CMD_CMP)		+= cmp.o
+ obj-$(CONFIG_CMD_NV)		+= nv.o
+ obj-$(CONFIG_CMD_DEFAULTENV)	+= defaultenv.o
+ obj-$(CONFIG_CMD_STATE)		+= state.o
++obj-$(CONFIG_CMD_TLV)		+= tlv.o
+ obj-$(CONFIG_CMD_DHCP)		+= dhcp.o
+ obj-$(CONFIG_CMD_BOOTCHOOSER)	+= bootchooser.o
+ obj-$(CONFIG_CMD_DHRYSTONE)	+= dhrystone.o
+diff --git a/commands/tlv.c b/commands/tlv.c
+new file mode 100644
+index 000000000000..88ba25e4ed36
+--- /dev/null
++++ b/commands/tlv.c
+@@ -0,0 +1,55 @@
++// SPDX-License-Identifier: GPL-2.0-only
++// SPDX-FileCopyrightText: © 2022 Ahmad Fatoum, Pengutronix
++
++#include <common.h>
++#include <of.h>
++#include <command.h>
++#include <getopt.h>
++#include <tlv/tlv.h>
++
++static int do_tlv(int argc, char *argv[])
++{
++	const char *filename;
++	bool fixup = false;
++	struct tlv_device *tlvdev;
++	int opt;
++
++	while ((opt = getopt(argc, argv, "f")) > 0) {
++		switch (opt) {
++		case 'f':
++			fixup = true;
++			break;
++		default:
++			return COMMAND_ERROR_USAGE;
++		}
++	}
++
++	filename = argv[optind];
++	if (!filename)
++		return COMMAND_ERROR_USAGE;
++
++	tlvdev = tlv_register_device_by_path(argv[optind], NULL);
++	if (IS_ERR(tlvdev))
++		return PTR_ERR(tlvdev);
++
++	if (fixup)
++		return tlv_of_register_fixup(tlvdev);
++
++	of_print_nodes(tlv_of_node(tlvdev), 0);
++
++	tlv_free_device(tlvdev);
++	return 0;
++}
++
++BAREBOX_CMD_HELP_START(tlv)
++BAREBOX_CMD_HELP_TEXT("Options:")
++BAREBOX_CMD_HELP_OPT ("-f",  "Register device tree fixup for TLV")
++BAREBOX_CMD_HELP_END
++
++BAREBOX_CMD_START(tlv)
++	.cmd		= do_tlv,
++	BAREBOX_CMD_DESC("handle barebox TLV")
++	BAREBOX_CMD_OPTS("[-f] FILE")
++	BAREBOX_CMD_GROUP(CMD_GRP_MISC)
++	BAREBOX_CMD_HELP(cmd_tlv_help)
++BAREBOX_CMD_END

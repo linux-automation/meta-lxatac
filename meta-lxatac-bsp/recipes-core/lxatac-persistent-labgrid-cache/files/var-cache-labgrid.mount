@@ -1,0 +1,8 @@
+[Unit]
+Before=local-fs.target
+
+[Mount]
+Where=/var/cache/labgrid
+What=/srv/cache/labgrid
+Type=none
+Options=bind

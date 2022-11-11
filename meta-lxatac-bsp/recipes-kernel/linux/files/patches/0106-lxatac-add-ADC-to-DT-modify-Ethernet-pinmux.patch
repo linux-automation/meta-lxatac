@@ -1,0 +1,108 @@
+From: Holger Assmann <h.assmann@pengutronix.de>
+Date: Thu, 24 Jun 2021 21:15:39 +0200
+Subject: [PATCH] lxatac: add ADC to DT, modify Ethernet pinmux
+
+Due to double usage of the SOM's pads between some ADC channels and
+Ethernet functionality, the pinmux had to be adapted respectively:
+
+     Pad PC1: ADC1_INP11 <-> ETH1_MDC
+     Pad PA2: ADC1_INP14 <-> ETH1_MDIO
+
+These very ETH functions are not needed and the pinmux can therefore be
+modified. A later revision should furterh check for other unused  pads
+occupied by the Ethernet that could be removed.
+
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 55 ++++++++++++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 170b5dc54825..bab82bad6896 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -81,12 +81,13 @@ &vrefbuf {
+ &adc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&adc1_ain_pins_a>;
++	vdd-supply = <&vdda>;
+ 	vdda-supply = <&vdda>;
+ 	vref-supply = <&vrefbuf>;
+ 	status = "okay";
+ 	adc@0 {
+-		st,adc-channels = <2 5 9 10 13 15>;
+-		st,min-sample-time-nsecs = <50000>;
++		st,adc-channels = <0 1 2 5 6 9 10 11 13 14 15 18>;
++		st,min-sample-time-nsecs = <5000>;
+ 		status = "okay";
+ 	};
+ };
+@@ -125,8 +126,8 @@ &uart4 {
+ 
+ &ethernet0 {
+ 	pinctrl-names = "default", "sleep";
+-	pinctrl-0 = <&ethernet0_rgmii_pins_b>;
+-	pinctrl-1 = <&ethernet0_rgmii_sleep_pins_b>;
++	pinctrl-0 = <&ethernet0_rgmii_pins_d>;
++	pinctrl-1 = <&ethernet0_rgmii_sleep_pins_d>;
+ 	phy-mode = "rgmii-id";
+ 	st,eth-clk-sel;
+ 	status = "okay";
+@@ -260,12 +261,56 @@ adc1_ain_pins_a: adc1-ain-0 {
+ 		pins {
+ 			pinmux = <STM32_PINMUX('F', 11, ANALOG)>, /* ADC1_INP2 */
+ 				 <STM32_PINMUX('B', 1, ANALOG)>, /* ADC1_INP5 */
++				 <STM32_PINMUX('F', 12, ANALOG)>, /* ADC1_INP6 */
+ 				 <STM32_PINMUX('B', 0, ANALOG)>, /* ADC1_INP9 */
+ 				 <STM32_PINMUX('C', 0, ANALOG)>, /* ADC1_INP10 */
++				 <STM32_PINMUX('C', 1, ANALOG)>, /* ADC1_INP11 */
+ 				 <STM32_PINMUX('C', 3, ANALOG)>, /* ADC1_INP13 */
+-				 <STM32_PINMUX('A', 3, ANALOG)>; /* ADC1_INP15 */
++				 <STM32_PINMUX('A', 2, ANALOG)>, /* ADC1_INP14 */
++				 <STM32_PINMUX('A', 3, ANALOG)>, /* ADC1_INP15 */
++				 <STM32_PINMUX('A', 4, ANALOG)>; /* ADC1_INP18 */
+ 		};
+ 	};
++	ethernet0_rgmii_pins_d: rgmii-1 {
++		pins1 {
++			pinmux = <STM32_PINMUX('G', 5, AF11)>, /* ETH_RGMII_CLK125 */
++				 <STM32_PINMUX('G', 4, AF11)>, /* ETH_RGMII_GTX_CLK */
++				 <STM32_PINMUX('G', 13, AF11)>, /* ETH_RGMII_TXD0 */
++				 <STM32_PINMUX('G', 14, AF11)>, /* ETH_RGMII_TXD1 */
++				 <STM32_PINMUX('C', 2, AF11)>, /* ETH_RGMII_TXD2 */
++				 <STM32_PINMUX('E', 2, AF11)>, /* ETH_RGMII_TXD3 */
++				 <STM32_PINMUX('B', 11, AF11)>; /* ETH_RGMII_TX_CTL */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <2>;
++		};
++		pins2 {
++			pinmux = <STM32_PINMUX('C', 4, AF11)>, /* ETH_RGMII_RXD0 */
++				 <STM32_PINMUX('C', 5, AF11)>, /* ETH_RGMII_RXD1 */
++				 <STM32_PINMUX('H', 6, AF11)>, /* ETH_RGMII_RXD2 */
++				 <STM32_PINMUX('H', 7, AF11)>, /* ETH_RGMII_RXD3 */
++				 <STM32_PINMUX('A', 1, AF11)>, /* ETH_RGMII_RX_CLK */
++				 <STM32_PINMUX('A', 7, AF11)>; /* ETH_RGMII_RX_CTL */
++			bias-disable;
++		};
++	};
++	ethernet0_rgmii_sleep_pins_d: rgmii-sleep-1 {
++		pins1 {
++			pinmux = <STM32_PINMUX('G', 5, ANALOG)>, /* ETH_RGMII_CLK125 */
++				 <STM32_PINMUX('G', 4, ANALOG)>, /* ETH_RGMII_GTX_CLK */
++				 <STM32_PINMUX('G', 13, ANALOG)>, /* ETH_RGMII_TXD0 */
++				 <STM32_PINMUX('G', 14, ANALOG)>, /* ETH_RGMII_TXD1 */
++				 <STM32_PINMUX('C', 2, ANALOG)>, /* ETH_RGMII_TXD2 */
++				 <STM32_PINMUX('E', 2, ANALOG)>, /* ETH_RGMII_TXD3 */
++				 <STM32_PINMUX('B', 11, ANALOG)>, /* ETH_RGMII_TX_CTL */
++				 <STM32_PINMUX('C', 4, ANALOG)>, /* ETH_RGMII_RXD0 */
++				 <STM32_PINMUX('C', 5, ANALOG)>, /* ETH_RGMII_RXD1 */
++				 <STM32_PINMUX('H', 6, ANALOG)>, /* ETH_RGMII_RXD2 */
++				 <STM32_PINMUX('H', 7, ANALOG)>, /* ETH_RGMII_RXD3 */
++				 <STM32_PINMUX('A', 1, ANALOG)>, /* ETH_RGMII_RX_CLK */
++				 <STM32_PINMUX('A', 7, ANALOG)>; /* ETH_RGMII_RX_CTL */
++		 };
++	};
+ 	spi5_pins_a: spi5-0 {
+ 		pins1 {
+ 			pinmux = <STM32_PINMUX('F', 7, AF5)>, /* SPI5_SCK */

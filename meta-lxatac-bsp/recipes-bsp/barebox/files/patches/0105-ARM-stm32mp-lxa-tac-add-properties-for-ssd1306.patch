@@ -1,0 +1,35 @@
+From: Michael Tretter <m.tretter@pengutronix.de>
+Date: Wed, 15 Dec 2021 18:12:46 +0100
+Subject: [PATCH] ARM: stm32mp: lxa-tac: add properties for ssd1306
+
+The bindings that are used for the ssd1306 are not documented.
+
+Add the properties that are expected by the ssd1306fb-i2c binding to
+allow to use that driver.
+
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+---
+ arch/arm/dts/stm32mp157c-lxa-tac.dts | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/dts/stm32mp157c-lxa-tac.dts b/arch/arm/dts/stm32mp157c-lxa-tac.dts
+index 8ed766232e6e..8afc610b9e6e 100644
+--- a/arch/arm/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/dts/stm32mp157c-lxa-tac.dts
+@@ -98,6 +98,16 @@
+ 	};
+ };
+ 
++&oled {
++	solomon,height = <64>;
++	solomon,width = <128>;
++	solomon,page-offset = <0>;
++	solomon,com-invdir;
++	/* Copied from Adafruit SSD1306 Arduino */
++	solomon,prechargep1 = <1>;
++	solomon,prechargep2 = <15>;
++};
++
+ &usbh_ehci {
+ 	status = "disabled";
+ };

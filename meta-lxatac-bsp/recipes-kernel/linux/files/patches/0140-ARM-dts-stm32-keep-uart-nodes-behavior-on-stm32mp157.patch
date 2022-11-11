@@ -1,0 +1,42 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Thu, 2 Jun 2022 14:32:12 +0200
+Subject: [PATCH] ARM: dts: stm32: keep uart nodes behavior on
+ stm32mp157c-lxa-tac
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+DMA configuration is added to uart nodes in stm32mp15x device tree.
+Delete uart4 DMA property in stm32mp157c-lxa-tac board device
+tree to keep console in irq mode, as DMA support for console has been
+removed from the driver by commit e359b4411c28 ("serial: stm32: fix
+threaded interrupt handling").
+Delete also usart3 DMA property to keep current behavior.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 0530b1dd7af4..01dc2a768e7a 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -388,6 +388,8 @@ &uart4 {
+ 	label = "debug";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart4_pins_a>;
++	/delete-property/dmas;
++	/delete-property/dma-names;
+ 	status = "okay";
+ };
+ 
+@@ -578,6 +580,8 @@ &usart3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&usart3_pins_e>;
+ 	uart-has-rtscts;
++	/delete-property/dmas;
++	/delete-property/dma-names;
+ 	status = "okay";
+ };
+ 

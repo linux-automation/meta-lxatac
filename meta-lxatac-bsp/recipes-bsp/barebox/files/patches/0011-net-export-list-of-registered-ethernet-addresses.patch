@@ -1,0 +1,74 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Fri, 18 Mar 2022 11:53:35 +0100
+Subject: [PATCH] net: export list of registered ethernet addresses
+
+Network stack keeps an ethaddr_list of Ethernet addresses that were
+registered by drivers and board code.
+
+The list currently lacks ethernet devices for which a net_device already
+existed. If a net_device is added later on, the list is consulted, but
+the element is not removed.
+
+This means ethaddr_list is "the list of registered Ethernet addresses
+that were added before the relevant device has been probed". Make it more
+useful by genericising it to be "the list of registered Ethernet addresses".
+
+This introduces no functional change (only consumer is fixup code that
+handles both cases already), but it allows future board code to consult
+the list to check which Ethernet addresses were actually assigned.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ include/net.h |  9 +++++++++
+ net/eth.c     | 11 ++---------
+ 2 files changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/include/net.h b/include/net.h
+index acc0cd68e084..a29d7f7237da 100644
+--- a/include/net.h
++++ b/include/net.h
+@@ -546,6 +546,15 @@ void ifdown_all(void);
+ 
+ extern struct list_head netdev_list;
+ 
++struct eth_ethaddr {
++	struct list_head list;
++	u8 ethaddr[ETH_ALEN];
++	int ethid;
++	struct device_node *node;
++};
++
++extern struct list_head ethaddr_list;
++
+ #define for_each_netdev(netdev) list_for_each_entry(netdev, &netdev_list, list)
+ 
+ #endif /* __NET_H__ */
+diff --git a/net/eth.c b/net/eth.c
+index 5112e9b1646f..566d63aa4309 100644
+--- a/net/eth.c
++++ b/net/eth.c
+@@ -24,14 +24,7 @@ static uint64_t last_link_check;
+ 
+ LIST_HEAD(netdev_list);
+ 
+-struct eth_ethaddr {
+-	struct list_head list;
+-	u8 ethaddr[ETH_ALEN];
+-	int ethid;
+-	struct device_node *node;
+-};
+-
+-static LIST_HEAD(ethaddr_list);
++LIST_HEAD(ethaddr_list);
+ 
+ int eth_set_ethaddr(struct eth_device *edev, const char *ethaddr)
+ {
+@@ -98,7 +91,7 @@ void eth_register_ethaddr(int ethid, const char *ethaddr)
+ 	for_each_netdev(edev) {
+ 		if (edev->dev.id == ethid) {
+ 			register_preset_mac_address(edev, ethaddr);
+-			return;
++			break;
+ 		}
+ 	}
+ 

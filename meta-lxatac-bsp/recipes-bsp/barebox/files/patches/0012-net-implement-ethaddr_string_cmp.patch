@@ -1,0 +1,49 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Fri, 18 Mar 2022 12:40:23 +0100
+Subject: [PATCH] net: implement ethaddr_string_cmp()
+
+We keep ethernet addresses either in binary or in text form at a couple
+of places, e.g. device tree, device parameters, struct net_device,
+... etc. We have memcmp() and strcmp() respectively to compare each, add
+one more function to compare a text string with binary. This will be
+used in a follow up commit.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ include/net.h |  1 +
+ net/lib.c     | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/include/net.h b/include/net.h
+index a29d7f7237da..d3c7758e9095 100644
+--- a/include/net.h
++++ b/include/net.h
+@@ -366,6 +366,7 @@ int setenv_ip(const char *name, IPaddr_t ip);
+ 
+ int string_to_ethaddr(const char *str, u8 enetaddr[6]);
+ void ethaddr_to_string(const u8 enetaddr[6], char *str);
++int ethaddr_string_cmp(const u8 enetaddr_a[6], const char *str_b);
+ 
+ #ifdef CONFIG_NET_RESOLV
+ int resolv(const char *host, IPaddr_t *ip);
+diff --git a/net/lib.c b/net/lib.c
+index d4536441bd71..59bd4c280caf 100644
+--- a/net/lib.c
++++ b/net/lib.c
+@@ -44,6 +44,16 @@ void ethaddr_to_string(const u8 enetaddr[ETH_ALEN], char *str)
+ 		 enetaddr[4], enetaddr[5]);
+ }
+ 
++int ethaddr_string_cmp(const u8 enetaddr_a[ETH_ALEN], const char *str_b)
++{
++	u8 enetaddr_b[ETH_ALEN];
++
++	if (string_to_ethaddr(str_b, enetaddr_b))
++		return -EINVAL;
++
++	return memcmp(enetaddr_a, enetaddr_b, ETH_ALEN);
++}
++
+ int string_to_ip(const char *s, IPaddr_t *ip)
+ {
+ 	IPaddr_t addr = 0;

@@ -1,0 +1,51 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Thu, 3 Mar 2022 08:27:55 +0100
+Subject: [PATCH] net: add ethaddr sequence handling
+
+Instead of storing every MAC address in full, boards may elect
+to store a base address and increment it N times. Add a helper
+to iterate over such an Ethernet address sequence. Example usage:
+
+  const u8 *eth_addr;
+  u8 eth_base[ETH_ALEN] = "\x00\x01\x02\x03\x04\x05";
+  int i = 0, eth_count = 4;
+
+  for_each_seq_ethaddr(eth_addr, eth_base, &eth_count)
+          eth_register_ethaddr(i++, eth_addr);
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ include/net.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/include/net.h b/include/net.h
+index b50b6e76c8c3..0aa28a739946 100644
+--- a/include/net.h
++++ b/include/net.h
+@@ -442,6 +442,26 @@ static inline int is_valid_ether_addr(const u8 *addr)
+ 	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
+ }
+ 
++#define for_each_seq_ethaddr(eth_addr, eth_base, eth_count) \
++	for (eth_addr = *eth_count ? eth_base : NULL; eth_addr; eth_addr = eth_addr_seq_next(eth_base, eth_count))
++
++static inline const u8 *eth_addr_seq_next(u8 eth_base[6], unsigned *eth_count)
++{
++	__be64 eth_addr64 = 0;
++	void *eth_addr = (u8 *)&eth_addr64 + 2;
++
++	if (--(*eth_count) <= 0)
++		return NULL;
++
++	memcpy(eth_addr, eth_base, ETH_ALEN);
++
++	eth_addr64 = cpu_to_be64(be64_to_cpu(eth_addr64) + 1);
++
++	memcpy(eth_base, eth_addr, ETH_ALEN);
++
++	return eth_base;
++}
++
+ typedef void rx_handler_f(void *ctx, char *packet, unsigned int len);
+ 
+ struct eth_device *eth_get_byname(const char *name);

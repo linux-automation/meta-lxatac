@@ -1,0 +1,61 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Thu, 3 Mar 2022 17:41:29 +0100
+Subject: [PATCH] test: self: add tests for of_append_property
+
+of_append_property has been recently added, so extend the
+of_manipulation tests to cover it.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ test/self/of_manipulation.c   | 11 ++++++++++-
+ test/self/of_manipulation.dts |  5 +++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/test/self/of_manipulation.c b/test/self/of_manipulation.c
+index 1bcd593c8628..6eb6062e126b 100644
+--- a/test/self/of_manipulation.c
++++ b/test/self/of_manipulation.c
+@@ -61,12 +61,13 @@ static void test_of_basics(struct device_node *root)
+ 
+ static void test_of_property_strings(struct device_node *root)
+ {
+-	struct device_node *np1, *np2, *np3;
++	struct device_node *np1, *np2, *np3, *np4;
+ 	char properties[] = "ayy\0bee\0sea";
+ 
+ 	np1 = of_new_node(root, "np1");
+ 	np2 = of_new_node(root, "np2");
+ 	np3 = of_new_node(root, "np3");
++	np4 = of_new_node(root, "np4");
+ 
+ 	of_property_sprintf(np1, "property-single", "%c%c%c", 'a', 'y', 'y');
+ 
+@@ -89,6 +90,14 @@ static void test_of_property_strings(struct device_node *root)
+ 	of_set_property(np1, "property-multi", properties, sizeof(properties) - 1, 0);
+ 
+ 	assert_different(np1, np2, 1);
++
++	of_append_property(np4, "property-single", "ayy", 4);
++
++	of_append_property(np4, "property-multi", "ayy", 4);
++	of_append_property(np4, "property-multi", "bee", 4);
++	of_append_property(np4, "property-multi", "sea", 4);
++
++	assert_equal(np3, np4);
+ }
+ 
+ static void __init test_of_manipulation(void)
+diff --git a/test/self/of_manipulation.dts b/test/self/of_manipulation.dts
+index 3b690bb7f0fe..a69d944c1eb5 100644
+--- a/test/self/of_manipulation.dts
++++ b/test/self/of_manipulation.dts
+@@ -27,4 +27,9 @@
+ 		property-single = "ayy";
+ 		property-multi = "ayy", "bee", "sea";
+ 	};
++
++	np4 {
++		property-single = "ayy";
++		property-multi = "ayy", "bee", "sea";
++	};
+ };

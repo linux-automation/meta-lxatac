@@ -1,0 +1,21 @@
+From: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+Date: Sat, 19 Jun 2021 07:03:14 +0200
+Subject: [PATCH] ARM: dts: LXATAC: enable ohci
+
+Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+---
+ arch/arm/dts/stm32mp157c-lxa-tac.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/dts/stm32mp157c-lxa-tac.dts b/arch/arm/dts/stm32mp157c-lxa-tac.dts
+index ba5d1ce1f950..7fd6259339cd 100644
+--- a/arch/arm/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/dts/stm32mp157c-lxa-tac.dts
+@@ -36,3 +36,7 @@
+ &usbh_ehci {
+ 	status = "disabled";
+ };
++
++&usbh_ohci {
++	status = "okay";
++};

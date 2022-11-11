@@ -1,0 +1,8 @@
+[connection]
+id=port-dut
+uuid=58b53fb2-230c-46e6-9594-818813e4c9dc
+type=ethernet
+interface-name=dut
+master=tac-bridge
+permissions=
+slave-type=bridge

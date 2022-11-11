@@ -1,0 +1,24 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Thu, 17 Feb 2022 18:08:07 +0100
+Subject: [PATCH] Makefile: add common/boards/include to include search path
+
+This new directory should be used for board-specific headers,
+e.g. common data structures for factory data.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Makefile b/Makefile
+index f8dded0c0961..6787c597e414 100644
+--- a/Makefile
++++ b/Makefile
+@@ -436,6 +436,7 @@ LINUXINCLUDE    := -Iinclude \
+                    -I$(srctree)/dts/include \
+ 		   -I$(srctree)/arch/$(SRCARCH)/include \
+ 		   -I$(objtree)/arch/$(SRCARCH)/include \
++		   -I$(srctree)/common/boards/include \
+ 		   $(USERINCLUDE)
+ 
+ KBUILD_CPPFLAGS        := -D__KERNEL__ -D__BAREBOX__ $(LINUXINCLUDE) -fno-builtin -ffreestanding

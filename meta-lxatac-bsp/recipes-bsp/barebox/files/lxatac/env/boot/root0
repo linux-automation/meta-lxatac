@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# \e[4;1H moves to line 4, column 1
+# \e[?25l hides the cursor
+echo -a /dev/fbconsole0 -e -n "\e[4;1H\e[?25lBooting root0"
+
+boot -v mmc1.1

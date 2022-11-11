@@ -1,0 +1,17 @@
+[Unit]
+Description=LXA iobus Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/mkdir -p /var/cache/lxa-iobus
+ExecStartPre=/usr/sbin/ip link set can0_iobus down
+ExecStartPre=/usr/sbin/ip link set can0_iobus type can tq 400 prop-seg 9 phase-seg1 9 phase-seg2 6 sjw 5
+ExecStartPre=/usr/sbin/ip link set can0_iobus up
+ExecStart=/usr/bin/lxa-iobus-server -l WARN --lss-address-cache-file /var/cache/lxa-iobus/lss-cache --host "*" can0_iobus
+Environment="PYTHONUNBUFFERED=1"
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,32 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Tue, 22 Mar 2022 11:03:55 +0100
+Subject: [PATCH] lxatac: assign shorter label to internal temperature ADC
+ channel
+
+Kernel boot currently reports that:
+
+  iio iio:device4: Label internal temperature exceeds 16 characters
+  stm32-adc: probe of 48003000.adc:adc@100 failed with error -22
+
+The other labels are all uppercase with underscores in-between, so adopt
+the same convention and shorten the label to 13 characters, which is
+below the apparent 16 character limit.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 03c8aa42302b..15a7ff08c085 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -267,7 +267,7 @@ adc2: adc@100 {
+ 		status = "okay";
+ 		channel@12 {
+ 			reg = <12>;
+-			label = "internal temperature";
++			label = "TEMP_INTERNAL";
+ 		};
+ 	};
+ };

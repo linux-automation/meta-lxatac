@@ -1,0 +1,40 @@
+From: Holger Assmann <h.assmann@pengutronix.de>
+Date: Fri, 25 Jun 2021 11:19:03 +0200
+Subject: [PATCH] [WIP] lxatac: ADC: change reference voltage to 2v5
+
+This reverts commit 44963b1e2cf20edadf781103f3746a077f67fc88.
+It further rectifies wrong vdda phandle.
+
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 16cf2416f1be..170b5dc54825 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -74,19 +74,19 @@ reg_1v2: regulator_1v2 {
+ &vrefbuf {
+         regulator-min-microvolt = <2500000>;
+         regulator-max-microvolt = <2500000>;
+-        vdda-supply = <&reg_3v3>;
++        vdda-supply = <&vdda>;
+         status = "okay";
+ };
+ 
+ &adc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&adc1_ain_pins_a>;
+-	vdda-supply = <&reg_3v3>;
+-	vref-supply = <&reg_3v3>;
++	vdda-supply = <&vdda>;
++	vref-supply = <&vrefbuf>;
+ 	status = "okay";
+ 	adc@0 {
+ 		st,adc-channels = <2 5 9 10 13 15>;
+-		st,min-sample-time-nsecs = <5000>;
++		st,min-sample-time-nsecs = <50000>;
+ 		status = "okay";
+ 	};
+ };

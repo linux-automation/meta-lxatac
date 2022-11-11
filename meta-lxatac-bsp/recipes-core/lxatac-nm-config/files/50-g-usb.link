@@ -1,0 +1,10 @@
+# The USB Gadget driver always sets a random MAC address first and only later
+# do we get a chance to set an actual address via the dev_mac configfs entry.
+# For this actual address to stick we need to prevent udev from generating a
+# stable random MAC in the meantime.
+
+[Match]
+Driver=g_ether
+
+[Link]
+MACAddressPolicy=none

@@ -1,0 +1,54 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Tue, 31 May 2022 11:08:51 +0200
+Subject: [PATCH] fastboot: inform user if barebox update falls back to raw
+ copy
+
+Fastboot code determines whether to go into barebox update handler by
+checking whether filetype_is_barebox_image() returns true for the image.
+This is different from the barebox_update command which leaves it to the
+individual handlers to decide whether an image is suitable.
+
+Coupled with eMMC boot partitions, this could lead to
+`barebox_update -t mmc` updating the boot partition, while a
+`fastboot flash bbu-mmc` will write the image to the user area instead.
+
+It may be worth breaking backwards compatibility here and refuse update
+in that case, but for now at least alert the user that a raw copy is
+being attempted.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ common/fastboot.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/common/fastboot.c b/common/fastboot.c
+index f8ed40c86e00..50ea8421d92c 100644
+--- a/common/fastboot.c
++++ b/common/fastboot.c
+@@ -673,7 +673,7 @@ static void cb_flash(struct fastboot *fb, const char *cmd)
+ 		goto out;
+ 	}
+ 
+-	if (IS_ENABLED(CONFIG_BAREBOX_UPDATE) && filetype_is_barebox_image(filetype)) {
++	if (IS_ENABLED(CONFIG_BAREBOX_UPDATE)) {
+ 		void *buf;
+ 		struct bbu_handler *handler;
+ 		struct bbu_data data = {
+@@ -681,6 +681,17 @@ static void cb_flash(struct fastboot *fb, const char *cmd)
+ 			.flags = BBU_FLAG_YES,
+ 		};
+ 
++		if (!filetype_is_barebox_image(filetype)) {
++			if (strstarts(fentry->name, "bbu-")) {
++				fastboot_tx_print(fb, FASTBOOT_MSG_INFO,
++						  "This is _not_ a barebox image...");
++				fastboot_tx_print(fb, FASTBOOT_MSG_INFO,
++						  "Falling back to raw copy to %s", filename);
++			}
++
++			goto copy;
++		}
++
+ 		handler = bbu_find_handler_by_device(data.devicefile);
+ 		if (!handler)
+ 			goto copy;

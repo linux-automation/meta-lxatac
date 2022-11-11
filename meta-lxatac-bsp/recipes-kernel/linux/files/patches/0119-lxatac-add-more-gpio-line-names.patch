@@ -1,0 +1,52 @@
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Fri, 30 Jul 2021 22:07:13 +0200
+Subject: [PATCH] lxatac: add more gpio line names
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 2f05c61628d3..f011af92b41b 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -105,7 +105,7 @@ &dts {
+ 
+ &gpioa {
+ 	gpio-line-names = "", "", "", "", "", \
+-	"", "", "", "", "", "", "", "", "BOOTROM_LED", "ETH_LAB_LEDRP", "";
++	"ETH_GPIO1", "ETH_INT", "", "", "", "", "", "", "BOOTROM_LED", "ETH_LAB_LEDRP", "";
+ };
+ 
+ &gpioe {
+@@ -113,20 +113,24 @@ &gpioe {
+ 	"", "", "", "", "UART_TX_EN", "UART_RX_EN", "", "", "", "", "";
+ };
+ 
+-&gpiog {
++&gpiof {
+ 	gpio-line-names = "", "", "", "", "", \
+-	"IOBUS_FLT_FB", "", "", "", "", "", "", "", "", "", "";
++	"", "", "", "", "", "USER_LED1", "", "", "", "", "";
+ };
+ 
++&gpiog {
++	gpio-line-names = "", "", "", "", "", \
++	"IOBUS_FLT_FB", "", "USER_LED2", "", "", "", "", "", "", "", "";
++};
+ 
+ &gpioh {
+ 	gpio-line-names = "", "", "OUT_1", "OUT_0", "", \
+-	"", "", "", "", "", "", "", "", "IOBUS_PWR_EN", "", "";
++	"", "", "", "", "", "", "ETH_GPIO2", "TIM_CTS", "IOBUS_PWR_EN", "", "";
+ };
+ 
+ &gpioi {
+-	gpio-line-names = "", "", "", "", "DEVICE_DATA_EN", \
+-	"", "", "", "", "", "", "", "", "", "", "";
++	gpio-line-names = "TIM_RTS", "", "", "", "DEVICE_DATA_EN", \
++	"", "", "", "ETH_WOL", "", "", "USER_BTN", "", "", "", "";
+ };
+ 
+ &gpu {

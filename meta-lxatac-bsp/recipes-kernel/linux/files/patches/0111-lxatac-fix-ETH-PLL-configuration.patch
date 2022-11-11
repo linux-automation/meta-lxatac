@@ -1,0 +1,23 @@
+From: Rouven Czerwinski <rouven@czerwinskis.de>
+Date: Thu, 24 Jun 2021 10:28:27 +0200
+Subject: [PATCH] lxatac: fix ETH PLL configuration
+
+Signed-off-by: Rouven Czerwinski <rouven@czerwinskis.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 3d134313d2ec..4332767f1eb4 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -133,6 +133,9 @@ &ethernet0 {
+ 	pinctrl-0 = <&ethernet0_rgmii_pins_d>;
+ 	pinctrl-1 = <&ethernet0_rgmii_sleep_pins_d>;
+ 	phy-mode = "rgmii-id";
++	assigned-clocks = <&rcc ETHCK_K>, <&rcc PLL4_P>;
++	assigned-clock-parents = <&rcc PLL4_P>;
++	assigned-clock-rates = <125000000>; /* Clock PLL4 to 750Mhz in ATF/U-Boot */
+ 	st,eth-clk-sel;
+ 	status = "okay";
+ 

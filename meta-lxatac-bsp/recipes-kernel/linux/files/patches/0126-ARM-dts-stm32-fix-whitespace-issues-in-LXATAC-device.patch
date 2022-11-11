@@ -1,0 +1,56 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Mon, 6 Dec 2021 15:10:00 +0100
+Subject: [PATCH] ARM: dts: stm32: fix whitespace issues in LXATAC devicetree
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index d2422e12f5e1..fa4e52892e1b 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -146,6 +146,7 @@ host_3_curr: current-sense-amplifier@4 {
+ 		sense-gain-mult = <653>;
+ 		sense-gain-div = <1000000>;
+ 	};
++
+ 	usb {
+ 		compatible = "iio-hwmon";
+ 		io-channels = <&host_curr>, <&host_1_curr>, <&host_2_curr>, <&host_3_curr>;
+@@ -179,6 +180,7 @@ &adc {
+ 	vdda-supply = <&vdda>;
+ 	vref-supply = <&vrefbuf>;
+ 	status = "okay";
++
+ 	adc1: adc@0 {
+ 		st,adc-channels = <0 1 2 5 6 9 10 11 13 14 15 18>;
+ 		st,min-sample-time-nsecs = <5000>;
+@@ -232,6 +234,7 @@ channel@18 {
+ 			label = "STACK_SPI_CS3"; /* FIXME: unused? */
+ 		};
+ 	};
++
+ 	adc2: adc@100 {
+ 		st,adc-channels = <12>;
+ 		st,min-sample-time-nsecs = <500000>;
+@@ -363,7 +366,6 @@ fixed-link {
+ 		speed = <1000>;
+ 		full-duplex;
+ 	};
+-
+ };
+ 
+ &i2c1 {
+@@ -453,7 +455,6 @@ &usbotg_hs {
+ 	status = "okay";
+ };
+ 
+-
+ &usbh_ehci {
+ 	phys = <&usbphyc_port0>;
+ 	phy-names = "usb";

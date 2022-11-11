@@ -1,0 +1,60 @@
+From: Holger Assmann <h.assmann@pengutronix.de>
+Date: Thu, 24 Jun 2021 21:15:39 +0200
+Subject: [PATCH] [WIP] lxatac: add ADC to DT
+
+Voltages have to be verified. Changes not tested yet.
+
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 948df2266d9d..16cf2416f1be 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -70,6 +70,27 @@ reg_1v2: regulator_1v2 {
+ 	};
+ };
+ 
++/* VREFBUF: What about the external reference voltage? */
++&vrefbuf {
++        regulator-min-microvolt = <2500000>;
++        regulator-max-microvolt = <2500000>;
++        vdda-supply = <&reg_3v3>;
++        status = "okay";
++};
++
++&adc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&adc1_ain_pins_a>;
++	vdda-supply = <&reg_3v3>;
++	vref-supply = <&reg_3v3>;
++	status = "okay";
++	adc@0 {
++		st,adc-channels = <2 5 9 10 13 15>;
++		st,min-sample-time-nsecs = <5000>;
++		status = "okay";
++	};
++};
++
+ &pmic {
+ 	regulators {
+ 		buck4-supply = <&reg_5v>;	/* VIN */
+@@ -235,6 +256,16 @@ &usart3 {
+ };
+ 
+ &pinctrl {
++	adc1_ain_pins_a: adc1-ain-0 {
++		pins {
++			pinmux = <STM32_PINMUX('F', 11, ANALOG)>, /* ADC1_INP2 */
++				 <STM32_PINMUX('B', 1, ANALOG)>, /* ADC1_INP5 */
++				 <STM32_PINMUX('B', 0, ANALOG)>, /* ADC1_INP9 */
++				 <STM32_PINMUX('C', 0, ANALOG)>, /* ADC1_INP10 */
++				 <STM32_PINMUX('C', 3, ANALOG)>, /* ADC1_INP13 */
++				 <STM32_PINMUX('A', 3, ANALOG)>; /* ADC1_INP15 */
++		};
++	};
+ 	spi5_pins_a: spi5-0 {
+ 		pins1 {
+ 			pinmux = <STM32_PINMUX('F', 7, AF5)>, /* SPI5_SCK */

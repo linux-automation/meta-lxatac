@@ -1,0 +1,8 @@
+[connection]
+id=port-uplink
+uuid=241e2543-5792-40d4-8f29-b843168305d6
+type=ethernet
+interface-name=uplink
+master=tac-bridge
+permissions=
+slave-type=bridge

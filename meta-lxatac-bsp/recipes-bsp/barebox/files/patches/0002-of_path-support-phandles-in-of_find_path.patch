@@ -1,0 +1,110 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Wed, 2 Mar 2022 18:09:45 +0100
+Subject: [PATCH] of_path: support phandles in of_find_path
+
+of_find_path currently handles properties taking string values, like
+
+  device-path = &partition;
+
+Teach it to handle
+
+  backend = <&phandle>;
+
+as well. As differentiating phandle and string is only possible
+heuristically, we add a new OF_FIND_PATH_FLAGS_PHANDLE0 to decode first
+property cell as phandle.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ drivers/of/of_path.c | 49 ++++++++++++++++++++++++++++++++-----------------
+ include/of.h         |  3 ++-
+ 2 files changed, 34 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/of/of_path.c b/drivers/of/of_path.c
+index 05c28bf052c7..675b27f45fd3 100644
+--- a/drivers/of/of_path.c
++++ b/drivers/of/of_path.c
+@@ -223,7 +223,11 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
+  * @outpath: if this function returns 0 outpath will contain the path belonging
+  *           to the input path description. Must be freed with free().
+  * @flags: use OF_FIND_PATH_FLAGS_BB to return the .bb device if available
++ *         bitwise OR OF_FIND_PATH_FLAGS_PHANDLE0 to decode first cell as phandle
+  *
++ * With OF_FIND_PATH_FLAGS_PHANDLE0, the first cell is a phandle to a physical
++ * device or to a partition contained within. Otherwise, the property contains
++ * a full path to a partition described by the OF partition binding
+  * paths in the devicetree have the form of a multistring property. The first
+  * string contains the full path to the physical device containing the path or
+  * a full path to a partition described by the OF partition binding.
+@@ -239,29 +243,40 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
+  * device-path = &mmc0, "partname:0";
+  * device-path = &norflash, "partname:barebox-environment";
+  * device-path = &environment_nor;
++ * backend     = <&environment_nor>; // with OF_FIND_PATH_FLAGS_PHANDLE0
+  */
+ int of_find_path(struct device_node *node, const char *propname, char **outpath, unsigned flags)
+ {
+ 	struct device_node *rnode;
+-	const char *path;
+ 	const char *part = NULL;
+-	const char partnamestr[] = "partname:";
+-
+-	path = of_get_property(node, propname, NULL);
+-	if (!path)
+-		return -EINVAL;
+-
+-	rnode = of_find_node_by_path(path);
+-	if (!rnode)
+-		return -ENODEV;
+-
+-	of_property_read_string_index(node, propname, 1, &part);
+-	if (part) {
+-		if (!strncmp(part, partnamestr, sizeof(partnamestr) - 1)) {
+-			part += sizeof(partnamestr) - 1;
+-		} else {
+-			pr_err("Invalid device-path: %s\n", part);
++
++	if (flags & OF_FIND_PATH_FLAGS_PHANDLE0) {
++		rnode = of_parse_phandle(node, propname, 0);
++		if (!rnode) {
++			pr_err("%s: Cannot resolve \"%s\" phandle\n",
++			       node->full_name, propname);
++			return -ENOENT;
++		}
++	} else {
++		const char partnamestr[] = "partname:";
++		const char *path;
++
++		path = of_get_property(node, propname, NULL);
++		if (!path)
+ 			return -EINVAL;
++
++		rnode = of_find_node_by_path(path);
++		if (!rnode)
++			return -ENODEV;
++
++		of_property_read_string_index(node, propname, 1, &part);
++		if (part) {
++			if (!strncmp(part, partnamestr, sizeof(partnamestr) - 1)) {
++				part += sizeof(partnamestr) - 1;
++			} else {
++				pr_err("Invalid device-path: %s\n", part);
++				return -EINVAL;
++			}
+ 		}
+ 	}
+ 
+diff --git a/include/of.h b/include/of.h
+index cf9950e9b321..7644d5db3fef 100644
+--- a/include/of.h
++++ b/include/of.h
+@@ -303,7 +303,8 @@ int of_add_memory(struct device_node *node, bool dump);
+ int of_add_memory_bank(struct device_node *node, bool dump, int r,
+ 		u64 base, u64 size);
+ struct device_d *of_find_device_by_node_path(const char *path);
+-#define OF_FIND_PATH_FLAGS_BB 1		/* return .bb device if available */
++#define OF_FIND_PATH_FLAGS_BB		0x01	/* return .bb device if available */
++#define OF_FIND_PATH_FLAGS_PHANDLE0	0x10	/* parse phandle instead of string */
+ int of_find_path(struct device_node *node, const char *propname, char **outpath, unsigned flags);
+ int of_find_path_by_node(struct device_node *node, char **outpath, unsigned flags);
+ struct device_node *of_find_node_by_devpath(struct device_node *root, const char *path);
