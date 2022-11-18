@@ -17,10 +17,6 @@
 	path = meta-virtualization
 	url = https://github.com/lgirdk/meta-virtualization.git
 	branch = kirkstone
-[submodule "meta-security"]
-	path = meta-security
-	url = https://github.com/ni/meta-security.git
-	branch = kirkstone
 [submodule "poky"]
 	path = poky
 	url = https://github.com/yoctoproject/poky.git

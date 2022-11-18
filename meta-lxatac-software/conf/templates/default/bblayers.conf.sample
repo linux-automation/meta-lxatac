@@ -18,6 +18,5 @@ BBLAYERS ?= " \
   ##OEROOT##/../meta-lxatac-software \
   ##OEROOT##/../meta-labgrid \
   ##OEROOT##/../meta-rauc \
-  ##OEROOT##/../meta-security \
   ##OEROOT##/../meta-virtualization \
   "
