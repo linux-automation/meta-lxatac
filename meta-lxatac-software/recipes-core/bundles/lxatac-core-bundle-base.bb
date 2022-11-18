@@ -19,14 +19,14 @@ RAUC_BUNDLE_SLOTS ?= "rootfs bootloader"
 RAUC_SLOT_rootfs ?= "lxatac-core-image-base"
 RAUC_SLOT_rootfs[fstype] = "ext4"
 RAUC_SLOT_rootfs[hooks] = "post-install"
-RAUC_SLOT_rootfs[incremental] = "block-hash-index"
+RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
 
 RAUC_SLOT_bootloader = "bootloader"
 RAUC_SLOT_bootloader[depends] = "emmc-boot-image:do_deploy"
 RAUC_SLOT_bootloader[type] = "file"
 RAUC_SLOT_bootloader[file] = "emmc-boot-image-lxatac.img"
 
-# smaller chunks for incremental mode
+# smaller chunks for adaptive mode
 BUNDLE_ARGS += '--mksquashfs-args="-no-exports -b 128k -comp zstd -Xcompression-level 18"'
 
 # rootfs tar: 639528960 bytes
