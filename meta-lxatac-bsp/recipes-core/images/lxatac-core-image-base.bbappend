@@ -7,7 +7,6 @@ IMAGE_INSTALL:append = "\
     kernel-image \
     kernel-modules \
     kernel-devicetree \
-    barebox \
     dt-utils-barebox-state \
 "
 
