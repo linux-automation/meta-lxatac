@@ -15,21 +15,6 @@ GENIMAGE_IMAGE_SUFFIX = ""
 GENIMAGE_ROOTFS_IMAGE = "lxatac-core-image-base"
 GENIMAGE_ROOTFS_IMAGE_FSTYPE = "tar"
 
-# Backport from https://github.com/pengutronix/meta-ptx/pull/105
-# Create image-name-${timestamp}.img -> image-name.img symlinks for everything
-# that includes @IMAGE@ in its name, not only @IMAGE@ itself.
-do_deploy () {
-    install ${B}/* ${DEPLOYDIR}/
-
-    for img in ${B}/*; do
-        img=$(basename "${img}")
-        case "$img" in *"${GENIMAGE_IMAGE_FULLNAME}"*)
-            ln -sf ${img} \
-                ${DEPLOYDIR}/$(echo "${img}" | sed "s/${GENIMAGE_IMAGE_FULLNAME}/${GENIMAGE_IMAGE_LINK_FULLNAME}/")
-        esac
-    done
-}
-
 do_genimage[depends] += " \
     ${GENIMAGE_ROOTFS_IMAGE}:do_image_complete \
 "
