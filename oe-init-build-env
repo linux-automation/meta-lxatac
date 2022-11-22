@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-TEMPLATECONF=`pwd`/meta-lxatac-software/conf
+TEMPLATECONF=`pwd`/meta-lxatac-software/conf/templates/default/
 
 . poky/oe-init-build-env $1
