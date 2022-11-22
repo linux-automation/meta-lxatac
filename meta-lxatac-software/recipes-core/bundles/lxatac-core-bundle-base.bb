@@ -9,6 +9,9 @@ RAUC_BUNDLE_FORMAT = "verity"
 
 RAUC_BUNDLE_COMPATIBLE ?= "Demo Board"
 
+RAUC_BUNDLE_VERSION = "${DISTRO_VERSION}-${DATETIME}"
+RAUC_BUNDLE_VERSION[vardepsexclude] = "DATETIME"
+
 RAUC_BUNDLE_HOOKS[file] = "hook.sh"
 
 RAUC_BUNDLE_SLOTS ?= "rootfs bootloader"
