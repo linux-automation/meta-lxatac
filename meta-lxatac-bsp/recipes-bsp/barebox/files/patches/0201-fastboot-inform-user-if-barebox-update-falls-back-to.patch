@@ -18,23 +18,14 @@ being attempted.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 ---
- common/fastboot.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ common/fastboot.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/common/fastboot.c b/common/fastboot.c
-index f8ed40c86e00..50ea8421d92c 100644
+index ae7f132444d1..6a43271b3e31 100644
 --- a/common/fastboot.c
 +++ b/common/fastboot.c
-@@ -673,7 +673,7 @@ static void cb_flash(struct fastboot *fb, const char *cmd)
- 		goto out;
- 	}
- 
--	if (IS_ENABLED(CONFIG_BAREBOX_UPDATE) && filetype_is_barebox_image(filetype)) {
-+	if (IS_ENABLED(CONFIG_BAREBOX_UPDATE)) {
- 		void *buf;
- 		struct bbu_handler *handler;
- 		struct bbu_data data = {
-@@ -681,6 +681,17 @@ static void cb_flash(struct fastboot *fb, const char *cmd)
+@@ -692,6 +692,17 @@ static void cb_flash(struct fastboot *fb, const char *cmd)
  			.flags = BBU_FLAG_YES,
  		};
  

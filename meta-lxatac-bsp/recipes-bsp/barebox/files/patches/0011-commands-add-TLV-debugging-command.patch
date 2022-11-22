@@ -14,10 +14,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 commands/tlv.c
 
 diff --git a/commands/Kconfig b/commands/Kconfig
-index c5505321cfd9..846daaebf405 100644
+index 9894ecb9aa31..10abf483b493 100644
 --- a/commands/Kconfig
 +++ b/commands/Kconfig
-@@ -2257,6 +2257,18 @@ config CMD_STATE
+@@ -2280,6 +2280,18 @@ config CMD_STATE
  	depends on STATE
  	prompt "state"
  
@@ -37,10 +37,10 @@ index c5505321cfd9..846daaebf405 100644
  	bool
  	prompt "dhrystone"
 diff --git a/commands/Makefile b/commands/Makefile
-index b3b7bafe6b64..6c3a7a1dabcd 100644
+index 068fbb32dad7..5973ea5cbd29 100644
 --- a/commands/Makefile
 +++ b/commands/Makefile
-@@ -125,6 +125,7 @@ obj-$(CONFIG_CMD_CMP)		+= cmp.o
+@@ -127,6 +127,7 @@ obj-$(CONFIG_CMD_CMP)		+= cmp.o
  obj-$(CONFIG_CMD_NV)		+= nv.o
  obj-$(CONFIG_CMD_DEFAULTENV)	+= defaultenv.o
  obj-$(CONFIG_CMD_STATE)		+= state.o
@@ -50,7 +50,7 @@ index b3b7bafe6b64..6c3a7a1dabcd 100644
  obj-$(CONFIG_CMD_DHRYSTONE)	+= dhrystone.o
 diff --git a/commands/tlv.c b/commands/tlv.c
 new file mode 100644
-index 000000000000..88ba25e4ed36
+index 000000000000..53fbc2a29186
 --- /dev/null
 +++ b/commands/tlv.c
 @@ -0,0 +1,55 @@
@@ -91,7 +91,7 @@ index 000000000000..88ba25e4ed36
 +	if (fixup)
 +		return tlv_of_register_fixup(tlvdev);
 +
-+	of_print_nodes(tlv_of_node(tlvdev), 0);
++	of_print_nodes(tlv_of_node(tlvdev), 0, ~0);
 +
 +	tlv_free_device(tlvdev);
 +	return 0;

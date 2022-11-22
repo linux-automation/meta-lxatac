@@ -1,0 +1,50 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Mon, 21 Mar 2022 15:25:06 +0100
+Subject: [PATCH] common: add $global.serial_number with device tree fixup
+
+This new variable can be set by boards from C code or from the
+environment to change the serial number fixed up into the kernel device
+tree.
+
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ common/Kconfig  | 5 +++++
+ common/oftree.c | 9 +++++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/common/Kconfig b/common/Kconfig
+index fb2bf4968310..2751d14cecd6 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -1083,6 +1083,11 @@ config MACHINE_ID
+ 	  Note: if no hashable information is available no machine id will be passed
+ 	  to the kernel.
+ 
++config SERIAL_NUMBER_FIXUP
++	bool "fix up board serial number"
++	help
++	  fixup serial number supplied by board code info device tree
++
+ config SYSTEMD_OF_WATCHDOG
+ 	bool "inform devicetree-enabled kernel of used watchdog"
+ 	depends on WATCHDOG && OFTREE && FLEXIBLE_BOOTARGS
+diff --git a/common/oftree.c b/common/oftree.c
+index 38752e2c191d..15ce8e3c3088 100644
+--- a/common/oftree.c
++++ b/common/oftree.c
+@@ -217,6 +217,15 @@ static int of_fixup_bootargs(struct device_node *root, void *unused)
+ 	if (compat)
+ 		of_prepend_machine_compatible(root, compat);
+ 
++	if (IS_ENABLED(CONFIG_BOARDINFO_FIXUP)) {
++		const char *serialno;
++
++		serialno = getenv("global.serial_number");
++		if (serialno)
++			of_property_write_string(root, "serial-number", serialno);
++
++	}
++
+ 	node = of_create_node(root, "/chosen");
+ 	if (!node)
+ 		return -ENOMEM;

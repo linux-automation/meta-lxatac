@@ -8,10 +8,10 @@ Subject: [PATCH] HACK: Workaround timeout after core reset on some lxatac
  1 file changed, 8 insertions(+)
 
 diff --git a/drivers/usb/dwc2/dwc2.c b/drivers/usb/dwc2/dwc2.c
-index 1b5981c2d54e..cb57be82bf81 100644
+index 8cb99446e48d..1c8918f1e96d 100644
 --- a/drivers/usb/dwc2/dwc2.c
 +++ b/drivers/usb/dwc2/dwc2.c
-@@ -90,6 +90,14 @@ static int dwc2_probe(struct device_d *dev)
+@@ -133,6 +133,14 @@ static int dwc2_probe(struct device_d *dev)
  	if (ret)
  		goto error;
  

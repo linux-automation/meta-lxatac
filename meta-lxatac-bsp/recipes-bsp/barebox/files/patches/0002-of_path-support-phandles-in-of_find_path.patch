@@ -95,10 +95,10 @@ index 05c28bf052c7..675b27f45fd3 100644
  	}
  
 diff --git a/include/of.h b/include/of.h
-index cf9950e9b321..7644d5db3fef 100644
+index 052d5fcad84c..7273359c623a 100644
 --- a/include/of.h
 +++ b/include/of.h
-@@ -303,7 +303,8 @@ int of_add_memory(struct device_node *node, bool dump);
+@@ -317,7 +317,8 @@ int of_add_memory(struct device_node *node, bool dump);
  int of_add_memory_bank(struct device_node *node, bool dump, int r,
  		u64 base, u64 size);
  struct device_d *of_find_device_by_node_path(const char *path);

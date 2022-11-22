@@ -27,10 +27,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 dts/src/arm/stm32mp157c-lxa-tac.dts
 
 diff --git a/arch/arm/boards/Makefile b/arch/arm/boards/Makefile
-index 75e15cbda4df..8a11fb1bfaff 100644
+index a0e84c24d7b6..eeda7f93267d 100644
 --- a/arch/arm/boards/Makefile
 +++ b/arch/arm/boards/Makefile
-@@ -142,6 +142,7 @@ obj-$(CONFIG_MACH_SOLIDRUN_MICROSOM)		+= solidrun-microsom/
+@@ -146,6 +146,7 @@ obj-$(CONFIG_MACH_SOLIDRUN_MICROSOM)		+= solidrun-microsom/
  obj-$(CONFIG_MACH_STM32MP15XX_DKX)		+= stm32mp15xx-dkx/
  obj-$(CONFIG_MACH_STM32MP13XX_DK)		+= stm32mp13xx-dk/
  obj-$(CONFIG_MACH_LXA_MC1)			+= lxa-mc1/
@@ -112,10 +112,10 @@ index 000000000000..a15bbded3854
 +	stm32mp1_barebox_entry(fdt);
 +}
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index e0177d84e4e2..98f1cab9a240 100644
+index 99f44e7b04e9..81d82f092b46 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -130,6 +130,7 @@ lwl-$(CONFIG_MACH_SEEED_ODYSSEY) += stm32mp157c-odyssey.dtb.o
+@@ -136,6 +136,7 @@ lwl-$(CONFIG_MACH_SEEED_ODYSSEY) += stm32mp157c-odyssey.dtb.o
  lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.o
  lwl-$(CONFIG_MACH_STM32MP13XX_DK) += stm32mp135f-dk.dtb.o
  lwl-$(CONFIG_MACH_LXA_MC1) += stm32mp157c-lxa-mc1.dtb.o

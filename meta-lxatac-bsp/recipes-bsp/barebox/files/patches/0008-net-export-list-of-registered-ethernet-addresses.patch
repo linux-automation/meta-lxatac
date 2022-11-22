@@ -24,10 +24,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 11 insertions(+), 9 deletions(-)
 
 diff --git a/include/net.h b/include/net.h
-index acc0cd68e084..a29d7f7237da 100644
+index d8ee9930e0c6..82163dd60acf 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -546,6 +546,15 @@ void ifdown_all(void);
+@@ -550,6 +550,15 @@ void ifdown_all(void);
  
  extern struct list_head netdev_list;
  
@@ -44,10 +44,10 @@ index acc0cd68e084..a29d7f7237da 100644
  
  #endif /* __NET_H__ */
 diff --git a/net/eth.c b/net/eth.c
-index 5112e9b1646f..566d63aa4309 100644
+index 36de7a418b88..1a44dad4802f 100644
 --- a/net/eth.c
 +++ b/net/eth.c
-@@ -24,14 +24,7 @@ static uint64_t last_link_check;
+@@ -22,14 +22,7 @@
  
  LIST_HEAD(netdev_list);
  
@@ -63,7 +63,7 @@ index 5112e9b1646f..566d63aa4309 100644
  
  int eth_set_ethaddr(struct eth_device *edev, const char *ethaddr)
  {
-@@ -98,7 +91,7 @@ void eth_register_ethaddr(int ethid, const char *ethaddr)
+@@ -96,7 +89,7 @@ void eth_register_ethaddr(int ethid, const char *ethaddr)
  	for_each_netdev(edev) {
  		if (edev->dev.id == ethid) {
  			register_preset_mac_address(edev, ethaddr);
