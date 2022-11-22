@@ -18,7 +18,7 @@ Building the image as-is
 
 Obtaining the recipes and required git submodules:
 
-    $ git clone --recursive --branch kirkstone \
+    $ git clone --recursive --branch langdale \
       https://github.com/linux-automation/meta-lxatac.git
     $ cd meta-lxatac
 
@@ -101,7 +101,7 @@ name or your own name):
     conf/  files/  recipes-backports/  recipes-core/ …
 
     $ bitbake-layers create-layer meta-lxatac-example
-    
+
     $ ls meta-lxatac-*
     meta-lxatac-bsp:
     conf/  recipes-bsp/  recipes-core/  recipes-devtools/ …
@@ -116,9 +116,11 @@ Populate the layer with sample configs to use when first setting up a build
 directory and remove the config files that were already generated when building
 the first time:
 
-    $ cp meta-lxatac-software/conf/*.sample meta-lxatac-example/conf/
+    $ mkdir -p meta-lxatac-example/conf/templates/default
+    $ cp meta-lxatac-software/conf/templates/default/*.sample \
+        meta-lxatac-example/conf/templates/default
     # Add "##OEROOT##/../meta-lxatac-example \" to the list of layers:
-    $ $EDITOR meta-lxatac-example/conf/bblayers.conf.sample
+    $ $EDITOR meta-lxatac-example/conf/templates/default/bblayers.conf.sample
     $ rm -rv build/conf
 
 And then create a script to set up the build environment including the
@@ -183,7 +185,7 @@ somewhere outside the already cloned `meta-lxatac` hierarchy.
 
 Add `meta-lxatac` as git submodule and initialize _its_ submodules:
 
-    $ git submodule add --branch kirkstone https://github.com/linux-automation/meta-lxatac.git
+    $ git submodule add --branch langdale https://github.com/linux-automation/meta-lxatac.git
     $ git submodule update --init --recursive
     $ cp meta-lxatac/.gitignore .
     $ git add .
@@ -210,10 +212,12 @@ Now we will create a new layer for our custom recipes:
 Populate the layer with sample configs to use when first setting up a build
 directory:
 
-    $ cp meta-lxatac/meta-lxatac-software/conf/*.sample meta-lxatac-example/conf/
+    $ mkdir -p meta-lxatac-example/conf/templates/default
+    $ cp meta-lxatac/meta-lxatac-software/conf/templates/default/*.sample \
+        meta-lxatac-example/conf/templates/default
     # Add "##OEROOT##/../../meta-lxatac-example \" to the list of layers:
-    $ $EDITOR conf/bblayers.conf.sample
-    
+    $ $EDITOR meta-lxatac-example/conf/templates/default/bblayers.conf.sample
+
 And then create a script to set up the build environment including the
 example layer:
 
@@ -321,4 +325,3 @@ the default image:
 A newly built update bundle should now contain your specified ssh keys:
 
     $ bitbake lxatac-core-bundle-base
-
