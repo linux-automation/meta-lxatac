@@ -42,6 +42,7 @@ EXTRA_OEMAKE = " \
 
 do_compile() {
     export TARGETCFLAGS="${TARGET_LDFLAGS}${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS}"
+    export TF_LDFLAGS=" -z noexecstack --no-warn-rwx-segment "
     unset LDFLAGS
     unset CFLAGS
     unset CPPFLAGS
