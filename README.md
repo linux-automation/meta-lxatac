@@ -1,6 +1,12 @@
 Linux Automation GmbH Test Automation Controller Base Image
 ===========================================================
 
+Main topics:
+
+  - [Building the image as-is](#building-the-image-as-is)
+  - [Customization](#customization)
+  - [Installing Images via USB](#installing-images-via-usb)
+
 This set of recipes is used to build the software images and update bundles
 for the LXATAC provided by the Linux Automation GmbH and can be used to
 derive customized and pre-configured images for use in your infrastructure.
@@ -343,3 +349,130 @@ the default image:
 A newly built update bundle should now contain your specified ssh keys:
 
     $ bitbake lxatac-core-bundle-base
+
+Installing Images via USB
+-------------------------
+
+This process mirrors the steps we use when we bring up the LXA TAC for the
+first time, so it should always work, even if the device is completely bricked
+software-wise and you can no longer deploy any RAUC bundles.
+
+### Build the Firmware Files
+
+Flashing the LXA TAC from scratch requires a different set of firmware files
+than installing a RAUC update bundle. To build these files run:
+
+    $ bitbake emmc-image emmc-boot-image tf-a-stm32mp
+
+The required files should then appear in `tmp/deploy/images/lxatac/`.
+
+### Bring the Device into USB Boot Mode
+
+The first step is to bring the LXA TAC into the USB bootmode and load a
+prelininary bootloader into RAM, which we will use to flash the new image.
+The USB bootmode is implemented in the SoC bootrom and can thus not be
+corrupted by software running on the TAC.
+
+Unscrew the four screws holding the frontplate with the display in place.
+Pay close attention not to break the flat flex cable connecting the display
+to the mainboard. The display cable can be disconnected by opening the flap
+on the flat flex connector.
+
+Connect the mainboard to your computer using an USB-C Cable.
+
+Identify the (possibly unpopulated) connector `P4` in the lower left corner of
+the LXA TAC mainboard.
+It should have pins `GND`, `BT0`, `BT1` and `BT2` marked on the PCB silkscreen.
+These `BT?` pins correspond to the boot mode pins of the STM32MP1 and are
+usually strapped to be `LOW`, `HIGH` and `LOW` respectively,
+instructing the SoC to boot from the eMMC.
+Pull pin `BT1` to `GND` by using e.g. a set of tweezers to connect it to `GND`.
+This tells the device to boot into the serial update bootrom.
+
+![LXA TAC Bootmode Pins BT0-BT2](readme-assets/bootmode-pins.jpg?raw=true "LXA TAC Bootmode Pins")
+
+Power on the device. It should show up in `lsusb` and `dmesg` on your host
+computer. Next you can upload the required pieces of software:
+
+### Flashing the software
+
+    $ lsusb | grep DFU
+    Bus 001 Device 038: ID 0483:df11 STMicroelectronics STM Device in DFU Mode
+
+    $ cd tmp/deploy/images/lxatac/
+
+    # Trusted Firmware-A handles some early hardware setup and then jumps
+    # into the actual bootloader
+    $ dfu-util --alt 1 -D tf-a-stm32mp157c-lxa-tac.stm32
+
+    # The Barebox bootloader. This command only loads the bootloader into RAM.
+    # Nothing is being flashed permanently yet.
+    $ dfu-util --alt 3 -D emmc-boot-image-lxatac.fip
+
+    # Exit the USB Boot mode. The TF-A will run and jump into the Barebox in
+    # RAM.
+    $ dfu-util --alt 0 -e
+
+    # Write the TF-A and bootloader to one of the two redundant eMMC boot
+    # partitions. These partitions are not partitions in the normal software
+    # sense but a special eMMC hardware feature to provide atomic updates.
+    $ fastboot flash bbu-mmc emmc-boot-image-lxatac.img
+
+    # Use the Android fastboot support in Barebox to write the firmware image
+    # (in the form of an Android sparse image (.simg)) to the eMMC storage.
+    # This will overwrite the data you've stored there.
+    $ fastboot flash mmc emmc-image-lxatac.simg
+
+
+You are now done flashing the LXA TAC and can remove the pull-down on `BT1`
+and power cycle it to boot into your newly flashed image.
+
+#### Troubleshooting
+
+##### The device should be in bootrom but does not show up on the Host
+
+Disconnect the USB-C cable from the TAC and power cycle the TAC.
+One of the LEDs on the `DUT` ethernet port should now blink in quick sucession.
+The LED is connected to the `PA13` pin of the STM32MP1, which is used for debug
+output from the bootrom. The LED not blinking means that either the wrong boot
+mode is selected or there is some hardware fault.
+Check the bootmode pins and the 5V and 3.3V LEDs inside of the device.
+If you connect the USB-C cable the blinking should stop and the device should
+show up on the host. Otherwise there may be something wrong with the cable.
+
+##### Fastboot keeps `< waiting for any device >`
+
+If `fastboot` sits idle `< waiting for any device >`, this can be an error with
+the permissions on the USB device. Any easy check for this is to run `fastboot`
+as `root` using e.g. `sudo`.
+
+##### The TAC disconnects during fastboot
+
+This can happen when the watchdog timer is set up in the Barebox bootloader
+loaded into RAM via `dfu-util`.
+To prevent the TAC from rebooting during fastboot connect to the Barebox
+console via the debug UART adapter / the USB console provided by Barebox
+and execute `wd -x` on the shell. E.g.:
+
+    barebox@Linux Automation Test Automation Controller (TAC):/ wd -x
+
+##### The installed bundle does not start
+
+When flashing the emmc-image only the first of two update partitions is
+initialized. The second one is set up on first boot and filled for the first time
+once you install a RAUC bundle on the system for the first time.
+There is a 50/50 chance that Barebox is currently set up to boot from this
+non-existing partition, which will fail and reduce its retry counter.
+If the TAC does not boot after flashing you should power cycle the device
+about four times in slow succession to make sure the wrong partition is marked
+as bad and the correct partition is used.
+
+Alternatively you can choose the correct partition using the barebox console
+via a UART debug adapter:
+
+    # state.bootstate.system1.remaining_attempts=0
+    # state.bootstate.system1.priority=0
+    # state.bootstate.system0.remaining_attempts=3
+    # state.bootstate.system0.priority=1
+    # state -s
+    # reset
