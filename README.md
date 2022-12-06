@@ -31,7 +31,7 @@ the official bundles, so you will have to generate your own:
 
     $ openssl req -x509 -newkey rsa:4096 -days 36500 -nodes \
       -keyout meta-lxatac-software/files/rauc.key.pem \
-      -out meta-lxatac-software/files/rauc.cert.pem
+      >> meta-lxatac-software/files/rauc.cert.pem
     […]
     Country Name (2 letter code) [AU]:DE
     State or Province Name (full name) [Some-State]:
@@ -76,8 +76,19 @@ After some time you should end up with with a rauc bundle in:
     $ ls tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb
     tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb@
 
-You can install this via the LXA TAC web interface, by selecting the
-"Ignore Bundle Signature" option in the updater interface.
+To install the rauc bundle you will have to deploy the certificate you have
+generated to your TAC:
+
+    $ scp meta-lxatac-software/files/rauc.cert.pem \
+      [IP/HOSTNAME OF YOUR TAC]:/etc/rauc/rauc.cert.pem
+
+The certificates are plain text files, so you can also deploy them by e.g.
+opening the file in an editor via the debug serial port.
+
+Lastly you can install the bundle on your LXA TAC, using either the web
+interface or the commandline:
+
+    root@lxatac-00010:~ rauc install [PATH_TO_BUNDLE].raucb
 
 Customization
 -------------
@@ -266,6 +277,13 @@ keys that were generated in the first step, just to make sure that you will not
 accidently include them in a future meta-lxatac pull request:
 
     $ git restore --staged --worktree meta-lxatac-software/files
+
+If you still want to be able to install official bundles provided by Linux
+Automation GmbH, you can add the official certificate to the list of allowed
+certificates using:
+
+    $ cat meta-lxatac-software/files/rauc.cert.pem \
+      >> meta-lxatac-example/files/rauc.cert.pem
 
 Next you should add the following lines to `meta-lxatac-example/conf/layer.conf`:
 
