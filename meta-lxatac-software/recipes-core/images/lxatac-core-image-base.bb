@@ -109,6 +109,7 @@ IMAGE_INSTALL:append = "\
     systemd-conf-lxatac \
     systemd-container \
     tacd \
+    tacd-webinterface \
     tac-gadget \
     tcpdump \
     tmux \
