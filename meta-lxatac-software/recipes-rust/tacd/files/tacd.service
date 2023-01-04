@@ -9,7 +9,7 @@ Restart=on-failure
 RestartForceExitStatus=100
 RestartSec=30
 WatchdogSec=3
-ExecStopPost=gpioset gpiochip10 0=0 1=0
+ExecStopPost=gpioset gpiochip10 0=1 1=1
 
 [Install]
 WantedBy=multi-user.target
