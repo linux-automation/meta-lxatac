@@ -1,0 +1,26 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Tue, 25 Oct 2022 10:50:32 +0200
+Subject: [PATCH] ARM: dts: stm32: lxa-tac: add voltage supply for on-board hub
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This removes a dummy-regulator warning from dmesg.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 0e43ce6ec8e1..6f6c7733cb35 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -471,6 +471,7 @@ usbhub: usbhub@2c {
+ 		compatible ="microchip,usb2514b";
+ 		reg = <0x2c>;
+ 		reset-gpios = <&gpiob 6 GPIO_ACTIVE_LOW>;
++		vdd-supply = <&v3v3>;
+ 	};
+ };
+ 
