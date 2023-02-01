@@ -1,7 +1,5 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/python3-labgrid:" 
 
-SRCREV = "1d1cecbb61b3a60ca269ad9a9e94b2e7e743619a"
-
 SRC_URI += " \
     file://userconfig.yaml \
     file://labgrid.conf \
