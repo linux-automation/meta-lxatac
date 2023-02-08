@@ -1,0 +1,64 @@
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Thu, 30 Mar 2023 12:49:54 +0200
+Subject: [PATCH] backlight: pwm_bl: Avoid backlight flicker applying initial
+ PWM state
+
+The initial PWM state returned by pwm_init_state() has a duty cycle
+of 0 ns. To avoid backlight flicker when taking over an enabled
+display from the bootloader, skip the initial pwm_apply_state()
+and leave the PWM be until backlight_update_state() will apply the
+state with the desired brightness.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/video/backlight/pwm_bl.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index fb388148d98f..daa90f41f665 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -531,12 +531,10 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	if (!state.period && (data->pwm_period_ns > 0))
+ 		state.period = data->pwm_period_ns;
+ 
+-	ret = pwm_apply_state(pb->pwm, &state);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to apply initial PWM state: %d\n",
+-			ret);
+-		goto err_alloc;
+-	}
++	/*
++	 * No need to apply initial state, except in the error path.
++	 * State will be applied by backlight_update_status() on success.
++	 */
+ 
+ 	memset(&props, 0, sizeof(struct backlight_properties));
+ 
+@@ -573,7 +571,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev,
+ 				"failed to setup default brightness table\n");
+-			goto err_alloc;
++			goto err_apply;
+ 		}
+ 
+ 		for (i = 0; i <= data->max_brightness; i++) {
+@@ -602,7 +600,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	if (IS_ERR(bl)) {
+ 		dev_err(&pdev->dev, "failed to register backlight\n");
+ 		ret = PTR_ERR(bl);
+-		goto err_alloc;
++		goto err_apply;
+ 	}
+ 
+ 	if (data->dft_brightness > data->max_brightness) {
+@@ -619,6 +617,8 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, bl);
+ 	return 0;
+ 
++err_apply:
++	pwm_apply_state(pb->pwm, &state);
+ err_alloc:
+ 	if (data->exit)
+ 		data->exit(&pdev->dev);

@@ -1,0 +1,141 @@
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Wed, 29 Mar 2023 18:10:05 +0200
+Subject: [PATCH] pwm: stm32: Implement .get_state()
+
+Stop stm32_pwm_detect_channels() from disabling all channels and count
+the number of enabled PWMs to keep the clock running. Implement the
+&pwm_ops->get_state callback so drivers can inherit PWM state set by
+the bootloader.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/pwm/pwm-stm32.c | 75 ++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 59 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
+index 21e4a34dfff3..05689f3d2c9b 100644
+--- a/drivers/pwm/pwm-stm32.c
++++ b/drivers/pwm/pwm-stm32.c
+@@ -52,6 +52,21 @@ static u32 active_channels(struct stm32_pwm *dev)
+ 	return ccer & TIM_CCER_CCXE;
+ }
+ 
++static int read_ccrx(struct stm32_pwm *dev, int ch, u32 *value)
++{
++	switch (ch) {
++	case 0:
++		return regmap_read(dev->regmap, TIM_CCR1, value);
++	case 1:
++		return regmap_read(dev->regmap, TIM_CCR2, value);
++	case 2:
++		return regmap_read(dev->regmap, TIM_CCR3, value);
++	case 3:
++		return regmap_read(dev->regmap, TIM_CCR4, value);
++	}
++	return -EINVAL;
++}
++
+ static int write_ccrx(struct stm32_pwm *dev, int ch, u32 value)
+ {
+ 	switch (ch) {
+@@ -482,9 +497,40 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	return ret;
+ }
+ 
++static int stm32_pwm_get_state(struct pwm_chip *chip,
++			       struct pwm_device *pwm, struct pwm_state *state)
++{
++	struct stm32_pwm *priv = to_stm32_pwm_dev(chip);
++	int ch = pwm->hwpwm;
++	unsigned long rate;
++	u32 ccer, psc, arr, ccr;
++	u64 dty, prd;
++	int ret;
++
++	ret = regmap_read(priv->regmap, TIM_CCER, &ccer);
++	if (ret)
++		return ret;
++
++	state->enabled = ccer & (TIM_CCER_CC1E << (ch * 4));
++	state->polarity = (ccer & (TIM_CCER_CC1P << (ch * 4))) ?
++			  PWM_POLARITY_INVERSED : PWM_POLARITY_NORMAL;
++	regmap_read(priv->regmap, TIM_PSC, &psc);
++	regmap_read(priv->regmap, TIM_ARR, &arr);
++	read_ccrx(priv, ch, &ccr);
++	rate = clk_get_rate(priv->clk);
++
++	prd = (u64)NSEC_PER_SEC * (psc + 1) * (arr + 1);
++	state->period = DIV_ROUND_UP_ULL(prd, rate);
++	dty = (u64)NSEC_PER_SEC * (psc + 1) * ccr;
++	state->duty_cycle = DIV_ROUND_UP_ULL(dty, rate);
++
++	return ret;
++}
++
+ static const struct pwm_ops stm32pwm_ops = {
+ 	.owner = THIS_MODULE,
+ 	.apply = stm32_pwm_apply_locked,
++	.get_state = stm32_pwm_get_state,
+ 	.capture = IS_ENABLED(CONFIG_DMA_ENGINE) ? stm32_pwm_capture : NULL,
+ };
+ 
+@@ -575,30 +621,22 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
+ 	priv->have_complementary_output = (ccer != 0);
+ }
+ 
+-static int stm32_pwm_detect_channels(struct stm32_pwm *priv)
++static int stm32_pwm_detect_channels(struct stm32_pwm *priv, int *n_enabled)
+ {
+-	u32 ccer;
+-	int npwm = 0;
++	u32 ccer, ccer_backup;
++	int npwm;
+ 
+ 	/*
+ 	 * If channels enable bits don't exist writing 1 will have no
+ 	 * effect so we can detect and count them.
+ 	 */
++	regmap_read(priv->regmap, TIM_CCER, &ccer_backup);
+ 	regmap_set_bits(priv->regmap, TIM_CCER, TIM_CCER_CCXE);
+ 	regmap_read(priv->regmap, TIM_CCER, &ccer);
+-	regmap_clear_bits(priv->regmap, TIM_CCER, TIM_CCER_CCXE);
+-
+-	if (ccer & TIM_CCER_CC1E)
+-		npwm++;
++	regmap_write(priv->regmap, TIM_CCER, ccer_backup);
+ 
+-	if (ccer & TIM_CCER_CC2E)
+-		npwm++;
+-
+-	if (ccer & TIM_CCER_CC3E)
+-		npwm++;
+-
+-	if (ccer & TIM_CCER_CC4E)
+-		npwm++;
++	npwm = hweight32(ccer & TIM_CCER_CCXE);
++	*n_enabled = hweight32(ccer_backup & TIM_CCER_CCXE);
+ 
+ 	return npwm;
+ }
+@@ -609,7 +647,9 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+ 	struct device_node *np = dev->of_node;
+ 	struct stm32_timers *ddata = dev_get_drvdata(pdev->dev.parent);
+ 	struct stm32_pwm *priv;
++	int n_enabled;
+ 	int ret;
++	int i;
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -631,7 +671,10 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+ 
+ 	priv->chip.dev = dev;
+ 	priv->chip.ops = &stm32pwm_ops;
+-	priv->chip.npwm = stm32_pwm_detect_channels(priv);
++	priv->chip.npwm = stm32_pwm_detect_channels(priv, &n_enabled);
++
++	for (i = 0; i < n_enabled; i++)
++		clk_enable(priv->clk);
+ 
+ 	ret = pwmchip_add(&priv->chip);
+ 	if (ret < 0)
