@@ -1,23 +1,25 @@
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
-	branch = kirkstone
+	branch = master
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
-	branch = kirkstone
+	branch = langdale
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
-	branch = kirkstone
+	branch = langdale
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
+	branch = master
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://github.com/lgirdk/meta-virtualization.git
-	branch = kirkstone
+	branch = langdale
 [submodule "poky"]
 	path = poky
-	url = https://github.com/yoctoproject/poky.git
-	branch = kirkstone
+	url = https://git.yoctoproject.org/poky
+	branch = langdale
+
