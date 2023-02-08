@@ -1,0 +1,35 @@
+command 0x11 # exit sleep mode
+delay 120
+
+# The display seems to require display color inversion, so enable it.
+command 0x21 # INVON
+
+# Rotate the display by 180deg using the MADCTL register and set the pixel
+# format to the one expected by the driver.
+command 0x36 0xc0 # MADCTL MX=1 MY=1
+command 0x3A 0x55 # COLMOD RGB565
+
+# The Tearing effect line is an output line of the display that goes high
+# whenever the display is _not_ updated from frame memory (e.g. we can update
+# the frame memory from the host).
+# Enable the line and configure it to go high when drawing line 241
+# (the display has 240 lines, the controller supports up to 320).
+command 0x35 0x00 # TEON TEM=0 (On V-Blank only, Not H-Blanks as well)
+command 0x44 0x00 0xf1 # TESCAN 241
+
+# Enable normal display mode (in contrast to partial display mode).
+# This means we will draw 80 extra lines that our display does not actually
+# have. Our framerate is high enough so that should not matter too much.
+# We can use the time these 80 extra lines take to update the display without
+# tearing.
+command 0x13 # NORON
+command 0x29 # MIPI_DCS_SET_DISPLAY_ON
+
+# The display controller has RAM for a 240x320 framebuffer. We use MY=1 and
+# MX=1 to flip the display in both directions (a.k.a 180 deg rotation).
+# Our display is only 240x240. Due to the flipping the lines that are
+# actually drawn to the screen are 80..320, not 0..240.
+# Use the scrolling feature of the controller so that we can write pixel data
+# to lines 0..240 again.
+command 0x33 0x00 0x00 0x01 0x40 0x00 0x00 # VSCRDEF FIX_B=0 SCROLL=320 FIX_A=0
+command 0x37 0x00 0x50 # VSCSAD 80
