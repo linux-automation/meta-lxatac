@@ -22,10 +22,10 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  create mode 100644 drivers/iio/adc/ti-lmp92064.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index d4822ae39e39..9b5f7a628888 100644
+index 135d93368d36..383e9dea2e15 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -20637,6 +20637,14 @@ S:	Maintained
+@@ -20922,6 +20922,14 @@ S:	Maintained
  F:	sound/soc/codecs/isabelle*
  F:	sound/soc/codecs/lm49453*
  
@@ -41,10 +41,10 @@ index d4822ae39e39..9b5f7a628888 100644
  M:	Kirill Marinushkin <kmarinushkin@birdec.com>
  L:	alsa-devel@alsa-project.org (moderated for non-subscribers)
 diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 791612ca6012..6875fecc6360 100644
+index 63f80d747cbd..46c4fc2fc534 100644
 --- a/drivers/iio/adc/Kconfig
 +++ b/drivers/iio/adc/Kconfig
-@@ -1234,6 +1234,16 @@ config TI_AM335X_ADC
+@@ -1274,6 +1274,16 @@ config TI_AM335X_ADC
  	  To compile this driver as a module, choose M here: the module will be
  	  called ti_am335x_adc.
  
@@ -62,10 +62,10 @@ index 791612ca6012..6875fecc6360 100644
  	tristate "Texas Instruments TLC4541 ADC driver"
  	depends on SPI
 diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
-index 46caba7a010c..e8175c97ebeb 100644
+index 4ef41a7dfac6..6e08415c3f3a 100644
 --- a/drivers/iio/adc/Makefile
 +++ b/drivers/iio/adc/Makefile
-@@ -110,6 +110,7 @@ obj-$(CONFIG_TI_ADS8688) += ti-ads8688.o
+@@ -113,6 +113,7 @@ obj-$(CONFIG_TI_ADS8688) += ti-ads8688.o
  obj-$(CONFIG_TI_ADS124S08) += ti-ads124s08.o
  obj-$(CONFIG_TI_ADS131E08) += ti-ads131e08.o
  obj-$(CONFIG_TI_AM335X_ADC) += ti_am335x_adc.o
