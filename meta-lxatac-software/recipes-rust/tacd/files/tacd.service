@@ -4,7 +4,7 @@ Before=collectd.service
 # tacd depends on the dbus service being available right at the start.
 # It would be great to solve this via dbus activation, but NM does not seem
 # to support it (yet).
-After=NetworkManager.service
+After=network-online.target
 
 [Service]
 Type=notify
