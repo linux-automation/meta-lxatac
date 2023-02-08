@@ -1,0 +1,63 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Tue, 29 Nov 2022 10:55:56 +0100
+Subject: [PATCH] ARM: dts: stm32: lxa-tac: switch from OLED to LCD
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Newer revisions of the hardware are shipped with LCD displays instead of OLEDs.
+Existing units with OLEDs are upgraded, so there is no need for backward
+compatibility.
+
+The generic panel-mipi-dbi-spi driver uses a firmware file for the display
+initialization sequence.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 13bd0068d517..af94ec59341d 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -585,15 +585,32 @@ &spi4 {
+ 	cs-gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ 
+-	oled: display@0 {
+-		compatible = "solomon,ssd1306";
+-		reg = <0>;
++	lcd: display@0 {
++		compatible = "shineworld,lh133k", "panel-mipi-dbi-spi";
+ 		spi-max-frequency = <10000000>;
+-		buswidth = <8>;
+-		fps = <20>;
+-		reset-gpios = <&gpioh 4 GPIO_ACTIVE_LOW>;
++		power-supply = <&v3v3>;
++
++		reg = <0>;
++		width-mm = <23>;
++		height-mm = <23>;
++		rotation = <180>;
++
++		reset-gpios = <&gpioh 4 GPIO_ACTIVE_HIGH>;
+ 		dc-gpios = <&gpiod 10 GPIO_ACTIVE_HIGH>;
+-		debug = <0x0>;
++		write-only;
++
++		panel-timing {
++			hactive = <240>;
++			vactive = <240>;
++			hback-porch = <0>;
++			vback-porch = <0>;
++
++			clock-frequency = <0>;
++			hfront-porch = <0>;
++			hsync-len = <0>;
++			vfront-porch = <0>;
++			vsync-len = <0>;
++		};
+ 	};
+ };
+ 

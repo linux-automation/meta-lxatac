@@ -1,0 +1,53 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 8 Feb 2023 07:22:34 +0100
+Subject: [PATCH] ARM: dts: stm32: lxa-tac: Enable TE pin and up SPI freq for
+ LCD
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The tearing effect pin is used to move the transfer of new pixel data
+to the time where the display is not currently updating.
+The driver does not currently make use of it but it could at a later time.
+
+Also update the SPI frequency. The optimization goals are:
+
+ - As slow as possible to reduce EMI emissions
+ - Fast enough so that a full frame update can be performed in the TE blanking
+   interval.
+ - Stay below the 62.5MHz maximum of the display.
+
+The display controller scans out 320 lines. The display only has 240 physical
+lines. The TE pin is configured to be asserted at the 241th line.
+That means we have 80 / 320 = 1/4 of a frame time to update the pixel data
+tearing free (e.g. 0.25 / 60Hz = 4.1ms).
+In that time we have to transfer 240 * 240 * 16 bits = 921600 bits.
+The ideal datarate would thus be 921600 bits / 4.1ms = 221Mbit/s.
+That's too much. Arbitrarily pick 32Mbit/s instead.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index af94ec59341d..838b85b2aee4 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -587,7 +587,7 @@ &spi4 {
+ 
+ 	lcd: display@0 {
+ 		compatible = "shineworld,lh133k", "panel-mipi-dbi-spi";
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <32000000>;
+ 		power-supply = <&v3v3>;
+ 
+ 		reg = <0>;
+@@ -597,6 +597,7 @@ lcd: display@0 {
+ 
+ 		reset-gpios = <&gpioh 4 GPIO_ACTIVE_HIGH>;
+ 		dc-gpios = <&gpiod 10 GPIO_ACTIVE_HIGH>;
++		te-gpios = <&gpioe 0 GPIO_ACTIVE_HIGH>;
+ 		write-only;
+ 
+ 		panel-timing {

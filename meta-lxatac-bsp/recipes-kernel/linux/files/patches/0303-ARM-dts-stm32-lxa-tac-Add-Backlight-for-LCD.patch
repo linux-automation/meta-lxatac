@@ -1,0 +1,83 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 8 Feb 2023 07:38:08 +0100
+Subject: [PATCH] ARM: dts: stm32: lxa-tac: Add Backlight for LCD
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On the first revision LXA TACs this PWM pin is exposed on an unmarked
+testpoint close to the (also unmarked) testpoints in the display SPI
+cluster.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp157c-lxa-tac.dts | 35 +++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+index 838b85b2aee4..cb9864d87009 100644
+--- a/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
++++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac.dts
+@@ -28,6 +28,14 @@ aliases {
+ 		serial1 = &usart3;
+ 	};
+ 
++	backlight: backlight {
++		compatible = "pwm-backlight";
++		pwms = <&backlight_pwm 1 1000000 0>;
++		brightness-levels = <0 31 63 95 127 159 191 223 255>;
++		default-brightness-level = <7>;
++		power-supply = <&v3v3>;
++	};
++
+ 	chosen {
+ 		stdout-path = &uart4;
+ 	};
+@@ -297,6 +305,20 @@ &iwdg2 {
+ 	status = "okay";
+ };
+ 
++&timers1 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++
++	backlight_pwm: pwm {
++		pinctrl-names = "default", "sleep";
++		pinctrl-0 = <&pwm1_pins_c>;
++		pinctrl-1 = <&pwm1_sleep_pins_c>;
++		status = "okay";
++	};
++};
++
+ &timers2 {
+ 	/* spare dmas for other usage */
+ 	/delete-property/dmas;
+@@ -589,6 +611,7 @@ lcd: display@0 {
+ 		compatible = "shineworld,lh133k", "panel-mipi-dbi-spi";
+ 		spi-max-frequency = <32000000>;
+ 		power-supply = <&v3v3>;
++		backlight = <&backlight>;
+ 
+ 		reg = <0>;
+ 		width-mm = <23>;
+@@ -703,6 +726,18 @@ pins1 {
+ 				 <STM32_PINMUX('A', 7, ANALOG)>; /* ETH_RGMII_RX_CTL */
+ 		 };
+ 	};
++	pwm1_pins_c: pwm1-2 {
++		pins {
++			pinmux = <STM32_PINMUX('E', 11, AF1)>; /* TIM1_CH2 */
++			drive-push-pull;
++			slew-rate = <0>;
++		};
++	};
++	pwm1_sleep_pins_c: pwm1-sleep-2 {
++		pins {
++			pinmux = <STM32_PINMUX('E', 11, ANALOG)>; /* TIM1_CH2 */
++		};
++	};
+ 	spi2_pins_b: spi2-1 {
+ 		pins1 {
+ 			pinmux = <STM32_PINMUX('I', 1, AF5)>, /* SPI2_SCK */
