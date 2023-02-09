@@ -1,4 +1,4 @@
-SUMMARY = "Small image based upon core-image-base equipped with an ssh server"
+SUMMARY = "LXA TAC image containing a selection of useful development tools"
 
 BAD_RECOMMENDATIONS = "rng-tools"
 

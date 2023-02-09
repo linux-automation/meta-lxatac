@@ -1,4 +1,4 @@
-SUMMARY = "Small image based upon core-image-base equipped with an ssh server"
+SUMMARY = "Image used to build an SDK including libiio but not much else (for tacd dev)"
 
 IMAGE_LINGUAS = "en-us"
 
