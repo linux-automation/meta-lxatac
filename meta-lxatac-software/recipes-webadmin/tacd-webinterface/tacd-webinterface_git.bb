@@ -12,7 +12,7 @@ inherit npm
 
 # Remove the runtime dependency on nodejs. We only use it during the
 # build process to generate static html, js and css files.
-RDEPENDS:${PN}:append:class-target = ""
+RDEPENDS:${PN}:remove = "nodejs"
 
 WEBUI_INSTALL_DIR="${NPM_BUILD}/lib/node_modules/tacd-web"
 
