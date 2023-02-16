@@ -4,6 +4,9 @@ PACKAGECONFIG = "systemd cron lm-sensors"
 
 SRC_URI += "file://sysstat.conf file://sysstat-collect.timer"
 
+# Our sysstat.conf file includes ZIP="xz"
+RDEPENDS:${PN} += "xz"
+
 do_install:append() {
 	install -m 0644 ${WORKDIR}/sysstat.conf ${D}/etc/sysconfig/sysstat
 	install -m 0644 ${WORKDIR}/sysstat-collect.timer -D -t ${D}${sysconfdir}/systemd/system
