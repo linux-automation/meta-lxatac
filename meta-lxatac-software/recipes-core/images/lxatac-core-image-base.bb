@@ -117,6 +117,7 @@ IMAGE_INSTALL:append = "\
     trace-cmd \
     tree \
     tshark \
+    udisks2 \
     uhubctl \
     util-linux \
     vim \
