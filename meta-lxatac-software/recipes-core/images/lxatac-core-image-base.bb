@@ -106,6 +106,7 @@ IMAGE_INSTALL:append = "\
     strace \
     stress-ng \
     sysstat \
+    systemd-analyze \
     systemd-conf-lxatac \
     systemd-container \
     tacd \
@@ -116,6 +117,7 @@ IMAGE_INSTALL:append = "\
     trace-cmd \
     tree \
     tshark \
+    udisks2 \
     uhubctl \
     util-linux \
     vim \
