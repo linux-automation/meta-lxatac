@@ -6,6 +6,9 @@ IMAGE_FEATURES = "ssh-server-openssh empty-root-password"
 
 IMAGE_FSTYPES += "ext4"
 
+# use a fixed directory hash seed to reduce the image delta size
+EXTRA_IMAGECMD:ext4 = "-i 4096 -E hash_seed=4267a9cf-754d-4506-9156-d3f4a18842e5"
+
 IMAGE_LINGUAS = "en-us"
 
 IMAGE_INSTALL:append = "\
