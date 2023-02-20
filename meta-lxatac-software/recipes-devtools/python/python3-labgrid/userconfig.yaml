@@ -2,8 +2,8 @@
 ## Add your own exports here.
 
 ##example-group1-remote:
-##    location: example-location-1-remote
-##    USBSerialPort:
-##      match:
-##        'ID_SERIAL_SHORT': 'FTA8E2HP'
-##      speed: 115200
+##  location: example-location-1-remote
+##  USBSerialPort:
+##    match:
+##      'ID_SERIAL_SHORT': 'FTA8E2HP'
+##    speed: 115200
