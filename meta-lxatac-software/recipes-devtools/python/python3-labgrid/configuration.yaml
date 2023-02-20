@@ -33,25 +33,25 @@ dut_power:
 lxatac-usb-ports-p{{idx}}:
   USBSerialPort:
     match:
-        '@ID_PATH': '{{sysfs}}'
+      '@ID_PATH': '{{sysfs}}'
   IMXUSBLoader:
     match:
-        'ID_PATH': '{{sysfs}}'
+      'ID_PATH': '{{sysfs}}'
   AndroidUSBFastboot:
     match:
-        'ID_PATH': '{{sysfs}}'
+      'ID_PATH': '{{sysfs}}'
   AlteraUSBBlaster:
     match:
-        'ID_PATH': '{{sysfs}}'
+      'ID_PATH': '{{sysfs}}'
   USBSDMuxDevice:
     match:
-        '@ID_PATH': '{{sysfs}}'
+      '@ID_PATH': '{{sysfs}}'
   LXAUSBMux:
     match:
-        '@ID_PATH': '{{sysfs}}'
+      '@ID_PATH': '{{sysfs}}'
   USBMassStorage:
     match:
-        '@ID_PATH': '{{sysfs}}'
+      '@ID_PATH': '{{sysfs}}'
 {% endfor %}
 
 
