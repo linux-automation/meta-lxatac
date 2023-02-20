@@ -1,21 +1,21 @@
 From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
-Date: Wed, 1 Feb 2023 09:11:38 +0100
-Subject: [PATCH] Release 6.1/customers/lxa/lxatac/20230201-1
+Date: Mon, 20 Feb 2023 15:43:13 +0100
+Subject: [PATCH] Release 6.2/customers/lxa/lxatac/20230220-1
 
 ---
  Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index 49261450039a..f7bbeb291b7f 100644
+index 3f6628780eb2..17aed25ba2a0 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@
  VERSION = 6
- PATCHLEVEL = 1
- SUBLEVEL = 8
+ PATCHLEVEL = 2
+ SUBLEVEL = 0
 -EXTRAVERSION =
-+EXTRAVERSION =-20230201-1
++EXTRAVERSION =-20230220-1
  NAME = Hurr durr I'ma ninja sloth
  
  # *DOCUMENTATION*
