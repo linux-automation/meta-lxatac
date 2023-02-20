@@ -43,6 +43,9 @@ lxatac-usb-ports-p{{idx}}:
   AlteraUSBBlaster:
     match:
       'ID_PATH': '{{sysfs}}'
+  USBDebugger:
+    match:
+      'ID_PATH': '{{sysfs}}'
   USBSDMuxDevice:
     match:
       '@ID_PATH': '{{sysfs}}'
@@ -52,6 +55,13 @@ lxatac-usb-ports-p{{idx}}:
   USBMassStorage:
     match:
       '@ID_PATH': '{{sysfs}}'
+  USBVideo:
+    match:
+      '@ID_PATH': '{{sysfs}}'
+  USBAudioInput:
+    match:
+      '@ID_PATH': '{{sysfs}}'
+
 {% endfor %}
 
 
