@@ -3,6 +3,11 @@
 ## This file is included from configuration.yaml by a jinja2 include and can
 ## set some variables evaluated in configuration.yaml.
 
+## The userconfig.yaml file is migrated between rauc installs.
+## Use cp /etc/labgrid/userconfig.yaml.default /etc/labgrid/userconfig.yaml
+## to go back to the most recent defaults.
+
+
 ## Add your own exports here.
 
 ## Example for using an external USB to serial adapter and matching based

@@ -6,7 +6,12 @@ SRC_URI += " \
 "
 
 do_install:append() {
-    install -m 0644 ${WORKDIR}/userconfig.yaml ${D}${sysconfdir}/labgrid
+    # The userconfig.yaml is migrated via rauc hook between installs.
+    # Deploy a copy of the file so that users can go back to a default config
+    # or see what's new.
+    install -D -m 0644 ${WORKDIR}/userconfig.yaml ${D}${sysconfdir}/labgrid/userconfig.yaml
+    install -D -m 0644 ${WORKDIR}/userconfig.yaml ${D}${sysconfdir}/labgrid/userconfig.yaml.default
+
     install -D -m 0644 ${WORKDIR}/labgrid.conf ${D}${libdir}/tmpfiles.d/labgrid.conf
 }
 
