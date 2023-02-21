@@ -7,6 +7,7 @@ function migrate () {
 		return
 	fi
 
+	mkdir -p "$(dirname "${RAUC_SLOT_MOUNT_POINT}"/"$1")"
 	cp -a "$1" "${RAUC_SLOT_MOUNT_POINT}/$1"
 }
 
@@ -20,7 +21,7 @@ case "$1" in
 		done
 		migrate /var/lib/chrony/drift
 		migrate /home/root/.bash_history
-		migrate /var/cache/lxa-iobus
+		migrate /var/cache/lxa-iobus/lss-cache
                 ;;
         *)
                 exit 1
