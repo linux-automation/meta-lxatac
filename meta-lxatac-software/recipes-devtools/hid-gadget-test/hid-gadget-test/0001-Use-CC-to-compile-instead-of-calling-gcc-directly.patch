@@ -1,0 +1,30 @@
+From 35b2db0374eddd4d028b8853786837ccec0dead9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 22 Feb 2023 11:38:08 +0100
+Subject: [PATCH] Use default Makefile rules to build the binary
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+There are default rules in place for compiling .c -> .o
+and linking .o -> binary.
+These are preferable as they use the correct ${LDFLAGS} etc.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+
+---
+ Makefile | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index d259005..eaf0afc 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,4 @@
+ default: hid_gadget_test
+ 
+-hid_gadget_test: hid_gadget_test.c
+-	gcc -g -o hid_gadget_test hid_gadget_test.c
+-
+ clean:
+ 	-rm -f hid_gadget_test
