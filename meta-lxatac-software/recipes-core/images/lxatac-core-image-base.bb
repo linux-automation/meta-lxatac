@@ -41,6 +41,7 @@ IMAGE_INSTALL:append = "\
     gstreamer1.0 \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
+    hid-gadget-test \
     htop \
     i2c-tools \
     iperf3 \
