@@ -30,6 +30,7 @@ IMAGE_INSTALL:append = "\
     crun \
     curl \
     devmem2 \
+    dfu-util \
     e2fsprogs-tune2fs \
     ethtool \
     evtest \
