@@ -55,6 +55,9 @@ lxatac-usb-ports-p{{idx}}:
   AndroidUSBFastboot:
     match:
       'ID_PATH': '{{sysfs}}'
+  DFUDevice:
+    match:
+      'ID_PATH': '{{sysfs}}'
   IMXUSBLoader:
     match:
       'ID_PATH': '{{sysfs}}'
