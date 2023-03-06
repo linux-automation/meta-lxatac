@@ -49,34 +49,37 @@ dut_power:
 {% for idx, sysfs in usb.ports %}
 
 lxatac-usb-ports-p{{idx}}:
-  USBSerialPort:
-    match:
-      '@ID_PATH': '{{sysfs}}'
-  IMXUSBLoader:
+  AlteraUSBBlaster:
     match:
       'ID_PATH': '{{sysfs}}'
   AndroidUSBFastboot:
     match:
       'ID_PATH': '{{sysfs}}'
-  AlteraUSBBlaster:
+  DFUDevice:
     match:
       'ID_PATH': '{{sysfs}}'
-  USBDebugger:
+  IMXUSBLoader:
     match:
       'ID_PATH': '{{sysfs}}'
-  USBSDMuxDevice:
-    match:
-      '@ID_PATH': '{{sysfs}}'
   LXAUSBMux:
     match:
       '@ID_PATH': '{{sysfs}}'
+  USBAudioInput:
+    match:
+      '@ID_PATH': '{{sysfs}}'
+  USBDebugger:
+    match:
+      'ID_PATH': '{{sysfs}}'
   USBMassStorage:
     match:
       '@ID_PATH': '{{sysfs}}'
-  USBVideo:
+  USBSDMuxDevice:
     match:
       '@ID_PATH': '{{sysfs}}'
-  USBAudioInput:
+  USBSerialPort:
+    match:
+      '@ID_PATH': '{{sysfs}}'
+  USBVideo:
     match:
       '@ID_PATH': '{{sysfs}}'
 ## Extra USB Ports exported as separate interfaces on the same USB port
