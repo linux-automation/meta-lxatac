@@ -67,6 +67,7 @@ IMAGE_INSTALL:append = "\
     lldpd \
     lmsensors \
     lxatac-factory-data \
+    lxatac-led-setup \
     lxatac-lldpd-config \
     lxatac-nm-config \
     lxatac-persistent-journal \
