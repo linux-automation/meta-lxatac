@@ -23,3 +23,6 @@
 	url = https://git.yoctoproject.org/poky
 	branch = langdale
 
+[submodule "meta-selinux"]
+	path = meta-selinux
+	url = https://git.yoctoproject.org/meta-selinux
