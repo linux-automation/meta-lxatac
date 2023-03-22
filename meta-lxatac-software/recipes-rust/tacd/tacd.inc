@@ -1,5 +1,6 @@
 SRC_URI += " \
     file://tacd.service \
+    file://tacd-failsafe.sh \
     file://de.pengutronix.tacd.conf \
     "
 
@@ -13,6 +14,9 @@ SYSTEMD_SERVICE:${PN} = "tacd.service"
 do_install:append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/tacd.service ${D}${systemd_system_unitdir}/
+
+    install -D -m 0755 ${WORKDIR}/tacd-failsafe.sh ${D}${bindir}/tacd-failsafe
+
     install -d ${D}${sysconfdir}/dbus-1/system.d
     install -m 0644 ${WORKDIR}/de.pengutronix.tacd.conf ${D}/${sysconfdir}/dbus-1/system.d/
 }
