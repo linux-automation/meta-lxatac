@@ -11,7 +11,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  1 file changed, 1 insertion(+)
 
 diff --git a/Makefile b/Makefile
-index dd6cb471e1ce..7908924c1c41 100644
+index af7af91112be..ae44cbe003d0 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -436,6 +436,7 @@ LINUXINCLUDE    := -Iinclude \

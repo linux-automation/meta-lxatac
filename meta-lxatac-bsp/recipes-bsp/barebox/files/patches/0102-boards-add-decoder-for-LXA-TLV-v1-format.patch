@@ -175,10 +175,10 @@ index 000000000000..70ddbc734613
 +	return tlv_register_decoder(&lxa_tlv_powerboard_v1);
 +}
 diff --git a/include/string.h b/include/string.h
-index e730f51b1bbe..65fda55f115d 100644
+index 14f404ef1691..11604c463ea4 100644
 --- a/include/string.h
 +++ b/include/string.h
-@@ -9,6 +9,8 @@ char *strsep_unescaped(char **, const char *);
+@@ -10,6 +10,8 @@ char *strsep_unescaped(char **, const char *);
  char *stpcpy(char *dest, const char *src);
  bool strends(const char *str, const char *postfix);
  
@@ -201,10 +201,10 @@ index a32ec917a434..33f5c30a4beb 100644
  #define TLV_IS_VENDOR_SPECIFIC(val)	((*(u8 *)&(val) & 0x80) == 0x80)
  #define TLV_IS_GENERIC(val)		((*(u8 *)&(val) & 0x80) != 0x80)
 diff --git a/lib/string.c b/lib/string.c
-index 6389217d5b41..a840ecb0cbc2 100644
+index 005f4532bb3b..b0d334a1a86b 100644
 --- a/lib/string.c
 +++ b/lib/string.c
-@@ -729,6 +729,27 @@ void *memchr(const void *s, int c, size_t n)
+@@ -734,6 +734,27 @@ void *memchr(const void *s, int c, size_t n)
  #endif
  EXPORT_SYMBOL(memchr);
  

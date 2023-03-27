@@ -13,7 +13,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 14 insertions(+)
 
 diff --git a/common/Kconfig b/common/Kconfig
-index fb2bf4968310..2751d14cecd6 100644
+index d95797099341..e10884e44169 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
 @@ -1083,6 +1083,11 @@ config MACHINE_ID
@@ -29,7 +29,7 @@ index fb2bf4968310..2751d14cecd6 100644
  	bool "inform devicetree-enabled kernel of used watchdog"
  	depends on WATCHDOG && OFTREE && FLEXIBLE_BOOTARGS
 diff --git a/common/oftree.c b/common/oftree.c
-index 38752e2c191d..15ce8e3c3088 100644
+index 4beadc5aaa89..9ef2be0dffaf 100644
 --- a/common/oftree.c
 +++ b/common/oftree.c
 @@ -217,6 +217,15 @@ static int of_fixup_bootargs(struct device_node *root, void *unused)

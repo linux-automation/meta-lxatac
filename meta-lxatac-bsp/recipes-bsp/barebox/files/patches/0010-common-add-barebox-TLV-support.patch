@@ -31,7 +31,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 include/tlv/tlv.h
 
 diff --git a/common/Kconfig b/common/Kconfig
-index 003d9a06a45f..02380c3098ae 100644
+index d99bff5eb2fd..3fdf3db7947c 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
 @@ -1010,6 +1010,30 @@ config BTHREAD
@@ -66,10 +66,10 @@ index 003d9a06a45f..02380c3098ae 100644
  	bool "generic state infrastructure"
  	select CRC32
 diff --git a/common/Makefile b/common/Makefile
-index 35f2120496ea..0fda62d2ea04 100644
+index 8dc475f3244c..35edaa3cb325 100644
 --- a/common/Makefile
 +++ b/common/Makefile
-@@ -61,6 +61,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
+@@ -65,6 +65,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
  obj-$(CONFIG_SHELL_HUSH)	+= hush.o
  obj-$(CONFIG_SHELL_SIMPLE)	+= parser.o
  obj-$(CONFIG_STATE)		+= state/
@@ -280,7 +280,7 @@ index 000000000000..ce9de914cec3
 +device_initcall(tlv_register_default);
 diff --git a/common/tlv/bus.c b/common/tlv/bus.c
 new file mode 100644
-index 000000000000..713f5160bb26
+index 000000000000..a3558f525ed5
 --- /dev/null
 +++ b/common/tlv/bus.c
 @@ -0,0 +1,132 @@
@@ -293,7 +293,7 @@ index 000000000000..713f5160bb26
 +#include <linux/err.h>
 +#include <of.h>
 +
-+static void tlv_devinfo(struct device_d *dev)
++static void tlv_devinfo(struct device *dev)
 +{
 +	struct tlv_device *tlvdev = to_tlv_device(dev);
 +
@@ -301,12 +301,12 @@ index 000000000000..713f5160bb26
 +}
 +
 +struct tlv_device *tlv_register_device(struct tlv_header *header,
-+				       struct device_d *parent)
++				       struct device *parent)
 +{
 +	struct tlv_device *tlvdev;
 +	const char *name = NULL;
 +	char *buf = NULL;
-+	struct device_d *dev;
++	struct device *dev;
 +	static int id = 0;
 +
 +	tlvdev = xzalloc(sizeof(*tlvdev));
@@ -343,7 +343,7 @@ index 000000000000..713f5160bb26
 +	free(tlvdev);
 +}
 +
-+static int tlv_bus_match(struct device_d *dev, struct driver_d *drv)
++static int tlv_bus_match(struct device *dev, struct driver *drv)
 +{
 +	struct tlv_decoder *decoder = to_tlv_decoder(drv);
 +	struct tlv_device *tlvdev = to_tlv_device(dev);
@@ -351,12 +351,12 @@ index 000000000000..713f5160bb26
 +	return decoder->magic == tlvdev->magic ? 0 : -1;
 +}
 +
-+static int tlv_bus_probe(struct device_d *dev)
++static int tlv_bus_probe(struct device *dev)
 +{
 +	return dev->driver->probe(dev);
 +}
 +
-+static void tlv_bus_remove(struct device_d *dev)
++static void tlv_bus_remove(struct device *dev)
 +{
 +	if (dev->driver->remove)
 +		dev->driver->remove(dev);
@@ -372,7 +372,7 @@ index 000000000000..713f5160bb26
 +struct tlv_device *tlv_ensure_probed_by_alias(const char *alias)
 +{
 +	struct device_node *np;
-+	struct device_d *dev;
++	struct device *dev;
 +	int ret;
 +
 +	np = of_find_node_by_alias(NULL, alias);
@@ -391,9 +391,9 @@ index 000000000000..713f5160bb26
 +	return ERR_PTR(-EPROBE_DEFER);
 +}
 +
-+static void tlv_bus_info(struct device_d *dev)
++static void tlv_bus_info(struct device *dev)
 +{
-+	struct driver_d *drv;
++	struct driver *drv;
 +
 +	puts("Registered Magic:\n");
 +	bus_for_each_driver(&tlv_bus, drv) {
@@ -418,7 +418,7 @@ index 000000000000..713f5160bb26
 +postcore_initcall(tlv_bus_register);
 diff --git a/common/tlv/drv.c b/common/tlv/drv.c
 new file mode 100644
-index 000000000000..835baa9d7832
+index 000000000000..875e92064509
 --- /dev/null
 +++ b/common/tlv/drv.c
 @@ -0,0 +1,35 @@
@@ -429,7 +429,7 @@ index 000000000000..835baa9d7832
 +#include <init.h>
 +#include <of.h>
 +
-+static int barebox_tlv_probe(struct device_d *dev)
++static int barebox_tlv_probe(struct device *dev)
 +{
 +	struct tlv_device *tlvdev;
 +	char *backend_path;
@@ -451,7 +451,7 @@ index 000000000000..835baa9d7832
 +	{ /* sentinel */ }
 +};
 +
-+static struct driver_d barebox_tlv_driver = {
++static struct driver barebox_tlv_driver = {
 +	.name = "tlv",
 +	.probe = barebox_tlv_probe,
 +	.of_compatible = tlv_ids,
@@ -459,7 +459,7 @@ index 000000000000..835baa9d7832
 +core_platform_driver(barebox_tlv_driver);
 diff --git a/common/tlv/parser.c b/common/tlv/parser.c
 new file mode 100644
-index 000000000000..0fc0a5814916
+index 000000000000..19c6b038e7ec
 --- /dev/null
 +++ b/common/tlv/parser.c
 @@ -0,0 +1,191 @@
@@ -525,7 +525,7 @@ index 000000000000..0fc0a5814916
 +	return PTR_ERR_OR_ZERO(tlv);
 +}
 +
-+struct tlv_device *tlv_register_device_by_path(const char *path, struct device_d *parent)
++struct tlv_device *tlv_register_device_by_path(const char *path, struct device *parent)
 +{
 +	struct tlv_header *header;
 +	struct tlv_device *tlvdev;
@@ -656,7 +656,7 @@ index 000000000000..0fc0a5814916
 +}
 diff --git a/common/tlv/register.c b/common/tlv/register.c
 new file mode 100644
-index 000000000000..7ba4ee5def7b
+index 000000000000..54ebce2b4dd3
 --- /dev/null
 +++ b/common/tlv/register.c
 @@ -0,0 +1,92 @@
@@ -675,7 +675,7 @@ index 000000000000..7ba4ee5def7b
 +
 +#include <linux/err.h>
 +
-+static int tlv_probe_from_magic(struct device_d *dev)
++static int tlv_probe_from_magic(struct device *dev)
 +{
 +	struct tlv_device *tlvdev = to_tlv_device(dev);
 +	int ret;
@@ -687,7 +687,7 @@ index 000000000000..7ba4ee5def7b
 +	return tlv_of_register_fixup(tlvdev);
 +}
 +
-+static int tlv_probe_from_compatible(struct device_d *dev)
++static int tlv_probe_from_compatible(struct device *dev)
 +{
 +	struct tlv_decoder *decoder = to_tlv_decoder(dev->driver);
 +	struct tlv_header *header;
@@ -753,10 +753,10 @@ index 000000000000..7ba4ee5def7b
 +	return platform_driver_register(&decoder->_platform_driver);
 +}
 diff --git a/include/string.h b/include/string.h
-index d423bee6fba5..e730f51b1bbe 100644
+index 499f2ec03c02..14f404ef1691 100644
 --- a/include/string.h
 +++ b/include/string.h
-@@ -17,4 +17,9 @@ void *__nokasan_default_memcpy(void * dest,const void *src,size_t count);
+@@ -18,4 +18,9 @@ void *__nokasan_default_memcpy(void * dest,const void *src,size_t count);
  
  char *parse_assignment(char *str);
  
@@ -843,7 +843,7 @@ index 000000000000..a32ec917a434
 +#endif
 diff --git a/include/tlv/tlv.h b/include/tlv/tlv.h
 new file mode 100644
-index 000000000000..cce3b96e3d17
+index 000000000000..4e380401e717
 --- /dev/null
 +++ b/include/tlv/tlv.h
 @@ -0,0 +1,98 @@
@@ -890,16 +890,16 @@ index 000000000000..cce3b96e3d17
 +
 +struct tlv_decoder {
 +	u32 magic;
-+	void *driver_data;
++	void *driverata;
 +	struct tlv_mapping **mappings;
-+	struct driver_d driver;
++	struct driver driver;
 +	/* private members */
-+	struct driver_d _platform_driver;
++	struct driver _platform_driver;
 +	struct list_head list;
 +};
 +
 +struct tlv_device {
-+	struct device_d dev;
++	struct device dev;
 +	u32 magic;
 +};
 +
@@ -908,7 +908,7 @@ index 000000000000..cce3b96e3d17
 +	return tlvdev->dev.device_node;
 +}
 +
-+struct tlv_device *tlv_register_device(struct tlv_header *header, struct device_d *parent);
++struct tlv_device *tlv_register_device(struct tlv_header *header, struct device *parent);
 +static inline struct tlv_header *tlv_device_header(struct tlv_device *tlvdev)
 +{
 +	return tlvdev->dev.platform_data;
@@ -927,7 +927,7 @@ index 000000000000..cce3b96e3d17
 +
 +extern struct bus_type tlv_bus;
 +
-+static inline struct tlv_decoder *to_tlv_decoder(struct driver_d *drv)
++static inline struct tlv_decoder *to_tlv_decoder(struct driver *drv)
 +{
 +	if (drv->bus == &tlv_bus)
 +		return container_of(drv, struct tlv_decoder, driver);
@@ -936,12 +936,12 @@ index 000000000000..cce3b96e3d17
 +	return NULL;
 +}
 +
-+static inline struct tlv_device *to_tlv_device(struct device_d *dev)
++static inline struct tlv_device *to_tlv_device(struct device *dev)
 +{
 +	return container_of(dev, struct tlv_device, dev);
 +}
 +
-+struct tlv_device *tlv_register_device_by_path(const char *path, struct device_d *parent);
++struct tlv_device *tlv_register_device_by_path(const char *path, struct device *parent);
 +struct tlv_device *tlv_ensure_probed_by_alias(const char *alias);
 +
 +#endif

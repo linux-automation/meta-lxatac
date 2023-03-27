@@ -20,7 +20,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 19 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/boards/lxa-tac/board.c b/arch/arm/boards/lxa-tac/board.c
-index 8e7733e2ac00..e3af6cdfab47 100644
+index 5403dda7680f..6e7d4bf77635 100644
 --- a/arch/arm/boards/lxa-tac/board.c
 +++ b/arch/arm/boards/lxa-tac/board.c
 @@ -6,13 +6,29 @@
@@ -30,7 +30,7 @@ index 8e7733e2ac00..e3af6cdfab47 100644
 +#include <tlv/tlv.h>
 +#include <boards/lxa/tlv.h>
  
- static int tac_probe(struct device_d *dev)
+ static int tac_probe(struct device *dev)
  {
 +	struct tlv_device *tlvdev;
 +	int ret;
@@ -53,7 +53,7 @@ index 8e7733e2ac00..e3af6cdfab47 100644
  	return 0;
  }
  
-@@ -26,4 +42,4 @@ static struct driver_d tac_board_driver = {
+@@ -26,4 +42,4 @@ static struct driver tac_board_driver = {
  	.probe = tac_probe,
  	.of_compatible = tac_of_match,
  };
