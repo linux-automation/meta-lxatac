@@ -19,4 +19,5 @@ BBLAYERS ?= " \
   ##OEROOT##/../meta-labgrid \
   ##OEROOT##/../meta-rauc \
   ##OEROOT##/../meta-virtualization \
+  ##OEROOT##/../meta-selinux \
   "
