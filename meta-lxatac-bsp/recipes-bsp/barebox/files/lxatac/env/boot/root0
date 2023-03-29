@@ -6,3 +6,6 @@ led led-status-green 252
 led led-status-blue 97
 
 boot -v mmc1.1
+
+# Show splash screen with red background on error
+splash -b 0xffff0000 /env/data/splash.png
