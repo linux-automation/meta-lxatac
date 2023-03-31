@@ -5,7 +5,11 @@ led led-status-red 0
 led led-status-green 252
 led led-status-blue 97
 
+echo -a /dev/fbconsole0 -e -n "\e[?25l\e[1;1H\e[37;1mBooting root1 ..."
+
 boot -v mmc1.2
 
 # Show splash screen with red background on error
-splash -b 0xffff0000 /env/data/splash.png
+splash -b 0xffcd0000 /env/data/splash.png
+
+echo -a /dev/fbconsole0 -e -n "\e[17;10H\e[41mError booting root1!"
