@@ -1,6 +1,6 @@
 # umpf-base: v2023.03.0
 # umpf-name: 2023.03.0/customers/lxa/tac
-# umpf-version: 2023.03.0/customers/lxa/tac/20230330-4
+# umpf-version: 2023.03.0/customers/lxa/tac/20230331-1
 # umpf-topic: v2023.03.0/topic/tlv
 # umpf-hashinfo: 38338204f9113c23c5d5f667cc209fe3a9476456
 # umpf-topic-range: e068bbf6a3608351484567af19da68e0e382fa0f..77abc3a4c4e8d2b240ac1edac15337d1132b0f19
@@ -19,8 +19,8 @@ SRC_URI += "\
   file://patches/0012-scripts-add-bareboxtlv-host-target-tool.patch \
   "
 # umpf-topic: v2023.03.0/topic/panel-mipi-dbi-spi
-# umpf-hashinfo: 4a6e8ed3ba7c2cdd3afeaf4ff6d6f740297e013e
-# umpf-topic-range: 77abc3a4c4e8d2b240ac1edac15337d1132b0f19..6880abab642d216e060f6bda19cf88e098bf07c5
+# umpf-hashinfo: ff201fbb7ea85894bee03d226e942b26ef2ee6e1
+# umpf-topic-range: 77abc3a4c4e8d2b240ac1edac15337d1132b0f19..78b5ae33226928aa6e787b7e141d0c127232101c
 SRC_URI += "\
   file://patches/0101-firmware-Add-request-release_firmware-calls.patch \
   file://patches/0102-video-Add-of_get_display_timing.patch \
@@ -30,10 +30,13 @@ SRC_URI += "\
   file://patches/0106-spi-stm32-support-per-transfer-bits-per-word-switchi.patch \
   file://patches/0107-video-mipi_dbi-disable-byte-swapping-if-16-bit-SPI-t.patch \
   file://patches/0108-spi-update-spi_board_info-FIXME-comment.patch \
+  file://patches/0109-video-fb-add-optional-damage-tracking.patch \
+  file://patches/0110-video-fbconsole-add-optional-damage-tracking.patch \
+  file://patches/0111-video-mipi_dbi-add-damage-tracking-and-partial-updat.patch \
   "
 # umpf-topic: v2023.03.0/customers/lxa/tac
 # umpf-hashinfo: a83f3e1c78f0bb183d1813f5427dd0b5dfbc6de9
-# umpf-topic-range: 6880abab642d216e060f6bda19cf88e098bf07c5..51f4d71d1e526b6848080d735ac6864e43e5304b
+# umpf-topic-range: 78b5ae33226928aa6e787b7e141d0c127232101c..e64d73ee20cfdb7833f7c8d3ee65150fbcba782b
 SRC_URI += "\
   file://patches/0201-ARM-stm32mp-add-Linux-Automation-TAC-board.patch \
   file://patches/0202-boards-add-decoder-for-LXA-TLV-v1-format.patch \
@@ -45,9 +48,9 @@ SRC_URI += "\
   file://patches/0208-ARM-stm32mp-lxa-tac-distinguish-between-device-gener.patch \
   file://patches/0209-ARM-stm32mp-lxa-tac-model-the-PWM-RGB-status-LED-as-.patch \
   "
-# umpf-release: 2023.03.0/customers/lxa/tac/20230330-4
-# umpf-topic-range: 51f4d71d1e526b6848080d735ac6864e43e5304b..cf2df5159ee4ec53afe8c99ed041f43626c6e173
+# umpf-release: 2023.03.0/customers/lxa/tac/20230331-1
+# umpf-topic-range: e64d73ee20cfdb7833f7c8d3ee65150fbcba782b..46b67ab8e0a1f95248ca11f561549462f613a051
 SRC_URI += "\
-  file://patches/0301-Release-2023.03.0-customers-lxa-tac-20230330-4.patch \
+  file://patches/0301-Release-2023.03.0-customers-lxa-tac-20230331-1.patch \
   "
 # umpf-end
