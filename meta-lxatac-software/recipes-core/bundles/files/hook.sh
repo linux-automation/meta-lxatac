@@ -12,7 +12,7 @@ function migrate () {
 }
 
 case "$1" in
-        slot-post-install)
+	slot-post-install)
 		migrate /etc/machine-id
 		migrate /etc/labgrid/environment
 		migrate /etc/labgrid/userconfig.yaml
@@ -23,10 +23,10 @@ case "$1" in
 		migrate /home/root/.bash_history
 		migrate /home/root/.ssh/authorized_keys
 		migrate /var/cache/lxa-iobus/lss-cache
-                ;;
-        *)
-                exit 1
-                ;;
+		;;
+	*)
+		exit 1
+		;;
 esac
 
 exit 0
