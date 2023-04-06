@@ -5,6 +5,9 @@ RDEPENDS:${PN}:append = "bash"
 SRC_URI:append = " \
     file://rauc-disable-cert.sh \
     file://rauc-enable-cert.sh \
+    file://devel.cert.pem \
+    file://stable.cert.pem \
+    file://testing.cert.pem \
     "
 
 do_install:append() {
@@ -16,6 +19,16 @@ do_install:append() {
 
     install -d ${D}${sysconfdir}/rauc/certificates-available
     install -d ${D}${sysconfdir}/rauc/certificates-enabled
+
+    # Ship the different release channel certificates with each image.
+    # Which of these gets activated when updating via RAUC is decided in
+    # the RAUC hook.
+    # The RAUC hook will activate the certificate matching the key the
+    # bundle was signed with.
+    for cert in devel stable testing; do
+        install -D -m 0644 ${WORKDIR}/${cert}.cert.pem \
+            ${D}${sysconfdir}/rauc/certificates-available/${cert}.cert.pem
+    done
 
     KEYRING_FILE_NAME=$(basename "${RAUC_KEYRING_FILE}")
 
