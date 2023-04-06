@@ -1,6 +1,19 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
+RDEPENDS:${PN}:append = "bash"
+
+SRC_URI:append = " \
+    file://rauc-disable-cert.sh \
+    file://rauc-enable-cert.sh \
+    "
+
 do_install:append() {
+    install -D -m 0755 ${WORKDIR}/rauc-disable-cert.sh \
+        ${D}${bindir}/rauc-disable-cert
+
+    install -D -m 0755 ${WORKDIR}/rauc-enable-cert.sh \
+        ${D}${bindir}/rauc-enable-cert
+
     install -d ${D}${sysconfdir}/rauc/certificates-available
     install -d ${D}${sysconfdir}/rauc/certificates-enabled
 
