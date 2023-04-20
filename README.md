@@ -379,10 +379,12 @@ preliminary bootloader into RAM, which we will use to flash the new image.
 The USB bootmode is implemented in the SoC bootrom and can thus not be
 corrupted by software running on the TAC.
 
-Unscrew the four screws holding the front plate with the display in place.
-Pay close attention not to break the flat flex cable connecting the display
-to the mainboard. The display cable can be disconnected by opening the flap
-on the flat flex connector.
+Lay the device onto the top side (with the rubber feet facing up).
+Loosen the four lower screws just one or two threads.
+Unscrew the four upper screws.
+You can now lift the part with the rubber feet upwards.
+Make sure not to put too much strain on the flat flex cable connecting
+the lower and upper part.
 
 Connect the mainboard to your computer using a USB-C cable.
 
@@ -398,7 +400,9 @@ This tells the device to boot into the serial update bootrom.
 ![LXA TAC Bootmode Pins BT0-BT2](readme-assets/bootmode-pins.jpg?raw=true "LXA TAC Bootmode Pins")
 
 Power on the device. It should show up in `lsusb` and `dmesg` on your host
-computer. Next you can upload the required pieces of software:
+computer.
+The device shows up as a `STMicroelectronics` `STM32  BOOTLOADER`.
+Next you can upload the required pieces of software:
 
 ### Flashing the software
 
