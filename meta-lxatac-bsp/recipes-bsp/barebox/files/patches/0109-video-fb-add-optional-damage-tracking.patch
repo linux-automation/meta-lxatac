@@ -9,6 +9,8 @@ integrated framebuffer.
 
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 ---
+v2: make rect parameter to fb_damage const
+---
  drivers/video/fb.c | 6 ++++++
  include/fb.h       | 9 +++++++++
  2 files changed, 15 insertions(+)
@@ -31,7 +33,7 @@ index 44754065e7d9..6f412d62c434 100644
  {
  	struct fb_info *info = cdev->priv;
 diff --git a/include/fb.h b/include/fb.h
-index 15bb74b99576..4e3eb611db48 100644
+index 15bb74b99576..88e6c0e45835 100644
 --- a/include/fb.h
 +++ b/include/fb.h
 @@ -80,6 +80,13 @@ struct fb_bitfield {
@@ -52,7 +54,7 @@ index 15bb74b99576..4e3eb611db48 100644
  	void (*fb_enable)(struct fb_info *info);
  	void (*fb_disable)(struct fb_info *info);
  	int (*fb_activate_var)(struct fb_info *info);
-+	void (*fb_damage)(struct fb_info *info, struct fb_rect *rect);
++	void (*fb_damage)(struct fb_info *info, const struct fb_rect *rect);
  	void (*fb_flush)(struct fb_info *info);
  };
  

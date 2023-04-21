@@ -23,9 +23,10 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  dts/src/arm/stm32mp157c-lxa-tac-gen1.dts  | 103 +++++
  dts/src/arm/stm32mp157c-lxa-tac-gen2.dts  | 187 ++++++++
  dts/src/arm/stm32mp157c-lxa-tac.dts       | 711 -----------------------------
- dts/src/arm/stm32mp15xc-lxa-tac.dtsi      | 715 ++++++++++++++++++++++++++++++
+ dts/src/arm/stm32mp15xc-lxa-tac.dtsi      | 719 ++++++++++++++++++++++++++++++
  images/Makefile.stm32mp                   |   2 +-
- 12 files changed, 1215 insertions(+), 865 deletions(-)
+ useries                                   |   4 +
+ 13 files changed, 1223 insertions(+), 865 deletions(-)
  create mode 100644 arch/arm/dts/stm32mp157c-lxa-tac-gen1.dts
  create mode 100644 arch/arm/dts/stm32mp157c-lxa-tac-gen2.dts
  delete mode 100644 arch/arm/dts/stm32mp157c-lxa-tac.dts
@@ -34,6 +35,7 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  create mode 100644 dts/src/arm/stm32mp157c-lxa-tac-gen2.dts
  delete mode 100644 dts/src/arm/stm32mp157c-lxa-tac.dts
  create mode 100644 dts/src/arm/stm32mp15xc-lxa-tac.dtsi
+ create mode 100644 useries
 
 diff --git a/arch/arm/boards/lxa-tac/board.c b/arch/arm/boards/lxa-tac/board.c
 index 0ebad2ec1de4..d82556a065dd 100644
@@ -1483,10 +1485,10 @@ index d4b9429176c1..000000000000
 -};
 diff --git a/dts/src/arm/stm32mp15xc-lxa-tac.dtsi b/dts/src/arm/stm32mp15xc-lxa-tac.dtsi
 new file mode 100644
-index 000000000000..71dc1eef09ca
+index 000000000000..7d0da30f27d6
 --- /dev/null
 +++ b/dts/src/arm/stm32mp15xc-lxa-tac.dtsi
-@@ -0,0 +1,715 @@
+@@ -0,0 +1,719 @@
 +/* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause) */
 +/*
 + * Copyright (C) 2020 STMicroelectronics - All Rights Reserved
@@ -1560,13 +1562,13 @@ index 000000000000..71dc1eef09ca
 +		user-button1 {
 +			label = "USER_BTN";
 +			linux,code = <KEY_HOME>;
-+			gpios = <&gpioi 11 GPIO_ACTIVE_LOW>;
++			gpios = <&gpioi 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 +		};
 +
 +		user-button2 {
 +			label = "USER_BTN2";
 +			linux,code = <KEY_ESC>;
-+			gpios = <&gpioe 7 GPIO_ACTIVE_LOW>;
++			gpios = <&gpioe 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 +		};
 +	};
 +
@@ -1698,6 +1700,10 @@ index 000000000000..71dc1eef09ca
 +&pwr_regulators {
 +	vdd-supply = <&vdd>;
 +	vdd_3v3_usbfs-supply = <&vdd_usb>;
++};
++
++&v3v3_hdmi {
++	/delete-property/regulator-always-on;
 +};
 +
 +&hash1 {
@@ -2215,3 +2221,13 @@ index ea1160a4b644..f6e4bd959c6f 100644
  
  $(call build_stm32mp_image, CONFIG_MACH_PROTONIC_STM32MP1, start_prtt1a, prtt1a)
  $(call build_stm32mp_image, CONFIG_MACH_PROTONIC_STM32MP1, start_prtt1s, prtt1s)
+diff --git a/useries b/useries
+new file mode 100644
+index 000000000000..79356c6bbfda
+--- /dev/null
++++ b/useries
+@@ -0,0 +1,4 @@
++# umpf-base: v2023.03.0
++# umpf-name: 2023.03.0/customers/lxa/tac
++# umpf-topic: v2023.03.0/topic/tlv
++# umpf-topic: v2023.03.0/customers/lxa/tac
