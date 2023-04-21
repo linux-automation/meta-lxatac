@@ -21,6 +21,7 @@ case "$1" in
 		done
 		migrate /var/lib/chrony/drift
 		migrate /home/root/.bash_history
+		migrate /home/root/.ssh/authorized_keys
 		migrate /var/cache/lxa-iobus/lss-cache
                 ;;
         *)

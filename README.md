@@ -319,7 +319,10 @@ of ssh public keys on your LXA TACs:
 
     $ mkdir -p meta-lxatac-example/recipes-core/ssh-keys/files
     # Add all public keys that you want to deploy:
-    $ $EDITOR meta-lxatac-example/recipes-core/ssh-keys/files/authorized_keys
+    $ $EDITOR meta-lxatac-example/recipes-core/ssh-keys/files/authorized_keys.root
+    # Add a ssh config snippet that makes use of said keys:
+    $ echo "AuthorizedKeysFile .ssh/authorized_keys /etc/ssh/authorized_keys.%u" >
+        meta-lxatac-example/recipes-core/ssh-keys/files/ssh-keys.conf
 
 You can now paste the following recipe to
 `meta-lxatac-example/recipes-core/ssh-keys/ssh-keys.bb`:
@@ -328,13 +331,15 @@ You can now paste the following recipe to
 
     inherit allarch
 
-    SRC_URI += " authorized_keys "
+    SRC_URI += "authorized_keys.root ssh-keys.conf"
 
     do_install() {
-        install -D -m0600 ${WORKDIR}/authorized_keys ${D}/home/root/.ssh/authorized_keys
-    }
+        install -D -m0600 ${WORKDIR}/authorized_keys.root \
+            ${D}${sysconfdir}/ssh/authorized_keys.root
 
-    FILES:${PN} += "/home/root/.ssh/authorized_keys"
+        install -D -m 0644 ${WORKDIR}/ssh-keys.conf \
+            ${D}${sysconfdir}/ssh/sshd_config.d/ssh-keys.conf
+    }
 
 Next you want to tell bitbake to build the recipe and install the result to
 the default image:
