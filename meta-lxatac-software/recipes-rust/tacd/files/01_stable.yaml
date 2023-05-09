@@ -1,0 +1,9 @@
+name: stable
+display_name: Stable
+description: |
+  Official updates bundles provided by the Linux Automation GmbH.
+  The released bundles are manually tested and signed before publication.
+url: |
+  https://downloads.linux-automation.com/lxatac/software/stable/latest/lxatac-core-bundle-base-lxatac.raucb
+polling_interval: "4d"
+
