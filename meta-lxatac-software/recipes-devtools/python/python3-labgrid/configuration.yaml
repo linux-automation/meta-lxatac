@@ -44,6 +44,15 @@ dut_power:
     host: 'http://{{ hostname }}/v1/dut/powered/compat'
     index: '0'   # this is 'don't care'
 
+## Set up power switching for the USB ports on the LXA TAC
+{% for idx in range(1,4) %}
+lxatac-usb-power-p{{idx}}:
+  USBPowerPort:
+    match:
+      ID_PATH: platform-5800d000.usb-usb-0:1:1.0
+    index: {{idx}}
+{% endfor %}
+
 ## Set up USB ports after including user configuration to allow
 ## e.g. hub configuration
 {% for idx, sysfs in usb.ports %}
