@@ -3,7 +3,7 @@ inherit cargo
 DEFAULT_PREFERENCE = "-1"
 
 SRC_URI += "git://github.com/linux-automation/tacd.git;protocol=https;branch=main"
-SRCREV = "88d20f145ea27d0af39cd412a6f51b2f514ca254"
+SRCREV = "f62197488e51f7717cd93688565fed740c764ff2"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
 PV = "0.1.0+git${SRCPV}"
@@ -136,6 +136,7 @@ SRC_URI += " \
     crate://crates.io/hkdf/0.10.0 \
     crate://crates.io/hmac/0.10.1 \
     crate://crates.io/hmac/0.8.1 \
+    crate://crates.io/html-escape/0.2.13 \
     crate://crates.io/http-client/6.5.3 \
     crate://crates.io/http-types/2.12.0 \
     crate://crates.io/http/0.2.9 \
@@ -285,6 +286,7 @@ SRC_URI += " \
     crate://crates.io/url/2.3.1 \
     crate://crates.io/utf-8/0.7.6 \
     crate://crates.io/utf8-cstr/0.1.6 \
+    crate://crates.io/utf8-width/0.1.6 \
     crate://crates.io/value-bag/1.0.0-alpha.9 \
     crate://crates.io/version_check/0.9.4 \
     crate://crates.io/waker-fn/1.1.0 \
