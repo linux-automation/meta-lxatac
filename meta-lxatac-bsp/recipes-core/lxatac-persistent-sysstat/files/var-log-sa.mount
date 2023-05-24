@@ -1,0 +1,5 @@
+[Mount]
+Where=/var/log/sa
+What=/srv/sysstat
+Type=none
+Options=bind
