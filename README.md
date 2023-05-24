@@ -6,6 +6,7 @@ Main topics:
   - [Installing official Images](#installing-official-images)
   - [Building the image as-is](#building-the-image-as-is)
   - [Customization](#customization)
+  - [Setting up a Bundle Server](#bundle-server)
   - [Installing Images via USB](#installing-images-via-usb)
 
 This set of recipes is used to build the software images and update bundles
@@ -338,6 +339,45 @@ the default image:
 A newly built update bundle should now contain your specified ssh keys:
 
     $ bitbake lxatac-core-bundle-base
+
+Setting up a Bundle Server
+--------------------------
+
+Now that you have built your own custom RAUC bundles you may want to deploy
+them via your own update bundle server.
+For that to work you only need a normal HTTP server that you can deploy your
+most recent `.raucb` bundles to and two small bits of configuration in your
+OS images.
+
+    $ mkdir -p meta-lxatac-example/recipes-rust/tacd/files/
+    $ cat > meta-lxatac-example/recipes-rust/tacd/files/02_example.yaml <<EOF
+    name: example
+    display_name: Example
+    description: |
+      An update channel created for exemplary purposes only.
+    url: |
+      http://YOUR_SERVERS_HOSTNAME/PATH_TO_THE.raucb
+    polling_interval: "24h"
+    EOF
+    $ cat > meta-lxatac-example/recipes-rust/tacd/tacd_%.bbappend <<EOF
+    FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+
+    SRC_URI += "\
+        file://02_example.yaml \
+        "
+
+    do_install:append() {
+        install -D -m 0644 ${WORKDIR}/02_example.yaml \
+            ${D}${datadir}/tacd/update_channels/02_example.yaml
+    }
+    EOF
+
+Replace `YOUR_SERVERS_HOSTNAME` and `PATH_TO_THE.raucb` according to your
+servers location and the location of the bundle on the server.
+Make sure the configured `name` matches the name of the certificate file you
+have generated, e.g. `example.cert.pem` in this example, as the existence of
+said certificates in the `certificates-enabled` directory determines if an
+update channel is considered active.
 
 Installing Images via USB
 -------------------------
