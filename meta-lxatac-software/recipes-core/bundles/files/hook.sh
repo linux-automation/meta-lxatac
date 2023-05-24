@@ -47,6 +47,12 @@ function migrate () {
 case "$1" in
 	slot-post-install)
 		enable_certificates
+
+		# The repartitioning triggered by the existence of
+		# /system-update is only required on the first boot after
+		# installing from an eMMC image.
+		rm -f "${RAUC_SLOT_MOUNT_POINT}/system-update"
+
 		migrate /etc/machine-id
 		migrate /etc/labgrid/environment
 		migrate /etc/labgrid/userconfig.yaml
