@@ -1,14 +1,16 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI += "file://atftp-tmpfiles.conf"
+SRC_URI += "file://create-dir.conf"
 
 # On the TAC /srv is a separate partition, which does however fail to
 # mount if the tftp directory already exists.
-# Instead make sure that /srv/tftp is generated at runtime by tmpfiles.d.
+# Instead make sure that /srv/tftp is generated at runtime by an ExecStartPre
+# in the service.
 do_install:append() {
     rmdir ${D}/srv/tftp ${D}/srv
 
-    install -D -m 0644 ${WORKDIR}/atftp-tmpfiles.conf ${D}${libdir}/tmpfiles.d/atftp.conf
+    install -D -m 0644 ${S}/../create-dir.conf \
+        ${D}${systemd_unitdir}/system/atftpd.service.d/create-dir.conf
 }
 
-FILES:${PN}d += "${libdir}/tmpfiles.d"
+FILES:${PN}d += "${systemd_unitdir}/system/atftpd.service.d"
