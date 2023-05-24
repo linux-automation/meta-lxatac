@@ -3,6 +3,7 @@ Linux Automation GmbH Test Automation Controller Base Image
 
 Main topics:
 
+  - [Installing official Images](#installing-official-images)
   - [Building the image as-is](#building-the-image-as-is)
   - [Customization](#customization)
   - [Installing Images via USB](#installing-images-via-usb)
@@ -11,8 +12,22 @@ This set of recipes is used to build the software images and update bundles
 for the LXATAC provided by the Linux Automation GmbH. It can be used to
 derive customized and pre-configured images for use in your infrastructure.
 
+Installing official Images
+--------------------------
+
+If you came here looking for the most recent software bundle for you LXA TAC
+and have no actual interest in building your own custom bundles (yet) there is
+great news for you. You do not have to follow this long README at all!
+The following command automatically installs the most recent stable software
+bundle on your TAC:
+
+    $ rauc install https://downloads.linux-automation.com/lxatac/software/stable/latest/lxatac-core-bundle-base-lxatac.raucb
+
 Building the image as-is
 ------------------------
+
+This chapter describes building rougly the same RAUC bundles as the ones
+available from the official mirror mentioned above.
 
 > The image building process will compile a lot of software from source code,
 > including the Linux kernel, language interpreters and development tools.
