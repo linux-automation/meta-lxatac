@@ -313,8 +313,8 @@ You can now paste the following recipe to
 Next you want to tell bitbake to build the recipe and install the result to
 the default image:
 
-    $ mkdir -p meta-lxatac-ptx/recipes-core/images
-    $ cat > meta-lxatac-ptx/recipes-core/images/lxatac-core-image-base.bbappend <<EOF
+    $ mkdir -p meta-lxatac-example/recipes-core/images
+    $ cat > meta-lxatac-example/recipes-core/images/lxatac-core-image-base.bbappend <<EOF
     IMAGE_INSTALL:append = "\
         ssh-keys \
     "
