@@ -1,0 +1,33 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Thu, 25 May 2023 11:51:19 +0200
+Subject: [PATCH] dt-bindings: display: panel: mipi-dbi-spi: add spi-3wire
+ property
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Some MIPI DBI panels support a three wire mode (clock, chip select,
+bidirectional data) that can be used to ask the panel if it is already set
+up by e.g. the bootloader and can thus skip the initialization.
+This enables a flicker-free boot.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/display/panel/panel-mipi-dbi-spi.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/display/panel/panel-mipi-dbi-spi.yaml b/Documentation/devicetree/bindings/display/panel/panel-mipi-dbi-spi.yaml
+index c07da1a9e628..2f0238b770eb 100644
+--- a/Documentation/devicetree/bindings/display/panel/panel-mipi-dbi-spi.yaml
++++ b/Documentation/devicetree/bindings/display/panel/panel-mipi-dbi-spi.yaml
+@@ -87,6 +87,8 @@ properties:
+       Logic level supply for interface signals (Vddi).
+       No need to set if this is the same as power-supply.
+ 
++  spi-3wire: true
++
+ required:
+   - compatible
+   - reg

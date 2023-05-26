@@ -1,0 +1,30 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 14 Jun 2023 10:36:11 +0200
+Subject: [PATCH] dt-bindings: vendor-prefixes: Add prefix for ShineWorld
+ Innovations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add a vendor prefix for ShineWorld Innovations, a manufacturer of
+display panels https://www.swicn.com/.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+---
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 82d39ab0231b..b0afa421bc4a 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1189,6 +1189,8 @@ patternProperties:
+     description: SHIFT GmbH
+   "^shimafuji,.*":
+     description: Shimafuji Electric, Inc.
++  "^shineworld,.*":
++    description: ShineWorld Innovations
+   "^shiratech,.*":
+     description: Shiratech Solutions
+   "^si-en,.*":

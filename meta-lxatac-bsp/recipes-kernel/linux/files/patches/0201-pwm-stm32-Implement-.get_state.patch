@@ -13,7 +13,7 @@ Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
  1 file changed, 59 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 21e4a34dfff3..05689f3d2c9b 100644
+index 62e397aeb9aa..e0677c954bdf 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -52,6 +52,21 @@ static u32 active_channels(struct stm32_pwm *dev)
@@ -38,7 +38,7 @@ index 21e4a34dfff3..05689f3d2c9b 100644
  static int write_ccrx(struct stm32_pwm *dev, int ch, u32 value)
  {
  	switch (ch) {
-@@ -482,9 +497,40 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
+@@ -486,9 +501,40 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
  	return ret;
  }
  
@@ -79,7 +79,7 @@ index 21e4a34dfff3..05689f3d2c9b 100644
  	.capture = IS_ENABLED(CONFIG_DMA_ENGINE) ? stm32_pwm_capture : NULL,
  };
  
-@@ -575,30 +621,22 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
+@@ -579,30 +625,22 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
  	priv->have_complementary_output = (ccer != 0);
  }
  
@@ -117,7 +117,7 @@ index 21e4a34dfff3..05689f3d2c9b 100644
  
  	return npwm;
  }
-@@ -609,7 +647,9 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+@@ -613,7 +651,9 @@ static int stm32_pwm_probe(struct platform_device *pdev)
  	struct device_node *np = dev->of_node;
  	struct stm32_timers *ddata = dev_get_drvdata(pdev->dev.parent);
  	struct stm32_pwm *priv;
@@ -127,7 +127,7 @@ index 21e4a34dfff3..05689f3d2c9b 100644
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
  	if (!priv)
-@@ -631,7 +671,10 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+@@ -635,7 +675,10 @@ static int stm32_pwm_probe(struct platform_device *pdev)
  
  	priv->chip.dev = dev;
  	priv->chip.ops = &stm32pwm_ops;
