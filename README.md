@@ -110,7 +110,7 @@ existing `meta-lxatac-bsp` and `meta-lxatac-software` e.g.
 `meta-lxatac-example` (a good alternative to `example` may be your companies
 name or your own name):
 
-    $ ls meta-lxatac-*   
+    $ ls meta-lxatac-*
     meta-lxatac-bsp:
     conf/  recipes-bsp/  recipes-core/  recipes-devtools/ …
 
