@@ -92,7 +92,7 @@ The certificates are plain text files, so you can also deploy them by e.g.
 opening the file in an editor via the debug serial port.
 
 Lastly you can install the bundle on your LXA TAC, using either the web
-interface or the commandline:
+interface or the command line:
 
     root@lxatac-00010:~ rauc install [PATH_TO_BUNDLE].raucb
 
@@ -129,7 +129,7 @@ name or your own name):
     meta-lxatac-software:
     conf/  files/  recipes-backports/  recipes-core/ …
 
-Populate the layer with sample configs to use when first setting up a build
+Populate the layer with sample config files to use when first setting up a build
 directory and remove the config files that were already generated when building
 the first time:
 
@@ -158,7 +158,7 @@ Initialize `meta-lxatac-example` as its own independent git repository:
     $ git commit -m "Initial Commit"
     $ cd ..
 
-Next *open a new terminal*, where you have not yet sourced the build envionment
+Next *open a new terminal*, where you have not yet sourced the build environment
 and use the new script to initialize the environment:
 
     # In a new terminal window
@@ -243,7 +243,7 @@ example layer:
     $ chmod +x oe-init-build-env
 
 Next *open a new terminal*, where you have not yet sourced the build
-envionment, and use the new script to initialize the environment:
+environment, and use the new script to initialize the environment:
 
     # In a new terminal window
     $ source ./oe-init-build-env
@@ -374,16 +374,16 @@ The required files should then appear in `tmp/deploy/images/lxatac/`.
 ### Bring the Device into USB Boot Mode
 
 The first step is to bring the LXA TAC into the USB bootmode and load a
-prelininary bootloader into RAM, which we will use to flash the new image.
+preliminary bootloader into RAM, which we will use to flash the new image.
 The USB bootmode is implemented in the SoC bootrom and can thus not be
 corrupted by software running on the TAC.
 
-Unscrew the four screws holding the frontplate with the display in place.
+Unscrew the four screws holding the front plate with the display in place.
 Pay close attention not to break the flat flex cable connecting the display
 to the mainboard. The display cable can be disconnected by opening the flap
 on the flat flex connector.
 
-Connect the mainboard to your computer using an USB-C Cable.
+Connect the mainboard to your computer using a USB-C cable.
 
 Identify the (possibly unpopulated) connector `P4` in the lower left corner of
 the LXA TAC mainboard.
@@ -437,7 +437,7 @@ and power cycle it to boot into your newly flashed image.
 ##### The device should be in bootrom but does not show up on the Host
 
 Disconnect the USB-C cable from the TAC and power cycle the TAC.
-One of the LEDs on the `DUT` ethernet port should now blink in quick sucession.
+One of the LEDs on the `DUT` Ethernet port should now blink in quick succession.
 The LED is connected to the `PA13` pin of the STM32MP1, which is used for debug
 output from the bootrom. The LED not blinking means that either the wrong boot
 mode is selected or there is some hardware fault.
