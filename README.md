@@ -8,7 +8,7 @@ Main topics:
   - [Installing Images via USB](#installing-images-via-usb)
 
 This set of recipes is used to build the software images and update bundles
-for the LXATAC provided by the Linux Automation GmbH and can be used to
+for the LXATAC provided by the Linux Automation GmbH. It can be used to
 derive customized and pre-configured images for use in your infrastructure.
 
 Building the image as-is
@@ -32,7 +32,7 @@ Obtaining the recipes and required git submodules:
 
 In order to be able to build [RAUC](https://rauc.readthedocs.io/) bundles to
 update your TAC you will need cryptographic keys to sign said bundles.
-We can, for obvious reasons, not provide you with the keys we use to sign
+We can, for obvious reasons, not provide you with these keys, which we use to sign
 the official bundles, so you will have to generate your own:
 
     $ openssl req -x509 -newkey rsa:4096 -days 36500 -nodes \
@@ -50,13 +50,14 @@ the official bundles, so you will have to generate your own:
 You will be asked a few questions about who the keys are generated for.
 You can however leave most of the fields empty, as shown above.
 
-There is a section later in the README that shows one method to store keys
-to use during development.
+Section ["RAUC signing keys in your layer"](#rauc-signing-keys-in-your-layer)
+describes a way to store your own RAUC signing keys as part of a custom
+operating system layer.
 
 ### Setting up the build environment
 
 To use `bitbake` and other commands you will need to source the
-[OpenEmbedded](https://www.openembedded.org/) build environment using:
+[OpenEmbedded](https://www.openembedded.org/) build environment:
 
     $ source oe-init-build-env
 
@@ -176,7 +177,7 @@ to learn how to persist your bundle signing keys and write custom recipes.
 
 ### Option B - `meta-lxatac` as git submodule in custom layer
 
-Create a new empty `meta-lxatac-example` layer inside a new project
+Create a new empty `meta-lxatac-example` layer inside a new project and
 somewhere outside the already cloned `meta-lxatac` hierarchy.
 
     # We can reuse the artifacts we have already built.
@@ -306,7 +307,7 @@ that you can share with other developers using git:
 
 What belongs where?
 
-If you want to add a development tool you need or want to change something
+If you want to add a development tool you need or if you want to change something
 in the images that could be useful to the general public, you should consider
 changing it directly in `meta-lxatac` and submitting a pull request instead of
 adding a recipe to your custom layer.
@@ -443,7 +444,7 @@ output from the bootrom. The LED not blinking means that either the wrong boot
 mode is selected or there is some hardware fault.
 Check the bootmode pins and the 5V and 3.3V LEDs inside of the device.
 If you connect the USB-C cable the blinking should stop and the device should
-show up on the host. Otherwise there may be something wrong with the cable.
+show up on the host. Otherwise there might be something wrong with the USB-C cable.
 
 ##### Fastboot keeps `< waiting for any device >`
 
