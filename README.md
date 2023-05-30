@@ -77,12 +77,12 @@ Now you can start the compilation and build the bundle:
 
     $ bitbake lxatac-core-bundle-base
 
-After some time you should end up with with a rauc bundle in:
+After some time you should end up with with a RAUC bundle in:
 
     $ ls tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb
     tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb@
 
-To install the rauc bundle you will have to deploy the certificate you have
+To install the RAUC bundle you will have to deploy the certificate you have
 generated to your TAC:
 
     $ scp meta-lxatac-software/files/rauc.cert.pem \
@@ -453,10 +453,10 @@ as `root` using e.g. `sudo`.
 
 ##### The TAC disconnects during fastboot
 
-This can happen when the watchdog timer is set up in the Barebox bootloader
+This can happen when the watchdog timer is set up in the barebox bootloader
 loaded into RAM via `dfu-util`.
-To prevent the TAC from rebooting during fastboot connect to the Barebox
-console via the debug UART adapter / the USB console provided by Barebox
+To prevent the TAC from rebooting during fastboot connect to the barebox
+console via the debug UART adapter / the USB console provided by barebox
 and execute `wd -x` on the shell. E.g.:
 
     barebox@Linux Automation Test Automation Controller (TAC):/ wd -x
@@ -466,7 +466,7 @@ and execute `wd -x` on the shell. E.g.:
 When flashing the emmc-image only the first of two update partitions is
 initialized. The second one is set up on first boot and filled for the first time
 once you install a RAUC bundle on the system for the first time.
-There is a 50/50 chance that Barebox is currently set up to boot from this
+There is a 50/50 chance that barebox is currently set up to boot from this
 non-existing partition, which will fail and reduce its retry counter.
 If the TAC does not boot after flashing you should power cycle the device
 about four times in slow succession to make sure the wrong partition is marked
