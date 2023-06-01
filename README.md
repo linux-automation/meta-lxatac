@@ -8,7 +8,7 @@ Main topics:
   - [Installing Images via USB](#installing-images-via-usb)
 
 This set of recipes is used to build the software images and update bundles
-for the LXATAC provided by the Linux Automation GmbH and can be used to
+for the LXATAC provided by the Linux Automation GmbH. It can be used to
 derive customized and pre-configured images for use in your infrastructure.
 
 Building the image as-is
@@ -32,7 +32,7 @@ Obtaining the recipes and required git submodules:
 
 In order to be able to build [RAUC](https://rauc.readthedocs.io/) bundles to
 update your TAC you will need cryptographic keys to sign said bundles.
-We can, for obvious reasons, not provide you with the keys we use to sign
+We can, for obvious reasons, not provide you with these keys, which we use to sign
 the official bundles, so you will have to generate your own:
 
     $ openssl req -x509 -newkey rsa:4096 -days 36500 -nodes \
@@ -50,13 +50,14 @@ the official bundles, so you will have to generate your own:
 You will be asked a few questions about who the keys are generated for.
 You can however leave most of the fields empty, as shown above.
 
-There is a section later in the README that shows one method to store keys
-to use during development.
+Section ["RAUC signing keys in your layer"](#rauc-signing-keys-in-your-layer)
+describes a way to store your own RAUC signing keys as part of a custom
+operating system layer.
 
 ### Setting up the build environment
 
 To use `bitbake` and other commands you will need to source the
-[OpenEmbedded](https://www.openembedded.org/) build environment using:
+[OpenEmbedded](https://www.openembedded.org/) build environment:
 
     $ source oe-init-build-env
 
@@ -77,12 +78,12 @@ Now you can start the compilation and build the bundle:
 
     $ bitbake lxatac-core-bundle-base
 
-After some time you should end up with with a rauc bundle in:
+After some time you should end up with with a RAUC bundle in:
 
     $ ls tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb
     tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb@
 
-To install the rauc bundle you will have to deploy the certificate you have
+To install the RAUC bundle you will have to deploy the certificate you have
 generated to your TAC:
 
     $ scp meta-lxatac-software/files/rauc.cert.pem \
@@ -92,7 +93,7 @@ The certificates are plain text files, so you can also deploy them by e.g.
 opening the file in an editor via the debug serial port.
 
 Lastly you can install the bundle on your LXA TAC, using either the web
-interface or the commandline:
+interface or the command line:
 
     root@lxatac-00010:~ rauc install [PATH_TO_BUNDLE].raucb
 
@@ -110,7 +111,7 @@ existing `meta-lxatac-bsp` and `meta-lxatac-software` e.g.
 `meta-lxatac-example` (a good alternative to `example` may be your companies
 name or your own name):
 
-    $ ls meta-lxatac-*   
+    $ ls meta-lxatac-*
     meta-lxatac-bsp:
     conf/  recipes-bsp/  recipes-core/  recipes-devtools/ …
 
@@ -129,7 +130,7 @@ name or your own name):
     meta-lxatac-software:
     conf/  files/  recipes-backports/  recipes-core/ …
 
-Populate the layer with sample configs to use when first setting up a build
+Populate the layer with sample config files to use when first setting up a build
 directory and remove the config files that were already generated when building
 the first time:
 
@@ -158,7 +159,7 @@ Initialize `meta-lxatac-example` as its own independent git repository:
     $ git commit -m "Initial Commit"
     $ cd ..
 
-Next *open a new terminal*, where you have not yet sourced the build envionment
+Next *open a new terminal*, where you have not yet sourced the build environment
 and use the new script to initialize the environment:
 
     # In a new terminal window
@@ -176,7 +177,7 @@ to learn how to persist your bundle signing keys and write custom recipes.
 
 ### Option B - `meta-lxatac` as git submodule in custom layer
 
-Create a new empty `meta-lxatac-example` layer inside a new project
+Create a new empty `meta-lxatac-example` layer inside a new project and
 somewhere outside the already cloned `meta-lxatac` hierarchy.
 
     # We can reuse the artifacts we have already built.
@@ -243,7 +244,7 @@ example layer:
     $ chmod +x oe-init-build-env
 
 Next *open a new terminal*, where you have not yet sourced the build
-envionment, and use the new script to initialize the environment:
+environment, and use the new script to initialize the environment:
 
     # In a new terminal window
     $ source ./oe-init-build-env
@@ -306,7 +307,7 @@ that you can share with other developers using git:
 
 What belongs where?
 
-If you want to add a development tool you need or want to change something
+If you want to add a development tool you need or if you want to change something
 in the images that could be useful to the general public, you should consider
 changing it directly in `meta-lxatac` and submitting a pull request instead of
 adding a recipe to your custom layer.
@@ -374,16 +375,16 @@ The required files should then appear in `tmp/deploy/images/lxatac/`.
 ### Bring the Device into USB Boot Mode
 
 The first step is to bring the LXA TAC into the USB bootmode and load a
-prelininary bootloader into RAM, which we will use to flash the new image.
+preliminary bootloader into RAM, which we will use to flash the new image.
 The USB bootmode is implemented in the SoC bootrom and can thus not be
 corrupted by software running on the TAC.
 
-Unscrew the four screws holding the frontplate with the display in place.
+Unscrew the four screws holding the front plate with the display in place.
 Pay close attention not to break the flat flex cable connecting the display
 to the mainboard. The display cable can be disconnected by opening the flap
 on the flat flex connector.
 
-Connect the mainboard to your computer using an USB-C Cable.
+Connect the mainboard to your computer using a USB-C cable.
 
 Identify the (possibly unpopulated) connector `P4` in the lower left corner of
 the LXA TAC mainboard.
@@ -437,13 +438,13 @@ and power cycle it to boot into your newly flashed image.
 ##### The device should be in bootrom but does not show up on the Host
 
 Disconnect the USB-C cable from the TAC and power cycle the TAC.
-One of the LEDs on the `DUT` ethernet port should now blink in quick sucession.
+One of the LEDs on the `DUT` Ethernet port should now blink in quick succession.
 The LED is connected to the `PA13` pin of the STM32MP1, which is used for debug
 output from the bootrom. The LED not blinking means that either the wrong boot
 mode is selected or there is some hardware fault.
 Check the bootmode pins and the 5V and 3.3V LEDs inside of the device.
 If you connect the USB-C cable the blinking should stop and the device should
-show up on the host. Otherwise there may be something wrong with the cable.
+show up on the host. Otherwise there might be something wrong with the USB-C cable.
 
 ##### Fastboot keeps `< waiting for any device >`
 
@@ -453,10 +454,10 @@ as `root` using e.g. `sudo`.
 
 ##### The TAC disconnects during fastboot
 
-This can happen when the watchdog timer is set up in the Barebox bootloader
+This can happen when the watchdog timer is set up in the barebox bootloader
 loaded into RAM via `dfu-util`.
-To prevent the TAC from rebooting during fastboot connect to the Barebox
-console via the debug UART adapter / the USB console provided by Barebox
+To prevent the TAC from rebooting during fastboot connect to the barebox
+console via the debug UART adapter / the USB console provided by barebox
 and execute `wd -x` on the shell. E.g.:
 
     barebox@Linux Automation Test Automation Controller (TAC):/ wd -x
@@ -466,7 +467,7 @@ and execute `wd -x` on the shell. E.g.:
 When flashing the emmc-image only the first of two update partitions is
 initialized. The second one is set up on first boot and filled for the first time
 once you install a RAUC bundle on the system for the first time.
-There is a 50/50 chance that Barebox is currently set up to boot from this
+There is a 50/50 chance that barebox is currently set up to boot from this
 non-existing partition, which will fail and reduce its retry counter.
 If the TAC does not boot after flashing you should power cycle the device
 about four times in slow succession to make sure the wrong partition is marked
