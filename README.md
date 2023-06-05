@@ -177,11 +177,11 @@ to learn how to persist your bundle signing keys and write custom recipes.
 
 ### Option B - `meta-lxatac` as git submodule in custom layer
 
-Create a new empty `meta-lxatac-example` layer inside a new project and
-somewhere outside the already cloned `meta-lxatac` hierarchy.
+Create a new empty `meta-lxatac-example` layer in a new repository
+placed outside the already cloned `meta-lxatac` repository.
 
     # We can reuse the artifacts we have already built.
-    # Just store its location in a envionment variable for now
+    # Just store its location in a environment variable for now
     $ PREV_SSTATE_DIR=$(readlink -e sstate-cache)
     $ test -z $PREV_SSTATE_DIR && echo \
       "sstate-cache directory does not exist. " \
@@ -249,7 +249,7 @@ environment, and use the new script to initialize the environment:
     # In a new terminal window
     $ source ./oe-init-build-env
 
-Remember how we crated a set of cryptographic keys to sign the bundle with
+Remember how we created a set of cryptographic keys to sign the bundle with
 when first compiling meta-lxatac? We will need to do so again before building
 a new bundle. But this time we will do so the semi proper way.
 
