@@ -177,8 +177,8 @@ to learn how to persist your bundle signing keys and write custom recipes.
 
 ### Option B - `meta-lxatac` as git submodule in custom layer
 
-Create a new empty `meta-lxatac-example` layer inside a new project and
-somewhere outside the already cloned `meta-lxatac` hierarchy.
+Create a new empty `meta-lxatac-example` layer in a new repository
+placed outside the already cloned `meta-lxatac` repository.
 
     # We can reuse the artifacts we have already built.
     # Just store its location in a envionment variable for now
