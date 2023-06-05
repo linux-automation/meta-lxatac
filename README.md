@@ -279,9 +279,9 @@ in the first step):
     Common Name (e.g. server FQDN or YOUR name) []:
     Email Address []:
 
-If you follwed customization Opton A you will also likely want to remove the
+If you followed customization Option A you will also likely want to remove the
 keys that were generated in the first step, just to make sure that you will not
-accidently include them in a future meta-lxatac pull request:
+accidentally include them in a future meta-lxatac pull request:
 
     $ git restore --staged --worktree meta-lxatac-software/files
 
