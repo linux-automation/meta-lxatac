@@ -1,0 +1,26 @@
+From bde85515a85324282297e3ee291372934903b849 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Mon, 27 Mar 2023 15:45:03 +0200
+Subject: [PATCH] Use python3 in shebang
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In yocto we do not have something like python-is-python3 so we have to
+manually select a non-history python version.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ mipi-dbi-cmd | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mipi-dbi-cmd b/mipi-dbi-cmd
+index 7655530..9f15a50 100755
+--- a/mipi-dbi-cmd
++++ b/mipi-dbi-cmd
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # -*- coding: utf-8 -*-
+ 
+ # SPDX-License-Identifier: CC0-1.0

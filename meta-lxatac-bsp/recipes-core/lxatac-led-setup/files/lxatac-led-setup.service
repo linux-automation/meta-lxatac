@@ -1,0 +1,9 @@
+[Unit]
+Description=Set up LED triggers that need sysfs interaction
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/lxatac-led-setup
+
+[Install]
+WantedBy=multi-user.target

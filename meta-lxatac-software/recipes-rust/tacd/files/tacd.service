@@ -1,10 +1,6 @@
 [Unit]
 Description=LXA TAC Daemon
 Before=collectd.service
-# tacd depends on the dbus service being available right at the start.
-# It would be great to solve this via dbus activation, but NM does not seem
-# to support it (yet).
-After=network-online.target
 
 [Service]
 Type=notify
@@ -15,7 +11,7 @@ Restart=on-failure
 RestartForceExitStatus=100
 RestartSec=30
 WatchdogSec=3
-ExecStopPost=gpioset gpiochip10 0=1 1=1
+ExecStopPost=/usr/bin/tacd-failsafe
 
 [Install]
 WantedBy=multi-user.target

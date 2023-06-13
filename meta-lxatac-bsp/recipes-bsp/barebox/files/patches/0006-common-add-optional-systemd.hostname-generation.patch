@@ -13,7 +13,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 25 insertions(+)
 
 diff --git a/common/Kconfig b/common/Kconfig
-index 2751d14cecd6..003d9a06a45f 100644
+index e10884e44169..d99bff5eb2fd 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
 @@ -1088,6 +1088,15 @@ config SERIAL_NUMBER_FIXUP

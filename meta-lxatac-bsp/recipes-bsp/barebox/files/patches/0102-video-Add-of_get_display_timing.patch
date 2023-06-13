@@ -1,0 +1,61 @@
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Mon, 27 Mar 2023 14:17:09 +0200
+Subject: [PATCH] video: Add of_get_display_timing
+
+Add a port of the kernel of_get_display_timing() that writes a
+struct fb_videomode instead of struct display_timing, which we
+don't have.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Reviewed-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ drivers/video/of_display_timing.c | 22 ++++++++++++++++++++++
+ include/fb.h                      |  2 ++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/drivers/video/of_display_timing.c b/drivers/video/of_display_timing.c
+index 6fe1e1b08b6a..6082d454932d 100644
+--- a/drivers/video/of_display_timing.c
++++ b/drivers/video/of_display_timing.c
+@@ -98,6 +98,28 @@ static int of_parse_display_timing(const struct device_node *np,
+ 	return 0;
+ }
+ 
++/**
++ * of_get_display_timing - parse a display_timing entry
++ * @np: device_node with the timing subnode
++ * @name: name of the timing node
++ * @mode: fb_videomode struct to fill
++ **/
++int of_get_display_timing(const struct device_node *np, const char *name,
++			  struct fb_videomode *mode)
++{
++	struct device_node *timing_np;
++
++	if (!np)
++		return -EINVAL;
++
++	timing_np = of_get_child_by_name(np, name);
++	if (!timing_np)
++		return -ENOENT;
++
++	return of_parse_display_timing(timing_np, mode);
++}
++EXPORT_SYMBOL_GPL(of_get_display_timing);
++
+ /**
+  * of_get_display_timings - parse all display_timing entries from a device_node
+  * @np: device_node with the subnodes
+diff --git a/include/fb.h b/include/fb.h
+index bf5f688342fd..15bb74b99576 100644
+--- a/include/fb.h
++++ b/include/fb.h
+@@ -147,6 +147,8 @@ struct fb_info {
+ 	int shadowfb;
+ };
+ 
++int of_get_display_timing(const struct device_node *np, const char *name,
++			  struct fb_videomode *mode);
+ struct display_timings *of_get_display_timings(struct device_node *np);
+ void display_timings_release(struct display_timings *);
+ 

@@ -15,10 +15,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 11 insertions(+)
 
 diff --git a/include/net.h b/include/net.h
-index 82163dd60acf..77fa251659ce 100644
+index eab0699b2e14..3228b17056fd 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -370,6 +370,7 @@ int setenv_ip(const char *name, IPaddr_t ip);
+@@ -375,6 +375,7 @@ int setenv_ip(const char *name, IPaddr_t ip);
  
  int string_to_ethaddr(const char *str, u8 enetaddr[6]);
  void ethaddr_to_string(const u8 enetaddr[6], char *str);

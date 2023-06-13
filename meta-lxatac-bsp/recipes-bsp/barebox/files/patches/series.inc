@@ -1,9 +1,9 @@
-# umpf-base: v2022.11.0
-# umpf-name: 2022.11/customers/lxa/tac
-# umpf-version: 2022.11/customers/lxa/tac/20221121-1
-# umpf-topic: v2022.11.0/topic/tlv
-# umpf-hashinfo: 0d2369b5e4506860b717a24872df277ce5cdedcf
-# umpf-topic-range: f1b22deeb6ed8bfef865990b8404874e66f9b4d7..110bbde10a2f1db8277a1f3d2328c5a5f6dceffa
+# umpf-base: v2023.03.0
+# umpf-name: 2023.03.0/customers/lxa/tac
+# umpf-version: 2023.03.0/customers/lxa/tac/20230421-1
+# umpf-topic: v2023.03.0/topic/tlv
+# umpf-hashinfo: 38338204f9113c23c5d5f667cc209fe3a9476456
+# umpf-topic-range: e068bbf6a3608351484567af19da68e0e382fa0f..77abc3a4c4e8d2b240ac1edac15337d1132b0f19
 SRC_URI += "\
   file://patches/0001-scripts-implement-slurp-a-read_file-with-fd-as-argum.patch \
   file://patches/0002-of_path-support-phandles-in-of_find_path.patch \
@@ -18,39 +18,40 @@ SRC_URI += "\
   file://patches/0011-commands-add-TLV-debugging-command.patch \
   file://patches/0012-scripts-add-bareboxtlv-host-target-tool.patch \
   "
-# umpf-topic: v2022.11.0/customers/lxa/tac
-# umpf-hashinfo: eb4c6d6fd9afa4a427e4c483acd01a620ed61e4c
-# umpf-topic-range: 110bbde10a2f1db8277a1f3d2328c5a5f6dceffa..a5da7cf2a3cd2414d57d3f937351060a2c0b2182
+# umpf-topic: v2023.03.0/topic/panel-mipi-dbi-spi
+# umpf-hashinfo: 8a7941ffcb996287a6d051ede87e1233374fc69e
+# umpf-topic-range: 77abc3a4c4e8d2b240ac1edac15337d1132b0f19..4c2e5658b246b15dbc42103768f81532b0632357
 SRC_URI += "\
-  file://patches/0101-WIP-ARM-stm32mp-add-Linux-Automation-TAC-board.patch \
-  file://patches/0102-ARM-dts-LXATAC-enable-ohci.patch \
-  file://patches/0103-ARM-stm32mp-dk2-add-barebox-env-and-state-on-SD.patch \
-  file://patches/0104-ARM-stm32mp-lxa-tac-add-barebox-env-and-state-on-eMM.patch \
-  file://patches/0105-ARM-stm32mp-lxa-tac-add-properties-for-ssd1306.patch \
-  file://patches/0106-HACK-video-ssd1307fb-increase-VCOMH-to-0x40.patch \
-  file://patches/0107-ARM-lxatac-add-FIP-barebox-update-handler.patch \
-  file://patches/0108-ARM-stm32mp-lxa-tac-enable-access-to-ramoops.patch \
-  file://patches/0109-boards-add-decoder-for-LXA-TLV-v1-format.patch \
-  file://patches/0110-ARM-stm32mp-dts-lxa-tac-wire-in-factory-data.patch \
-  file://patches/0111-ARM-lxatac-register-TLV-decoder-and-print-out-serial.patch \
-  file://patches/0112-HACK-Workaround-timeout-after-core-reset-on-some-lxa.patch \
+  file://patches/0101-firmware-Add-request-release_firmware-calls.patch \
+  file://patches/0102-video-Add-of_get_display_timing.patch \
+  file://patches/0103-video-add-MIPI-DBI-framebuffer-helpers.patch \
+  file://patches/0104-video-Add-MIPI-DBI-compatible-SPI-driver.patch \
+  file://patches/0105-spi-add-per-driver-bits-per-word-mask.patch \
+  file://patches/0106-spi-stm32-support-per-transfer-bits-per-word-switchi.patch \
+  file://patches/0107-video-mipi_dbi-disable-byte-swapping-if-16-bit-SPI-t.patch \
+  file://patches/0108-spi-update-spi_board_info-FIXME-comment.patch \
+  file://patches/0109-video-fb-add-optional-damage-tracking.patch \
+  file://patches/0110-graphic_utils-add-optional-damage-tracking.patch \
+  file://patches/0111-video-mipi_dbi-add-damage-tracking-and-partial-updat.patch \
+  file://patches/0112-video-fbconsole-implement-non-fullscreen-fbconsole.patch \
   "
-# umpf-topic: v2022.11.0/topic/stm32mp-bbu-fip
-# umpf-hashinfo: f16096380bd60209269a8b016dd68234fa81ad6d
-# umpf-topic-range: a5da7cf2a3cd2414d57d3f937351060a2c0b2182..f6f088bacaf30b5385d75e2a1cbbea06d8e103da
+# umpf-topic: v2023.03.0/customers/lxa/tac
+# umpf-hashinfo: 8c736feb931b1859c471397de58a8c26a6cdceb5
+# umpf-topic-range: 4c2e5658b246b15dbc42103768f81532b0632357..a6ceb1b0371c91b35341ec013d0faf51eb6c0e1b
 SRC_URI += "\
-  file://patches/0201-fastboot-inform-user-if-barebox-update-falls-back-to.patch \
+  file://patches/0201-ARM-stm32mp-add-Linux-Automation-TAC-board.patch \
+  file://patches/0202-boards-add-decoder-for-LXA-TLV-v1-format.patch \
+  file://patches/0203-ARM-stm32mp-dts-lxa-tac-wire-in-factory-data.patch \
+  file://patches/0204-ARM-lxatac-register-TLV-decoder-and-print-out-serial.patch \
+  file://patches/0205-ARM-stm32mp-lxa-tac-enable-deep-probe.patch \
+  file://patches/0206-ARM-stm32mp-dts-lxa-tac-disable-OLED-display.patch \
+  file://patches/0207-ARM-stm32mp-dts-lxa-tac-update-dts-from-kernel.patch \
+  file://patches/0208-ARM-stm32mp-lxa-tac-distinguish-between-device-gener.patch \
+  file://patches/0209-ARM-stm32mp-lxa-tac-model-the-PWM-RGB-status-LED-as-.patch \
   "
-# umpf-topic: 2022.11.0/topic/compressed-dtb-no-lzo
-# umpf-hashinfo: 9ba1489e7cc9b5630f8eea09a69c0567ddbbf7bd
-# umpf-topic-range: f6f088bacaf30b5385d75e2a1cbbea06d8e103da..8a12e9c81a9a1626c5a5351be9722e8c76c3daf7
+# umpf-release: 2023.03.0/customers/lxa/tac/20230421-1
+# umpf-topic-range: a6ceb1b0371c91b35341ec013d0faf51eb6c0e1b..4139879f6fbf38100c523744eed1fcc52b6d37f1
 SRC_URI += "\
-  file://patches/0301-kbuild-gen-dtb-s-refactor-to-allow-different-compres.patch \
-  file://patches/0302-scripts-gen-dtb-s-fallback-to-LZ4-if-lzop-is-unavail.patch \
-  "
-# umpf-release: 2022.11/customers/lxa/tac/20221121-1
-# umpf-topic-range: 8a12e9c81a9a1626c5a5351be9722e8c76c3daf7..709d8e0b74506bfe4907936f843849f8d27d7cfa
-SRC_URI += "\
-  file://patches/0401-Release-2022.11-customers-lxa-tac-20221121-1.patch \
+  file://patches/0301-Release-2023.03.0-customers-lxa-tac-20230421-1.patch \
   "
 # umpf-end

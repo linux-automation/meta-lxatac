@@ -1,0 +1,935 @@
+From: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+Date: Tue, 15 Jun 2021 21:18:38 +0200
+Subject: [PATCH] ARM: stm32mp: add Linux Automation TAC board
+
+Add support for the Linux Automation GmbH Test Automation
+Controller (TAC). The board boots from eMMC, but requires USB loading if
+no previous barebox has been put into the eMMC boot partition.
+
+Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+---
+ arch/arm/boards/Makefile             |   1 +
+ arch/arm/boards/lxa-tac/Makefile     |   2 +
+ arch/arm/boards/lxa-tac/board.c      |  29 ++
+ arch/arm/boards/lxa-tac/lowlevel.c   |  26 ++
+ arch/arm/dts/Makefile                |   1 +
+ arch/arm/dts/stm32mp157c-lxa-tac.dts | 124 +++++++
+ arch/arm/mach-stm32mp/Kconfig        |   4 +
+ dts/src/arm/stm32mp157c-lxa-tac.dts  | 647 +++++++++++++++++++++++++++++++++++
+ images/Makefile.stm32mp              |   1 +
+ 9 files changed, 835 insertions(+)
+ create mode 100644 arch/arm/boards/lxa-tac/Makefile
+ create mode 100644 arch/arm/boards/lxa-tac/board.c
+ create mode 100644 arch/arm/boards/lxa-tac/lowlevel.c
+ create mode 100644 arch/arm/dts/stm32mp157c-lxa-tac.dts
+ create mode 100644 dts/src/arm/stm32mp157c-lxa-tac.dts
+
+diff --git a/arch/arm/boards/Makefile b/arch/arm/boards/Makefile
+index 671f07c7bc9c..c09fc392e5ca 100644
+--- a/arch/arm/boards/Makefile
++++ b/arch/arm/boards/Makefile
+@@ -150,6 +150,7 @@ obj-$(CONFIG_MACH_SOLIDRUN_MICROSOM)		+= solidrun-microsom/
+ obj-$(CONFIG_MACH_STM32MP15XX_DKX)		+= stm32mp15xx-dkx/
+ obj-$(CONFIG_MACH_STM32MP13XX_DK)		+= stm32mp13xx-dk/
+ obj-$(CONFIG_MACH_LXA_MC1)			+= lxa-mc1/
++obj-$(CONFIG_MACH_LXA_TAC)			+= lxa-tac/
+ obj-$(CONFIG_MACH_STM32MP15X_EV1)		+= stm32mp15x-ev1/
+ obj-$(CONFIG_MACH_TECHNEXION_PICO_HOBBIT)	+= technexion-pico-hobbit/
+ obj-$(CONFIG_MACH_TECHNEXION_WANDBOARD)		+= technexion-wandboard/
+diff --git a/arch/arm/boards/lxa-tac/Makefile b/arch/arm/boards/lxa-tac/Makefile
+new file mode 100644
+index 000000000000..092c31d6b28d
+--- /dev/null
++++ b/arch/arm/boards/lxa-tac/Makefile
+@@ -0,0 +1,2 @@
++lwl-y += lowlevel.o
++obj-y += board.o
+diff --git a/arch/arm/boards/lxa-tac/board.c b/arch/arm/boards/lxa-tac/board.c
+new file mode 100644
+index 000000000000..5403dda7680f
+--- /dev/null
++++ b/arch/arm/boards/lxa-tac/board.c
+@@ -0,0 +1,29 @@
++// SPDX-License-Identifier: GPL-2.0+
++#include <common.h>
++#include <linux/sizes.h>
++#include <init.h>
++#include <asm/memory.h>
++#include <mach/bbu.h>
++#include <bootsource.h>
++#include <of.h>
++
++static int tac_probe(struct device *dev)
++{
++	barebox_set_hostname("lxatac");
++
++	stm32mp_bbu_mmc_fip_register("mmc", "/dev/mmc1", BBU_HANDLER_FLAG_DEFAULT);
++
++	return 0;
++}
++
++static const struct of_device_id tac_of_match[] = {
++	{ .compatible = "lxa,stm32mp157c-tac" },
++	{ /* sentinel */ },
++};
++
++static struct driver tac_board_driver = {
++	.name = "board-lxa-tac",
++	.probe = tac_probe,
++	.of_compatible = tac_of_match,
++};
++device_platform_driver(tac_board_driver);
+diff --git a/arch/arm/boards/lxa-tac/lowlevel.c b/arch/arm/boards/lxa-tac/lowlevel.c
+new file mode 100644
+index 000000000000..a15bbded3854
+--- /dev/null
++++ b/arch/arm/boards/lxa-tac/lowlevel.c
+@@ -0,0 +1,26 @@
++// SPDX-License-Identifier: GPL-2.0+
++#include <common.h>
++#include <mach/entry.h>
++#include <debug_ll.h>
++
++extern char __dtb_z_stm32mp157c_lxa_tac_start[];
++
++static void setup_uart(void)
++{
++	/* first stage has set up the UART, so nothing to do here */
++	putc_ll('>');
++}
++
++ENTRY_FUNCTION(start_stm32mp157c_lxa_tac, r0, r1, r2)
++{
++	void *fdt;
++
++	stm32mp_cpu_lowlevel_init();
++
++	if (IS_ENABLED(CONFIG_DEBUG_LL))
++		setup_uart();
++
++	fdt = __dtb_z_stm32mp157c_lxa_tac_start + get_runtime_offset();
++
++	stm32mp1_barebox_entry(fdt);
++}
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 7f0d589d89c8..5f987bb11ddc 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -138,6 +138,7 @@ lwl-$(CONFIG_MACH_SEEED_ODYSSEY) += stm32mp157c-odyssey.dtb.o
+ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.o
+ lwl-$(CONFIG_MACH_STM32MP13XX_DK) += stm32mp135f-dk.dtb.o
+ lwl-$(CONFIG_MACH_LXA_MC1) += stm32mp157c-lxa-mc1.dtb.o
++lwl-$(CONFIG_MACH_LXA_TAC) += stm32mp157c-lxa-tac.dtb.o
+ lwl-$(CONFIG_MACH_STM32MP15X_EV1) += stm32mp157c-ev1.dtb.o
+ lwl-$(CONFIG_MACH_SCB9328) += imx1-scb9328.dtb.o
+ lwl-$(CONFIG_MACH_TECHNEXION_WANDBOARD) += imx6q-wandboard.dtb.o imx6dl-wandboard.dtb.o
+diff --git a/arch/arm/dts/stm32mp157c-lxa-tac.dts b/arch/arm/dts/stm32mp157c-lxa-tac.dts
+new file mode 100644
+index 000000000000..6301db2a337a
+--- /dev/null
++++ b/arch/arm/dts/stm32mp157c-lxa-tac.dts
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
++/*
++ * Copyright (C) 2020 Ahmad Fatoum, Pengutronix
++ */
++
++#include <arm/stm32mp157c-lxa-tac.dts>
++#include "stm32mp151.dtsi"
++
++/ {
++	chosen {
++		environment {
++			compatible = "barebox,environment";
++			device-path = &environment_emmc;
++		};
++	};
++
++	aliases {
++		state = &state_emmc;
++	};
++
++	reserved-memory {
++		ramoops {
++			compatible = "ramoops";
++			/* Everything else will be fixed up at runtime */
++		};
++	};
++
++	state_emmc: state {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "barebox,state";
++		magic = <0xfee2ea9b>;
++		backend-type = "raw";
++		backend = <&backend_state_emmc>;
++		backend-stridesize = <0x1000>;
++
++		bootstate {
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			system0 {
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				remaining_attempts@0 {
++					reg = <0x0 0x4>;
++					type = "uint32";
++					default = <3>;
++				};
++
++				priority@4 {
++					reg = <0x4 0x4>;
++					type = "uint32";
++					default = <20>;
++				};
++			};
++
++			system1 {
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				remaining_attempts@8 {
++					reg = <0x8 0x4>;
++					type = "uint32";
++					default = <0>;
++				};
++
++				priority@c {
++					reg = <0xc 0x4>;
++					type = "uint32";
++					default = <0>;
++				};
++			};
++
++			last_chosen@10 {
++				reg = <0x10 0x4>;
++				type = "uint32";
++			};
++		};
++	};
++};
++
++};
++
++&led_status_dut {
++	/* only turn on in Linux */
++	/delete-property/ linux,default-trigger;
++};
++
++&sdmmc2 {
++	partitions {
++		compatible = "fixed-partitions";
++		#address-cells = <2>;
++		#size-cells = <2>;
++
++		environment_emmc: partition@80000 {
++			label = "barebox-environment";
++			reg = <0 0x80000 0 0x40000>;
++		};
++
++		backend_state_emmc: partition@c0000 {
++			label = "barebox-state";
++			reg = <0 0xc0000 0 0x40000>;
++		};
++	};
++};
++
++&oled {
++	solomon,height = <64>;
++	solomon,width = <128>;
++	solomon,page-offset = <0>;
++	solomon,com-invdir;
++	/* Copied from Adafruit SSD1306 Arduino */
++	solomon,prechargep1 = <1>;
++	solomon,prechargep2 = <15>;
++};
++
++&usbh_ehci {
++	status = "disabled";
++};
++
++&usbh_ohci {
++	status = "okay";
++};
+diff --git a/arch/arm/mach-stm32mp/Kconfig b/arch/arm/mach-stm32mp/Kconfig
+index bc0a48d64c82..e244bd392503 100644
+--- a/arch/arm/mach-stm32mp/Kconfig
++++ b/arch/arm/mach-stm32mp/Kconfig
+@@ -29,6 +29,10 @@ config MACH_LXA_MC1
+ 	select ARCH_STM32MP157
+ 	bool "Linux Automation MC-1 board"
+ 
++config MACH_LXA_TAC
++	select ARCH_STM32MP157
++	bool "Linux Automation TAC board"
++
+ config MACH_SEEED_ODYSSEY
+ 	select ARCH_STM32MP157
+ 	bool "Seeed Studio Odyssey"
+diff --git a/dts/src/arm/stm32mp157c-lxa-tac.dts b/dts/src/arm/stm32mp157c-lxa-tac.dts
+new file mode 100644
+index 000000000000..fea626b3ac40
+--- /dev/null
++++ b/dts/src/arm/stm32mp157c-lxa-tac.dts
+@@ -0,0 +1,647 @@
++/* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause) */
++/*
++ * Copyright (C) 2020 STMicroelectronics - All Rights Reserved
++ * Copyright (C) 2021 Rouven Czerwinski, Pengutronix
++ */
++
++/dts-v1/;
++
++#include "stm32mp157.dtsi"
++#include "stm32mp15xc.dtsi"
++#include "stm32mp15xx-osd32.dtsi"
++#include "stm32mp15xxac-pinctrl.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++#include <dt-bindings/pwm/pwm.h>
++
++/ {
++	model = "Linux Automation Test Automation Controller (TAC)";
++	compatible = "lxa,stm32mp157c-tac", "oct,stm32mp15xx-osd32", "st,stm32mp157";
++
++	aliases {
++		ethernet0 = &ethernet0;
++		mmc1 = &sdmmc2;
++		serial0 = &uart4;
++		serial1 = &usart3;
++	};
++
++
++	chosen {
++		stdout-path = &uart4;
++	};
++
++	led-controller-0 {
++		compatible = "gpio-leds";
++
++		led-0 {
++			label = "tac:green:user1";
++			gpios = <&gpiof 10 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++		};
++
++		led-1 {
++			label = "tac:green:user2";
++			gpios = <&gpiog 7 GPIO_ACTIVE_HIGH>;
++		};
++
++		led_status_dut: led-2 {
++			label = "tac:green:statusdut";
++			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "default-on";
++		};
++
++		/* led-3 and led-4 are internally connected antiparallel to one
++		 * another inside the ethernet jack like this:
++		 * GPIOA14 ---+---|led-3|>--+--- GPIOD15
++		 *            +--<|led-4|---+
++		 * E.g. only one of the LEDs can be illuminated at a time while
++		 * the other output must be driven low.
++		 * This should likely be implemented using a multi color LED
++		 * driver for antiparallel LEDs. */
++		led-3 {
++			label = "tac:green:statuslab";
++			gpios = <&gpioa 14 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "default-on";
++		};
++
++		led-4 {
++			label = "tac:orange:statuslab";
++			gpios = <&gpiod 15 GPIO_ACTIVE_HIGH>;
++		};
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++
++		user-button {
++			label = "USER_BTN";
++			linux,code = <KEY_HOME>;
++			gpios = <&gpioi 11 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	/* supplied by either barrel connector or PoE */
++	reg_12v: regulator_12v {
++		compatible = "regulator-fixed";
++		regulator-name = "12V";
++		regulator-min-microvolt = <12000000>;
++		regulator-max-microvolt = <12000000>;
++		regulator-always-on;
++	};
++
++	reg_5v: regulator_5v {
++		compatible = "regulator-fixed";
++		regulator-name = "5V";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-always-on;
++		vin-supply = <&reg_12v>;
++	};
++
++	reg_1v2: regulator_1v2 {
++		compatible = "regulator-fixed";
++		regulator-name = "1V2";
++		regulator-min-microvolt = <1200000>;
++		regulator-max-microvolt = <1200000>;
++		regulator-always-on;
++		vin-supply = <&reg_5v>;
++	};
++
++	iobus_curr: current-sense-amplifier-0 {
++		compatible = "current-sense-amplifier";
++		io-channels = <&adc1 5>;
++		#io-channel-cells = <0>;
++		label = "iobus-curr";
++		sense-resistor-micro-ohms = <2200000000>; /* 2.2k */
++		sense-gain-mult = <653>;
++		sense-gain-div = <1000000>;
++	};
++
++	iobus_volt: voltage-divider {
++		compatible = "voltage-divider";
++		io-channels = <&adc1 9>;
++		#io-channel-cells = <0>;
++		label = "iobus-volt";
++		output-ohms = <1000>;
++		full-ohms = <6100>;
++	};
++
++	iobus {
++		compatible = "iio-hwmon";
++		io-channels = <&iobus_volt>, <&iobus_curr>;
++	};
++
++	host_curr: current-sense-amplifier-1 {
++		compatible = "current-sense-amplifier";
++		io-channels = <&adc1 13>;
++		#io-channel-cells = <0>;
++		label = "host-curr";
++		sense-resistor-micro-ohms = <1300000000>; /* 1.3k */
++		sense-gain-mult = <653>;
++		sense-gain-div = <1000000>;
++	};
++
++	host_1_curr: current-sense-amplifier-2 {
++		compatible = "current-sense-amplifier";
++		io-channels = <&adc1 15>;
++		#io-channel-cells = <0>;
++		label = "host-1-curr";
++		sense-resistor-micro-ohms = <1800000000>; /* 1.8k */
++		sense-gain-mult = <653>;
++		sense-gain-div = <1000000>;
++	};
++
++	host_2_curr: current-sense-amplifier-3 {
++		compatible = "current-sense-amplifier";
++		io-channels = <&adc1 0>; /* via ANA0 */
++		#io-channel-cells = <0>;
++		label = "host-2-curr";
++		sense-resistor-micro-ohms = <1800000000>; /* 1.8k */
++		sense-gain-mult = <653>;
++		sense-gain-div = <1000000>;
++	};
++
++	host_3_curr: current-sense-amplifier-4 {
++		compatible = "current-sense-amplifier";
++		io-channels = <&adc1 1>; /* via ANA1 */
++		#io-channel-cells = <0>;
++		label = "host-3-curr";
++		sense-resistor-micro-ohms = <1800000000>; /* 1.8k */
++		sense-gain-mult = <653>;
++		sense-gain-div = <1000000>;
++	};
++
++	usb {
++		compatible = "iio-hwmon";
++		io-channels = <&host_curr>, <&host_1_curr>, <&host_2_curr>, <&host_3_curr>;
++	};
++};
++
++&pwr_regulators {
++	vdd-supply = <&vdd>;
++	vdd_3v3_usbfs-supply = <&vdd_usb>;
++};
++
++&hash1 {
++	status = "okay";
++};
++
++&crc1 {
++	status = "okay";
++};
++
++&cryp1 {
++	status = "okay";
++};
++
++&vrefbuf {
++	regulator-min-microvolt = <2500000>;
++	regulator-max-microvolt = <2500000>;
++	vdda-supply = <&vdda>;
++	status = "okay";
++};
++
++&adc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&adc1_ain_pins_tac>;
++	vdd-supply = <&vdd>;
++	vdda-supply = <&vdda>;
++	vref-supply = <&vrefbuf>;
++	status = "okay";
++
++	adc1: adc@0 {
++		st,adc-channels = <0 1 2 5 6 9 10 11 13 14 15 18>;
++		st,min-sample-time-nsecs = <5000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "okay";
++		channel@0 {
++			reg = <0>;
++			label = "HOST_2_CURR_FB";
++		};
++		channel@1 {
++			reg = <1>;
++			label = "HOST_3_CURR_FB";
++		};
++		channel@2 {
++			reg = <2>;
++			label = "OUT_0_FB";
++		};
++		channel@5 {
++			reg = <5>;
++			label = "IOBUS_CURR_FB";
++		};
++		channel@6 {
++			reg = <6>;
++			label = "PWR_U_VCC"; /* via STACK_SPI_CS0 to Power Switch Board */
++		};
++		channel@9 {
++			reg = <9>;
++			label = "IOBUS_VOLT_FB";
++		};
++		channel@10 {
++			reg = <10>;
++			label = "OUT_1_FB";
++		};
++		channel@11 {
++			reg = <11>;
++			label = "PWR_U_GND"; /* via STACK_SPI_CS1 to Power Switch Board */
++		};
++		channel@13 {
++			reg = <13>;
++			label = "HOST_CURR_FB";
++		};
++		channel@14 {
++			reg = <14>;
++			label = "PWR_I"; /* via STACK_SPI_CS2 to Power Switch Board */
++		};
++		channel@15 {
++			reg = <15>;
++			label = "HOST_1_CURR_FB";
++		};
++		channel@18 {
++			reg = <18>;
++			label = "STACK_SPI_CS3"; /* FIXME: unused? */
++		};
++	};
++
++	adc2: adc@100 {
++		st,adc-channels = <12>;
++		st,min-sample-time-nsecs = <500000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "okay";
++		channel@12 {
++			reg = <12>;
++			label = "internal temperature";
++		};
++	};
++};
++
++&rtc {
++	status = "okay";
++};
++
++&iwdg2 {
++	timeout-sec = <8>;
++	status = "okay";
++};
++
++&timers2 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++	timer@1 {
++		status = "okay";
++	};
++};
++
++&timers3 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++	timer@2 {
++		status = "okay";
++	};
++};
++
++&timers4 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	status = "okay";
++	timer@3 {
++		status = "okay";
++	};
++};
++
++&dts {
++	status = "okay";
++};
++
++&gpioa {
++	gpio-line-names = "", "", "", "", "", \
++	"ETH_GPIO1", "ETH_INT", "", "", "", "", "", "", "BOOTROM_LED", "ETH_LAB_LEDRP", "";
++};
++
++&gpioe {
++	gpio-line-names = "", "", "", "", "", \
++	"", "", "", "", "UART_TX_EN", "UART_RX_EN", "", "", "", "", "";
++};
++
++&gpiof {
++	gpio-line-names = "", "", "", "", "", \
++	"", "", "", "", "", "USER_LED1", "", "", "", "", "";
++};
++
++&gpiog {
++	gpio-line-names = "", "", "", "", "", \
++	"IOBUS_FLT_FB", "", "USER_LED2", "", "", "", "", "", "", "", "";
++};
++
++&gpioh {
++	gpio-line-names = "", "", "OUT_1", "OUT_0", "", \
++	"", "", "", "", "", "", "ETH_GPIO2", "TIM_CTS", "IOBUS_PWR_EN", "", "";
++};
++
++&gpioi {
++	gpio-line-names = "TIM_RTS", "", "", "", "DEVICE_DATA_EN", \
++	"", "", "", "ETH_WOL", "", "", "USER_BTN";
++};
++
++&gpu {
++	status = "disabled";
++};
++
++&pmic {
++	regulators {
++		buck1-supply = <&reg_5v>;	/* VIN */
++		buck2-supply = <&reg_5v>;	/* VIN */
++		buck3-supply = <&reg_5v>;	/* VIN */
++		buck4-supply = <&reg_5v>;	/* VIN */
++		ldo2-supply = <&reg_5v>;	/* PMIC_LDO25IN */
++		ldo4-supply = <&reg_5v>;	/* VIN */
++		ldo5-supply = <&reg_5v>;	/* PMIC_LDO25IN */
++		vref_ddr-supply = <&reg_5v>;	/* VIN */
++		boost-supply = <&reg_5v>;	/* PMIC_BSTIN */
++		pwr_sw2-supply = <&bst_out>;	/* PMIC_SWIN */
++	};
++};
++
++&sdmmc2 {
++	pinctrl-names = "default", "opendrain", "sleep";
++	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_b>;
++	pinctrl-1 = <&sdmmc2_b4_od_pins_a &sdmmc2_d47_pins_b>;
++	pinctrl-2 = <&sdmmc2_b4_sleep_pins_a &sdmmc2_d47_sleep_pins_b>;
++	bus-width = <8>;
++	mmc-ddr-3_3v;
++	no-1-8-v;
++	no-sd;
++	no-sdio;
++	non-removable;
++	st,neg-edge;
++	vmmc-supply = <&v3v3>;
++	status = "okay";
++};
++
++&uart4 {
++	label = "debug";
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart4_pins_a>;
++	status = "okay";
++};
++
++&ethernet0 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&ethernet0_rgmii_pins_tac>;
++	pinctrl-1 = <&ethernet0_rgmii_sleep_pins_tac>;
++	phy-mode = "rgmii-id";
++	assigned-clocks = <&rcc ETHCK_K>, <&rcc PLL4_P>;
++	assigned-clock-parents = <&rcc PLL4_P>;
++	assigned-clock-rates = <125000000>; /* Clock PLL4 to 750Mhz in ATF/U-Boot */
++	st,eth-clk-sel;
++	status = "okay";
++
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++};
++
++&i2c1 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&i2c1_pins_b>;
++	pinctrl-1 = <&i2c1_sleep_pins_b>;
++	status = "okay";
++
++	powerboard_gpio: gpio@24 {
++		compatible = "nxp,pca9570";
++		reg = <0x24>;
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "IO0", "IO1", "IO2", "IO3";
++		status = "okay";
++	};
++
++	powerboard_eeprom: eeprom@50 {
++		compatible = "atmel,24c02";
++		reg = <0x50>;
++		vcc-supply = <&v3v3>;
++	};
++};
++
++baseboard_eeprom: &sip_eeprom {
++};
++
++&i2c5 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&i2c5_pins_b>;
++	pinctrl-1 = <&i2c5_sleep_pins_b>;
++	status = "okay";
++	/delete-property/dmas;
++	/delete-property/dma-names;
++
++	usbhub: usbhub@2c {
++		compatible ="microchip,usb2514b";
++		reg = <0x2c>;
++		reset-gpios = <&gpiob 6 GPIO_ACTIVE_LOW>;
++	};
++};
++
++&spi5 {
++	/* spare dmas for other usage */
++	/delete-property/dmas;
++	/delete-property/dma-names;
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi5_pins_tac>;
++	cs-gpios = <&gpiod 13 GPIO_ACTIVE_LOW>;
++	status = "okay";
++
++	ksz9563: ksz9563@0 {
++		compatible = "microchip,ksz9563";
++		reg = <0>;
++
++		reset-gpios = <&gpiog 0 GPIO_ACTIVE_LOW>;
++		spi-max-frequency = <44000000>;
++		spi-cpha;
++		spi-cpol;
++		interrupt-parent = <&gpioa>;
++		interrupts = <6 IRQ_TYPE_EDGE_RISING>;
++		status = "okay";
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			port_dut: port@0 {
++				reg = <0>;
++				label = "dut";
++			};
++			port_uplink: port@1 {
++				reg = <1>;
++				label = "uplink";
++			};
++			port_cpu: port@2 {
++				reg = <2>;
++				label = "cpu";
++				ethernet = <&ethernet0>;
++				phy-mode = "rgmii-id";
++				fixed-link {
++					speed = <1000>;
++					full-duplex;
++				};
++			};
++		};
++	};
++};
++
++&usbotg_hs {
++	phys = <&usbphyc_port1 0>;
++	phy-names = "usb2-phy";
++	dr_mode = "peripheral";
++	vusb_d-supply = <&vdd_usb>;
++	vusb_a-supply = <&reg18>;
++	status = "okay";
++};
++
++&usbh_ehci {
++	phys = <&usbphyc_port0>;
++	phy-names = "usb";
++	status = "okay";
++};
++
++&spi4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi4_pins_a>;
++	cs-gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
++	status = "okay";
++
++	oled: display@0 {
++		compatible = "solomon,ssd1306";
++		reg = <0>;
++		spi-max-frequency = <10000000>;
++		buswidth = <8>;
++		fps = <20>;
++		reset-gpios = <&gpioh 4 GPIO_ACTIVE_LOW>;
++		dc-gpios = <&gpiod 10 GPIO_ACTIVE_HIGH>;
++		debug = <0x0>;
++	};
++};
++
++&usbphyc {
++	status = "okay";
++};
++
++&usbphyc_port0 {
++	phy-supply = <&vdd_usb>;
++};
++
++&usbphyc_port1 {
++	phy-supply = <&vdd_usb>;
++};
++
++&m_can1 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&m_can1_pins_b>;
++	pinctrl-1 = <&m_can1_sleep_pins_b>;
++	status = "okay";
++};
++
++&m_can2 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&m_can2_pins_a>;
++	pinctrl-1 = <&m_can2_sleep_pins_a>;
++	status = "okay";
++};
++
++&usart3 {
++	label = "dut";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usart3_pins_tac>;
++	uart-has-rtscts;
++	status = "okay";
++};
++
++&pinctrl {
++	adc1_ain_pins_tac: tac-adc1-ain-tac {
++		pins {
++			pinmux = <STM32_PINMUX('F', 11, ANALOG)>, /* ADC1_INP2 */
++				 <STM32_PINMUX('B', 1, ANALOG)>, /* ADC1_INP5 */
++				 <STM32_PINMUX('F', 12, ANALOG)>, /* ADC1_INP6 */
++				 <STM32_PINMUX('B', 0, ANALOG)>, /* ADC1_INP9 */
++				 <STM32_PINMUX('C', 0, ANALOG)>, /* ADC1_INP10 */
++				 <STM32_PINMUX('C', 1, ANALOG)>, /* ADC1_INP11 */
++				 <STM32_PINMUX('C', 3, ANALOG)>, /* ADC1_INP13 */
++				 <STM32_PINMUX('A', 2, ANALOG)>, /* ADC1_INP14 */
++				 <STM32_PINMUX('A', 3, ANALOG)>, /* ADC1_INP15 */
++				 <STM32_PINMUX('A', 4, ANALOG)>; /* ADC1_INP18 */
++		};
++	};
++	ethernet0_rgmii_pins_tac: rgmii-tac {
++		pins1 {
++			pinmux = <STM32_PINMUX('G', 4, AF11)>, /* ETH_RGMII_GTX_CLK */
++				 <STM32_PINMUX('G', 13, AF11)>, /* ETH_RGMII_TXD0 */
++				 <STM32_PINMUX('G', 14, AF11)>, /* ETH_RGMII_TXD1 */
++				 <STM32_PINMUX('C', 2, AF11)>, /* ETH_RGMII_TXD2 */
++				 <STM32_PINMUX('E', 2, AF11)>, /* ETH_RGMII_TXD3 */
++				 <STM32_PINMUX('B', 11, AF11)>; /* ETH_RGMII_TX_CTL */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <1>;
++		};
++		pins2 {
++			pinmux = <STM32_PINMUX('C', 4, AF11)>, /* ETH_RGMII_RXD0 */
++				 <STM32_PINMUX('C', 5, AF11)>, /* ETH_RGMII_RXD1 */
++				 <STM32_PINMUX('H', 6, AF11)>, /* ETH_RGMII_RXD2 */
++				 <STM32_PINMUX('H', 7, AF11)>, /* ETH_RGMII_RXD3 */
++				 <STM32_PINMUX('A', 1, AF11)>, /* ETH_RGMII_RX_CLK */
++				 <STM32_PINMUX('A', 7, AF11)>; /* ETH_RGMII_RX_CTL */
++			bias-disable;
++		};
++	};
++	ethernet0_rgmii_sleep_pins_tac: rgmii-sleep-tac {
++		pins1 {
++			pinmux = <STM32_PINMUX('G', 4, ANALOG)>, /* ETH_RGMII_GTX_CLK */
++				 <STM32_PINMUX('G', 13, ANALOG)>, /* ETH_RGMII_TXD0 */
++				 <STM32_PINMUX('G', 14, ANALOG)>, /* ETH_RGMII_TXD1 */
++				 <STM32_PINMUX('C', 2, ANALOG)>, /* ETH_RGMII_TXD2 */
++				 <STM32_PINMUX('E', 2, ANALOG)>, /* ETH_RGMII_TXD3 */
++				 <STM32_PINMUX('B', 11, ANALOG)>, /* ETH_RGMII_TX_CTL */
++				 <STM32_PINMUX('C', 4, ANALOG)>, /* ETH_RGMII_RXD0 */
++				 <STM32_PINMUX('C', 5, ANALOG)>, /* ETH_RGMII_RXD1 */
++				 <STM32_PINMUX('H', 6, ANALOG)>, /* ETH_RGMII_RXD2 */
++				 <STM32_PINMUX('H', 7, ANALOG)>, /* ETH_RGMII_RXD3 */
++				 <STM32_PINMUX('A', 1, ANALOG)>, /* ETH_RGMII_RX_CLK */
++				 <STM32_PINMUX('A', 7, ANALOG)>; /* ETH_RGMII_RX_CTL */
++		 };
++	};
++	spi5_pins_tac: spi5-tac {
++		pins1 {
++			pinmux = <STM32_PINMUX('F', 7, AF5)>, /* SPI5_SCK */
++				 <STM32_PINMUX('F', 9, AF5)>; /* SPI5_MOSI */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <1>;
++		};
++
++		pins2 {
++			pinmux = <STM32_PINMUX('F', 8, AF5)>; /* SPI5_MISO */
++			bias-disable;
++		};
++	};
++	usart3_pins_tac: usart3-tac {
++		pins1 {
++			pinmux = <STM32_PINMUX('B', 10, AF7)>, /* USART3_TX */
++				 <STM32_PINMUX('D', 12, AF7)>; /* USART3_RTS */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <0>;
++		};
++		pins2 {
++			pinmux = <STM32_PINMUX('B', 12, AF8)>, /* USART3_RX */
++				 <STM32_PINMUX('D', 11, AF7)>; /* USART3_CTS_NSS */
++			bias-disable;
++		};
++	};
++};
+diff --git a/images/Makefile.stm32mp b/images/Makefile.stm32mp
+index 59d65722078d..ea1160a4b644 100644
+--- a/images/Makefile.stm32mp
++++ b/images/Makefile.stm32mp
+@@ -35,6 +35,7 @@ $(call build_stm32mp_image, CONFIG_MACH_STM32MP15XX_DKX, start_stm32mp15xx_dkx,
+ $(call build_stm32mp_image, CONFIG_MACH_STM32MP15X_EV1, start_stm32mp15x_ev1, stm32mp15x-ev1)
+ 
+ $(call build_stm32mp_image, CONFIG_MACH_LXA_MC1, start_stm32mp157c_lxa_mc1, stm32mp157c-lxa-mc1)
++$(call build_stm32mp_image, CONFIG_MACH_LXA_TAC, start_stm32mp157c_lxa_tac, stm32mp157c-lxa-tac)
+ 
+ $(call build_stm32mp_image, CONFIG_MACH_PROTONIC_STM32MP1, start_prtt1a, prtt1a)
+ $(call build_stm32mp_image, CONFIG_MACH_PROTONIC_STM32MP1, start_prtt1s, prtt1s)

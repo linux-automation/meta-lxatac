@@ -1,0 +1,45 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Fri, 3 Feb 2023 15:38:00 +0100
+Subject: [PATCH] spi: stm32: split large transfers based on word size instead
+ of bytes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The TSIZE register in CR2, to which the number of words to transfer
+is written, is only 16 Bit. This limits transfers to 65535 SPI
+_words_ at a time. The existing code uses spi_split_transfers_maxsize
+to limit transfers to 65535 _bytes_ at a time.
+
+This breaks large transfers with bits_per_word > 8, as they are
+split inside of a word boundary by the odd size limit.
+
+Split transfers based on the number of words instead.
+This has the added benefit of not artificially limiting the maximum
+length of bpw > 8 transfers to half or a quarter of the actual limit.
+
+The combination of very large transfers and bits_per_word = 16 is triggered
+e.g. by MIPI DBI displays when updating large parts of the screen.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ drivers/spi/spi-stm32.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index def09cf0dc14..d2e16f16fae6 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -984,9 +984,9 @@ static int stm32_spi_prepare_msg(struct spi_master *master,
+ 	if (spi->cfg->set_number_of_data) {
+ 		int ret;
+ 
+-		ret = spi_split_transfers_maxsize(master, msg,
+-						  STM32H7_SPI_TSIZE_MAX,
+-						  GFP_KERNEL | GFP_DMA);
++		ret = spi_split_transfers_maxwords(master, msg,
++						   STM32H7_SPI_TSIZE_MAX,
++						   GFP_KERNEL | GFP_DMA);
+ 		if (ret)
+ 			return ret;
+ 	}
