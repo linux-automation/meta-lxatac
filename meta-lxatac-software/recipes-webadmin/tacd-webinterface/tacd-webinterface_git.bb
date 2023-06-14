@@ -1,10 +1,10 @@
 SRC_URI = " \
-    git://git@github.com/linux-automation/tacd.git;protocol=https;branch=main \
+    git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
     npmsw://${THISDIR}/${BPN}/npm-shrinkwrap.json \
     "
 
 PV = "0.1.0+git${SRCPV}"
-SRCREV = "88d20f145ea27d0af39cd412a6f51b2f514ca254"
+SRCREV = "f62197488e51f7717cd93688565fed740c764ff2"
 
 S = "${WORKDIR}/git/web"
 
@@ -19,6 +19,11 @@ WEBUI_INSTALL_DIR="${NPM_BUILD}/lib/node_modules/tacd-web"
 npm_run_build () {
     cd "${WEBUI_INSTALL_DIR}"
     npm run build
+
+    # Provide compressed variants of all files worth compressing
+    find build/ -type f \
+        \( -name "*.html" -or -name "*.css" -or -name "*.js" -or -name "*.svg" \) \
+        -exec gzip -fk9 {} \;
 }
 
 do_compile:append() {
