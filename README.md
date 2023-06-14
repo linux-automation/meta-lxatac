@@ -28,32 +28,6 @@ Obtaining the recipes and required git submodules:
       https://github.com/linux-automation/meta-lxatac.git
     $ cd meta-lxatac
 
-### Generating RAUC signing keys
-
-In order to be able to build [RAUC](https://rauc.readthedocs.io/) bundles to
-update your TAC you will need cryptographic keys to sign said bundles.
-We can, for obvious reasons, not provide you with these keys, which we use to sign
-the official bundles, so you will have to generate your own:
-
-    $ openssl req -x509 -newkey rsa:4096 -days 36500 -nodes \
-      -keyout meta-lxatac-software/files/rauc.key.pem \
-      >> meta-lxatac-software/files/rauc.cert.pem
-    […]
-    Country Name (2 letter code) [AU]:DE
-    State or Province Name (full name) [Some-State]:
-    Locality Name (eg, city) []:
-    Organization Name (eg, company) [Internet Widgits Pty Ltd]:Example Project
-    Organizational Unit Name (eg, section) []:
-    Common Name (e.g. server FQDN or YOUR name) []:
-    Email Address []:
-
-You will be asked a few questions about who the keys are generated for.
-You can however leave most of the fields empty, as shown above.
-
-Section ["RAUC signing keys in your layer"](#rauc-signing-keys-in-your-layer)
-describes a way to store your own RAUC signing keys as part of a custom
-operating system layer.
-
 ### Setting up the build environment
 
 To use `bitbake` and other commands you will need to source the
@@ -83,16 +57,15 @@ After some time you should end up with with a RAUC bundle in:
     $ ls tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb
     tmp/deploy/images/lxatac/lxatac-core-bundle-base-lxatac.raucb@
 
-To install the RAUC bundle you will have to deploy the certificate you have
-generated to your TAC:
+To install the RAUC bundle you will have to enable the devel rauc certificate
+on your TAC:
 
-    $ scp meta-lxatac-software/files/rauc.cert.pem \
-      [IP/HOSTNAME OF YOUR TAC]:/etc/rauc/rauc.cert.pem
+    # The "private" key for the devel certificate is contained in the public
+    # meta-lxatac repository, so _anyone_ can create bundles signed with this
+    # key.
+    $ rauc-enable-cert devel.cert.pem
 
-The certificates are plain text files, so you can also deploy them by e.g.
-opening the file in an editor via the debug serial port.
-
-Lastly you can install the bundle on your LXA TAC, using either the web
+Afterwards you can install the bundle on your LXA TAC, using either the web
 interface or the command line:
 
     root@lxatac-00010:~ rauc install [PATH_TO_BUNDLE].raucb
@@ -173,7 +146,7 @@ anything yet. See below on how to create custom recipes.
 
 The next section describes another way to maintain your custom layer,
 if you have followed the instructions above you can skip right over it
-to learn how to persist your bundle signing keys and write custom recipes.
+to learn how to use your own bundle signing keys and write custom recipes.
 
 ### Option B - `meta-lxatac` as git submodule in custom layer
 
@@ -249,9 +222,9 @@ environment, and use the new script to initialize the environment:
     # In a new terminal window
     $ source ./oe-init-build-env
 
-Remember how we created a set of cryptographic keys to sign the bundle with
-when first compiling meta-lxatac? We will need to do so again before building
-a new bundle. But this time we will do so the semi proper way.
+Now that we have a place to put custom configuration and build recipes we can
+start customizing the generated bundles.
+The first step is to sign the generated bundles using your own keys.
 
 ### RAUC signing keys in your layer
 
@@ -259,17 +232,15 @@ There are different approaches to storing cryptographic keys.
 Some, like using a hardware security module (HSM),
 are considered better in terms of security than others.
 What we are about to do is an approach from the opposite side of the security
-spectrum, that trades security for ease of development.
+spectrum, that trades security for ease of development by storing the keys
+inside the `meta-lxatac-example` git repository.
 
-First we are going to generate new keys to sign bundles with,
-like we did in the first step, but this time inside your new custom layer
-(if you prefer to do so you can also copy over the keys you have generated
-in the first step):
+First we are going to generate new keys to sign bundles with:
 
     $ mkdir meta-lxatac-example/files
     $ openssl req -x509 -newkey rsa:4096 -days 36500 -nodes \
-      -keyout meta-lxatac-example/files/rauc.key.pem \
-      -out meta-lxatac-example/files/rauc.cert.pem
+      -keyout meta-lxatac-example/files/example.key.pem \
+      -out meta-lxatac-example/files/example.cert.pem
     […]
     Country Name (2 letter code) [AU]:DE
     State or Province Name (full name) [Some-State]:
@@ -279,29 +250,26 @@ in the first step):
     Common Name (e.g. server FQDN or YOUR name) []:
     Email Address []:
 
-If you followed customization Option A you will also likely want to remove the
-keys that were generated in the first step, just to make sure that you will not
-accidentally include them in a future meta-lxatac pull request:
-
-    $ git restore --staged --worktree meta-lxatac-software/files
-
-If you still want to be able to install official bundles provided by Linux
-Automation GmbH, you can add the official certificate to the list of allowed
-certificates using:
-
-    $ cat meta-lxatac-software/files/rauc.cert.pem \
-      >> meta-lxatac-example/files/rauc.cert.pem
-
 Next you should add the following lines to `meta-lxatac-example/conf/layer.conf`:
 
-    RAUC_KEY_FILE = "${LAYERDIR}/files/rauc.key.pem"
-    RAUC_CERT_FILE = "${LAYERDIR}/files/rauc.cert.pem"
-    RAUC_KEYRING_FILE = "${LAYERDIR}/files/rauc.cert.pem"
+    RAUC_KEY_FILE = "${LAYERDIR}/files/example.key.pem"
+    RAUC_CERT_FILE = "${LAYERDIR}/files/example.cert.pem"
+    RAUC_KEYRING_FILE = "${LAYERDIR}/files/example.cert.pem"
 
 Now you should be able to build bundles signed using your own keys,
 that you can share with other developers using git:
 
     $ bitbake lxatac-core-bundle-base
+
+To install the bundle on a new TAC you will need to deploy and enable the
+`example.cert.pem` on it first:
+
+    $ scp meta-lxatac-example/files/example.cert.pem \
+        root@lxatac-00010:/etc/rauc/certificates-available/example.cert.pem
+    $ ssh root@lxatac-00010 rauc-enable-cert example.cert.pem
+
+Afterwards you will be able to install the bundle via the commandline or
+the web interface.
 
 ### Custom Recipes
 
