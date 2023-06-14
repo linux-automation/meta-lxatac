@@ -21,3 +21,5 @@ rm "$ENABLED_DIR/$1"
 
 openssl rehash "$ENABLED_DIR"
 
+# Ask the tacd to update the list of channels
+curl -X PUT -d "true" "http://localhost/v1/tac/update/channels/reload"

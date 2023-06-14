@@ -1,0 +1,10 @@
+name: testing
+display_name: Testing
+description: |
+  Testing bundles provided by the Linux Automation GmbH.
+  The released bundles are automatically tested on actual hardware and automatically uploaded.
+  Receives more frequent but less stable updates than the Stable channel.
+url: |
+  https://downloads.linux-automation.com/lxatac/software/testing/latest/lxatac-core-bundle-base-lxatac.raucb
+polling_interval: "24h"
+

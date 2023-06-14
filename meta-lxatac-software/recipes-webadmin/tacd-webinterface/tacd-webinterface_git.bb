@@ -4,7 +4,7 @@ SRC_URI = " \
     "
 
 PV = "0.1.0+git${SRCPV}"
-SRCREV = "8232cf2d6b4cf66bd949214c2cde8a5a8dbb2fd8"
+SRCREV = "88d20f145ea27d0af39cd412a6f51b2f514ca254"
 
 S = "${WORKDIR}/git/web"
 
