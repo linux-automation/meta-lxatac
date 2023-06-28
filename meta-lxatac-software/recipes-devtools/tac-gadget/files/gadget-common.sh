@@ -35,10 +35,7 @@ clear_gadget () {
             [ -d $str ] && rmdir $str
         done
         rmdir $MAINDIR/*
-        if [[ ! $DEVDIR || ! $FUNCTION ]]; then
-            exit 0
-        fi
-    elif [[ -n $DEVDIR && -n $FUNCTION ]]; then
+    elif [ -n $DEVDIR ]; then
         modprobe libcomposite
     else
         echo "Nothing to do here."
