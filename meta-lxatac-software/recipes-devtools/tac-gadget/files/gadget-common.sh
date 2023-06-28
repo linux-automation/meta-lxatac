@@ -57,11 +57,8 @@ setup_gadget () {
     mkdir $DEVDIR/configs/c.1
     mkdir $DEVDIR/configs/c.1/strings/0x409
     echo Normal > $DEVDIR/configs/c.1/strings/0x409/configuration
-
-    mkdir $DEVDIR/functions/$FUNCTION
 }
 
 start_gadget () {
-    ln -s $DEVDIR/functions/$FUNCTION $DEVDIR/configs/c.1
     echo $UDC_ADDR > $DEVDIR/UDC
 }
