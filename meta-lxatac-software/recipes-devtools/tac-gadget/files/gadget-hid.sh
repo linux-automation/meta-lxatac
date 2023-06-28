@@ -1,5 +1,7 @@
 #!/bin/bash
+
 set -e -u -o pipefail
+
 source /usr/share/gadget/gadget-common
 source /usr/share/gadget/gadget-reports
 
@@ -14,4 +16,5 @@ echo 1 > $DEVDIR/functions/hid.usb0/subclass
 echo 8 > $DEVDIR/functions/hid.usb0/report_length
 report_keyboard > $DEVDIR/functions/hid.usb0/report_desc
 start_gadget
+
 exit 0

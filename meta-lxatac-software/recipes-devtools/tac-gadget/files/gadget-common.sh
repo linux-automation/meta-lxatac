@@ -1,4 +1,5 @@
 #!/bin/bash
+
 MAINDIR=/sys/kernel/config/usb_gadget
 
 # Read factory data that was prepared by

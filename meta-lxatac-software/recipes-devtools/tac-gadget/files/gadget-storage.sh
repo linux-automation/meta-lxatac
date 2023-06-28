@@ -1,5 +1,7 @@
 #!/bin/bash
+
 set -e -u -o pipefail
+
 STORAGE=${1:-}
 if [ $STORAGE ]; then
     source /usr/share/gadget/gadget-common
@@ -15,4 +17,5 @@ clear_gadget
 setup_gadget
 echo $STORAGE > $DEVDIR/functions/mass_storage.usb0/lun.0/file
 start_gadget
+
 exit 0
