@@ -1,0 +1,31 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 28 Jun 2023 13:26:48 +0200
+Subject: [PATCH] ARM: dts: stm32: lxa-tac: adjust USB gadget fifo sizes for
+ multi function
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This allows e.g. providing the ethernet and mass storage functions on the
+peripheral port at the same time.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+---
+ arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
+index 184b8bb4ebbf..1bb193440415 100644
+--- a/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
+@@ -580,6 +580,10 @@ &usbotg_hs {
+ 	vusb_d-supply = <&vdd_usb>;
+ 	vusb_a-supply = <&reg18>;
+ 
++	g-rx-fifo-size = <512>;
++	g-np-tx-fifo-size = <32>;
++	g-tx-fifo-size = <128 128 64 16 16 16 16 16>;
++
+ 	dr_mode = "peripheral";
+ 
+ 	status = "okay";
