@@ -1,6 +1,7 @@
 [Unit]
 Description=LXA TAC Daemon
 Before=collectd.service
+RequiresMountsFor=/srv/tacd
 
 [Service]
 Type=notify

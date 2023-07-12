@@ -3,6 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 RDEPENDS:${PN}:append = "bash"
 
 SRC_URI:append = " \
+    file://require-mount-srv.conf \
     file://rauc-disable-cert.sh \
     file://rauc-enable-cert.sh \
     file://devel.cert.pem \
@@ -11,6 +12,9 @@ SRC_URI:append = " \
     "
 
 do_install:append() {
+    install -D -m 0644 ${WORKDIR}/require-mount-srv.conf \
+        ${D}${systemd_unitdir}/system/rauc.service.d/require-mount-srv.conf
+
     install -D -m 0755 ${WORKDIR}/rauc-disable-cert.sh \
         ${D}${bindir}/rauc-disable-cert
 
@@ -48,3 +52,5 @@ do_install:append() {
 
     openssl rehash ${D}${sysconfdir}/rauc/certificates-enabled
 }
+
+FILES:${PN} += "${systemd_unitdir}/system/rauc.service.d/"

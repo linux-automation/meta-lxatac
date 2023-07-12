@@ -1,8 +1,0 @@
-[Unit]
-Before=local-fs.target
-
-[Mount]
-Where=/var/volatile/log/journal
-What=/srv/journal
-Type=none
-Options=bind
