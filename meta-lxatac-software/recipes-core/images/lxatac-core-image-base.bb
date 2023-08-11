@@ -45,6 +45,7 @@ IMAGE_INSTALL:append = "\
     gstreamer1.0-plugins-good \
     htop \
     i2c-tools \
+    imx-uuu \
     iperf3 \
     iproute2 \
     iproute2-bash-completion \
