@@ -20,33 +20,33 @@ In the future there will also be a STM32MP153 based hardware generation.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 ---
- arch/arm/boot/dts/Makefile                     |   2 +
- arch/arm/boot/dts/stm32mp157c-lxa-tac-gen1.dts |  93 ++++
- arch/arm/boot/dts/stm32mp157c-lxa-tac-gen2.dts | 172 +++++++
- arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi     | 610 +++++++++++++++++++++++++
+ arch/arm/boot/dts/st/Makefile                     |   2 +
+ arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen1.dts |  93 ++++
+ arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen2.dts | 172 ++++++
+ arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi     | 610 ++++++++++++++++++++++
  4 files changed, 877 insertions(+)
- create mode 100644 arch/arm/boot/dts/stm32mp157c-lxa-tac-gen1.dts
- create mode 100644 arch/arm/boot/dts/stm32mp157c-lxa-tac-gen2.dts
- create mode 100644 arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
+ create mode 100644 arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen1.dts
+ create mode 100644 arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen2.dts
+ create mode 100644 arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 59829fc90315..886371436bbc 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -1266,6 +1266,8 @@ dtb-$(CONFIG_ARCH_STM32) += \
+diff --git a/arch/arm/boot/dts/st/Makefile b/arch/arm/boot/dts/st/Makefile
+index b3e9d29390e3..44b264c399ec 100644
+--- a/arch/arm/boot/dts/st/Makefile
++++ b/arch/arm/boot/dts/st/Makefile
+@@ -56,6 +56,8 @@ dtb-$(CONFIG_ARCH_STM32) += \
  	stm32mp157c-ev1.dtb \
  	stm32mp157c-ev1-scmi.dtb \
  	stm32mp157c-lxa-mc1.dtb \
 +	stm32mp157c-lxa-tac-gen1.dtb \
 +	stm32mp157c-lxa-tac-gen2.dtb \
- 	stm32mp157c-odyssey.dtb
- dtb-$(CONFIG_MACH_SUN4I) += \
- 	sun4i-a10-a1000.dtb \
-diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac-gen1.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac-gen1.dts
+ 	stm32mp157c-odyssey.dtb \
+ 	stm32mp157c-phycore-stm32mp1-3.dtb
+ dtb-$(CONFIG_ARCH_U8500) += \
+diff --git a/arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen1.dts b/arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen1.dts
 new file mode 100644
 index 000000000000..81f254fb88b0
 --- /dev/null
-+++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac-gen1.dts
++++ b/arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen1.dts
 @@ -0,0 +1,93 @@
 +// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 +/*
@@ -141,11 +141,11 @@ index 000000000000..81f254fb88b0
 +		status = "okay";
 +	};
 +};
-diff --git a/arch/arm/boot/dts/stm32mp157c-lxa-tac-gen2.dts b/arch/arm/boot/dts/stm32mp157c-lxa-tac-gen2.dts
+diff --git a/arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen2.dts b/arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen2.dts
 new file mode 100644
 index 000000000000..8a34d15e9005
 --- /dev/null
-+++ b/arch/arm/boot/dts/stm32mp157c-lxa-tac-gen2.dts
++++ b/arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen2.dts
 @@ -0,0 +1,172 @@
 +// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 +/*
@@ -319,11 +319,11 @@ index 000000000000..8a34d15e9005
 +		status = "okay";
 +	};
 +};
-diff --git a/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
+diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 new file mode 100644
 index 000000000000..184b8bb4ebbf
 --- /dev/null
-+++ b/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
++++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 @@ -0,0 +1,610 @@
 +// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 +/*

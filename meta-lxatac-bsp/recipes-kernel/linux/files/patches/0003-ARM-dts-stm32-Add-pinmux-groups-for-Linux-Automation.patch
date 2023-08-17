@@ -10,13 +10,13 @@ Add pinmux groups required for the Linux Automation GmbH TAC.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 ---
- arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 129 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi | 129 ++++++++++++++++++++++++++++
  1 file changed, 129 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-index e86d989dd351..95eb0a92acd5 100644
---- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+diff --git a/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi
+index 05c9c4f8064c..098153ee99a3 100644
+--- a/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi
++++ b/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi
 @@ -6,6 +6,17 @@
  #include <dt-bindings/pinctrl/stm32-pinfunc.h>
  
@@ -35,7 +35,7 @@ index e86d989dd351..95eb0a92acd5 100644
  	adc1_in6_pins_a: adc1-in6-0 {
  		pins {
  			pinmux = <STM32_PINMUX('F', 12, ANALOG)>;
-@@ -341,6 +352,46 @@ pins1 {
+@@ -391,6 +402,46 @@ pins1 {
  		};
  	};
  
@@ -82,7 +82,7 @@ index e86d989dd351..95eb0a92acd5 100644
  	ethernet0_rmii_pins_a: rmii-0 {
  		pins1 {
  			pinmux = <STM32_PINMUX('G', 13, AF11)>, /* ETH1_RMII_TXD0 */
-@@ -1104,6 +1155,20 @@ pins {
+@@ -1154,6 +1205,20 @@ pins {
  		};
  	};
  
@@ -103,7 +103,7 @@ index e86d989dd351..95eb0a92acd5 100644
  	pwm2_pins_a: pwm2-0 {
  		pins {
  			pinmux = <STM32_PINMUX('A', 3, AF1)>; /* TIM2_CH4 */
-@@ -1230,6 +1295,26 @@ pins {
+@@ -1280,6 +1345,26 @@ pins {
  		};
  	};
  
@@ -130,7 +130,7 @@ index e86d989dd351..95eb0a92acd5 100644
  	pwm12_pins_a: pwm12-0 {
  		pins {
  			pinmux = <STM32_PINMUX('H', 6, AF2)>; /* TIM12_CH1 */
-@@ -1925,6 +2010,20 @@ pins2 {
+@@ -2074,6 +2159,20 @@ pins2 {
  		};
  	};
  
@@ -151,7 +151,7 @@ index e86d989dd351..95eb0a92acd5 100644
  	spi4_pins_a: spi4-0 {
  		pins {
  			pinmux = <STM32_PINMUX('E', 12, AF5)>, /* SPI4_SCK */
-@@ -1939,6 +2038,21 @@ pins2 {
+@@ -2088,6 +2187,21 @@ pins2 {
  		};
  	};
  
@@ -173,7 +173,7 @@ index e86d989dd351..95eb0a92acd5 100644
  	stusb1600_pins_a: stusb1600-0 {
  		pins {
  			pinmux = <STM32_PINMUX('I', 11, GPIO)>;
-@@ -2385,6 +2499,21 @@ pins {
+@@ -2578,6 +2692,21 @@ pins {
  		};
  	};
  

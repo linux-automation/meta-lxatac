@@ -1,0 +1,52 @@
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Tue, 18 Jul 2023 13:41:03 +0200
+Subject: [PATCH] pwm: stm32: Make ch parameter unsigned
+
+The channel parameter is only ever set to pwm->hwpwm.
+Make it unsigned int as well.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/pwm/pwm-stm32.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
+index 8284a624c1da..d913ff66cf92 100644
+--- a/drivers/pwm/pwm-stm32.c
++++ b/drivers/pwm/pwm-stm32.c
+@@ -308,7 +308,7 @@ static int stm32_pwm_capture(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	return ret;
+ }
+ 
+-static int stm32_pwm_config(struct stm32_pwm *priv, int ch,
++static int stm32_pwm_config(struct stm32_pwm *priv, unsigned int ch,
+ 			    int duty_ns, int period_ns)
+ {
+ 	unsigned long long prd, div, dty;
+@@ -371,7 +371,7 @@ static int stm32_pwm_config(struct stm32_pwm *priv, int ch,
+ 	return 0;
+ }
+ 
+-static int stm32_pwm_set_polarity(struct stm32_pwm *priv, int ch,
++static int stm32_pwm_set_polarity(struct stm32_pwm *priv, unsigned int ch,
+ 				  enum pwm_polarity polarity)
+ {
+ 	u32 mask;
+@@ -386,7 +386,7 @@ static int stm32_pwm_set_polarity(struct stm32_pwm *priv, int ch,
+ 	return 0;
+ }
+ 
+-static int stm32_pwm_enable(struct stm32_pwm *priv, int ch)
++static int stm32_pwm_enable(struct stm32_pwm *priv, unsigned int ch)
+ {
+ 	u32 mask;
+ 	int ret;
+@@ -411,7 +411,7 @@ static int stm32_pwm_enable(struct stm32_pwm *priv, int ch)
+ 	return 0;
+ }
+ 
+-static void stm32_pwm_disable(struct stm32_pwm *priv, int ch)
++static void stm32_pwm_disable(struct stm32_pwm *priv, unsigned int ch)
+ {
+ 	u32 mask;
+ 
