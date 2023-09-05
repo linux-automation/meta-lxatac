@@ -1,5 +1,3 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-
 SRC_URI = "git://github.com/notro/panel-mipi-dbi.git;protocol=https;branch=main \
            file://0001-Use-python3-in-shebang.patch \
            "
