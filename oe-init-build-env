@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
-TEMPLATECONF=`pwd`/meta-lxatac-software/conf/templates/default/
+if [ -n "${BASH_SOURCE[0]}" ]; then
+    THIS_SCRIPT="${BASH_SOURCE[0]}"
+elif [ -n "$ZSH_NAME" ]; then
+    THIS_SCRIPT="$0"
+else
+    echo "The meta-lxatac oe-init-build-env can only be sourced by bash and zsh."
+    echo "For other shells (e.g. fish) use a workaround like the following:"
+    echo
+    echo "  exec bash -c \"source oe-init-build-env && exec fish\""
+    exit 1
+fi
+DIR=$( dirname -- "${THIS_SCRIPT}" )
+unset THIS_SCRIPT
 
-. poky/oe-init-build-env $1
+TEMPLATECONF=${DIR}/meta-lxatac-software/conf/templates/default/
+
+. ${DIR}/poky/oe-init-build-env $1
