@@ -316,7 +316,7 @@ You can now paste the following recipe to
 
     inherit allarch
 
-    SRC_URI += "authorized_keys.root ssh-keys.conf"
+    SRC_URI += "file://authorized_keys.root file://ssh-keys.conf"
 
     do_install() {
         install -D -m0600 ${WORKDIR}/authorized_keys.root \
