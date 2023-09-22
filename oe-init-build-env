@@ -11,9 +11,12 @@ else
     echo "  exec bash -c \"source oe-init-build-env && exec fish\""
     exit 1
 fi
+
 DIR=$( dirname -- "${THIS_SCRIPT}" )
+DIR=$( readlink -f "${DIR}" )
 unset THIS_SCRIPT
 
-TEMPLATECONF=${DIR}/meta-lxatac-software/conf/templates/default/
+TEMPLATECONF="${DIR}/meta-lxatac-software/conf/templates/default/"
 
-. ${DIR}/poky/oe-init-build-env $1
+# shellcheck source=poky/oe-init-build-env
+. "${DIR}/poky/oe-init-build-env" "$1"
