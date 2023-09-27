@@ -107,7 +107,7 @@ name or your own name):
     meta-lxatac-software:
     conf/  files/  recipes-backports/  recipes-core/ …
 
-    $ bitbake-layers create-layer meta-lxatac-example
+    $ bitbake-layers create-layer --priority 12 meta-lxatac-example
 
     $ ls meta-lxatac-*
     meta-lxatac-bsp:
@@ -118,6 +118,12 @@ name or your own name):
 
     meta-lxatac-software:
     conf/  files/  recipes-backports/  recipes-core/ …
+
+> [!Note]
+> The `--priority 12` argument to `bitbake-layers create-layer` gives
+> your custom layer a higher priority than all other layers,
+> allowing you to override the defaults of all recipes.
+> Use `bitbake-layers show-layers` to view the layer priorities.
 
 Populate the layer with sample config files to use when first setting up a build
 directory and remove the config files that were already generated when building
@@ -211,10 +217,16 @@ Now we will create a new layer for our custom recipes:
     $ ls
     build/ meta-lxatac/
 
-    $ bitbake-layers create-layer meta-lxatac-example
+    $ bitbake-layers create-layer --priority 12 meta-lxatac-example
 
     $ ls
     build/ meta-lxatac/ meta-lxatac-example/
+
+> [!Note]
+> The `--priority 12` argument to `bitbake-layers create-layer` gives
+> your custom layer a higher priority than all other layers,
+> allowing you to override the defaults of all recipes.
+> Use `bitbake-layers show-layers` to view the layer priorities.
 
 Populate the layer with sample configs to use when first setting up a build
 directory:
