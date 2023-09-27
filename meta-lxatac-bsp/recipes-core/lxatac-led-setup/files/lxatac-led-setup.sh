@@ -51,11 +51,12 @@ else
 fi
 
 # DUT UART activity
-# Currently both LEDs blink on RX and TX
 if [ -e "${BASE}/${UART_RX}/trigger" ]
 then
     echo tty > "${BASE}/${UART_RX}/trigger"
     echo ttySTM1 > "${BASE}/${UART_RX}/ttyname"
+    echo 1 > "${BASE}/${UART_RX}/rx"
+    echo 0 > "${BASE}/${UART_RX}/tx"
 else
     echo "Not setting up UART RX Trigger"
 fi
@@ -64,6 +65,8 @@ if [ -e "${BASE}/${UART_TX}/trigger" ]
 then
     echo tty > "${BASE}/${UART_TX}/trigger"
     echo ttySTM1 > "${BASE}/${UART_TX}/ttyname"
+    echo 0 > "${BASE}/${UART_TX}/rx"
+    echo 1 > "${BASE}/${UART_TX}/tx"
 else
     echo "Not setting up UART TX Trigger"
 fi
