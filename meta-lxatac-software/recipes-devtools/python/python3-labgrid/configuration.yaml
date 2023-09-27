@@ -27,16 +27,17 @@ serial:
     port: /dev/ttySTM1
     speed: {{serial.baud}}
 
-## FIXME: These should be accessed via the REST API at
-## - /v1/output/out_0/asserted
-## - /v1/output/out_1/asserted
-## gpio0:
-##   SysfsGPIO:
-##     index: 115
-##
-## gpio1:
-##   SysfsGPIO:
-##     index: 114
+out_0:
+  HttpDigitalOutput:
+    url: 'http://{{ hostname }}/v1/output/out_0/asserted'
+    body_asserted: "true"
+    body_deasserted: "false"
+
+out_1:
+  HttpDigitalOutput:
+    url: 'http://{{ hostname }}/v1/output/out_1/asserted'
+    body_asserted: "true"
+    body_deasserted: "false"
 
 dut_power:
   NetworkPowerPort:
