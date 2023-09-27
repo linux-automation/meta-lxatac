@@ -17,7 +17,6 @@ RAUC_BUNDLE_HOOKS[file] = "hook.sh"
 RAUC_BUNDLE_SLOTS ?= "rootfs bootloader"
 
 RAUC_SLOT_rootfs ?= "lxatac-core-image-base"
-RAUC_SLOT_rootfs[file] = "lxatac-core-image-base-lxatac.ext4"
 RAUC_SLOT_rootfs[fstype] = "ext4"
 RAUC_SLOT_rootfs[hooks] = "post-install"
 RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
