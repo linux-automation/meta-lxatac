@@ -1,6 +1,6 @@
 # umpf-base: v6.4
 # umpf-name: 6.4/customers/lxa/lxatac
-# umpf-version: 6.4/customers/lxa/lxatac/20230627-1
+# umpf-version: 6.4/customers/lxa/lxatac/20230627-2
 # umpf-topic: v6.4/customers/lxa/lxatac
 # umpf-hashinfo: 927820f53568ba95758663f0de98d7cbd7d9b911
 # umpf-topic-range: 6995e2de6891c724bfeb2db33d7b87775f913ad1..678243c254e6835b25e29f8ccf8a52d6b67174b1
@@ -33,9 +33,15 @@ SRC_URI += "\
 SRC_URI += "\
   file://patches/0301-backlight-pwm_bl-Avoid-backlight-flicker-applying-in.patch \
   "
-# umpf-release: 6.4/customers/lxa/lxatac/20230627-1
-# umpf-topic-range: 2defd6502d2b3f5251749f9f621e69f5b2bca5e7..c47d8de008eda2fd9248482ee04d40f32ad0a85b
+# umpf-topic: v6.4/topic/lmp92064
+# umpf-hashinfo: 8a6b5ffc4c09287732c41b3f4106097d5aea6c68
+# umpf-topic-range: 2defd6502d2b3f5251749f9f621e69f5b2bca5e7..56460c1cc9c689db761ab3a7c6cbfa8c1755c65f
 SRC_URI += "\
-  file://patches/0401-Release-6.4-customers-lxa-lxatac-20230627-1.patch \
+  file://patches/0401-iio-adc-add-buffering-support-to-the-TI-LMP92064-ADC.patch \
+  "
+# umpf-release: 6.4/customers/lxa/lxatac/20230627-2
+# umpf-topic-range: 56460c1cc9c689db761ab3a7c6cbfa8c1755c65f..87efd2c0c677d688d00589681b651a2f586a96fb
+SRC_URI += "\
+  file://patches/0501-Release-6.4-customers-lxa-lxatac-20230627-2.patch \
   "
 # umpf-end
