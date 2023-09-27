@@ -1,4 +1,5 @@
 #!/bin/bash
+
 MAINDIR=/sys/kernel/config/usb_gadget
 
 # Read factory data that was prepared by
@@ -34,10 +35,7 @@ clear_gadget () {
             [ -d $str ] && rmdir $str
         done
         rmdir $MAINDIR/*
-        if [[ ! $DEVDIR || ! $FUNCTION ]]; then
-            exit 0
-        fi
-    elif [[ -n $DEVDIR && -n $FUNCTION ]]; then
+    elif [ -n $DEVDIR ]; then
         modprobe libcomposite
     else
         echo "Nothing to do here."
@@ -59,11 +57,8 @@ setup_gadget () {
     mkdir $DEVDIR/configs/c.1
     mkdir $DEVDIR/configs/c.1/strings/0x409
     echo Normal > $DEVDIR/configs/c.1/strings/0x409/configuration
-
-    mkdir $DEVDIR/functions/$FUNCTION
 }
 
 start_gadget () {
-    ln -s $DEVDIR/functions/$FUNCTION $DEVDIR/configs/c.1
     echo $UDC_ADDR > $DEVDIR/UDC
 }
