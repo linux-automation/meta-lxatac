@@ -1,0 +1,82 @@
+From: Florian Eckert <fe@dev.tdt.de>
+Date: Tue, 26 Sep 2023 11:36:06 +0200
+Subject: [PATCH] tty: add new helper function tty_get_mget
+
+The struct 'tty_struct' has a callback to read the status flags of the tty
+if the tty driver provides them. So fare, the data is transferred directly
+to userspace with the function 'tty_tiocmget'. This function cannot be
+used to evaluate the status line of the tty interface in the ledtrig-tty
+trigger. To make this possible, a new function must be added that does
+not immediately pass the data on to userspace.
+
+The new function 'tty_get_mget' only returns the status register.
+This information can then be processed further in the ledtrig-tty
+trigger.
+
+Signed-off-by: Florian Eckert <fe@dev.tdt.de>
+---
+ drivers/tty/tty_io.c | 29 +++++++++++++++++++++++------
+ include/linux/tty.h  |  1 +
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index 63db04b9113a..8ba6122f1bc7 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2504,6 +2504,25 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+ 	return retval;
+ }
+ 
++/**
++ * tty_get_mget		-	get modem status
++ * @tty: tty device
++ *
++ * Obtain the modem status bits from the tty driver if the feature
++ * is supported.
++ *
++ */
++int tty_get_mget(struct tty_struct *tty)
++{
++	int retval = -ENOTTY;
++
++	if (tty->ops->tiocmget)
++		retval = tty->ops->tiocmget(tty);
++
++	return retval;
++}
++EXPORT_SYMBOL_GPL(tty_get_mget);
++
+ /**
+  * tty_tiocmget		-	get modem status
+  * @tty: tty device
+@@ -2516,14 +2535,12 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+  */
+ static int tty_tiocmget(struct tty_struct *tty, int __user *p)
+ {
+-	int retval = -ENOTTY;
++	int retval;
+ 
+-	if (tty->ops->tiocmget) {
+-		retval = tty->ops->tiocmget(tty);
++	retval = tty_get_mget(tty);
++	if (retval >= 0)
++		retval = put_user(retval, p);
+ 
+-		if (retval >= 0)
+-			retval = put_user(retval, p);
+-	}
+ 	return retval;
+ }
+ 
+diff --git a/include/linux/tty.h b/include/linux/tty.h
+index e8d5d9997aca..efffee2d1229 100644
+--- a/include/linux/tty.h
++++ b/include/linux/tty.h
+@@ -421,6 +421,7 @@ int tty_unthrottle_safe(struct tty_struct *tty);
+ int tty_do_resize(struct tty_struct *tty, struct winsize *ws);
+ int tty_get_icount(struct tty_struct *tty,
+ 		struct serial_icounter_struct *icount);
++int tty_get_mget(struct tty_struct *tty);
+ int is_current_pgrp_orphaned(void);
+ void tty_hangup(struct tty_struct *tty);
+ void tty_vhangup(struct tty_struct *tty);
