@@ -1,0 +1,43 @@
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Thu, 30 Mar 2023 12:49:54 +0200
+Subject: [PATCH] backlight: pwm_bl: Avoid backlight flicker applying initial
+ PWM state
+
+The initial PWM state returned by pwm_init_state() has a duty cycle of
+0 ns. To avoid backlight flicker when taking over an enabled display
+from the bootloader, explicitly query initial hardware state, and if
+period and polarity match the reference state, keep the current duty
+cycle until backlight_update_state() will apply the state with the
+configured brightness.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/video/backlight/pwm_bl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index a51fbab96368..2c82bad54947 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -455,6 +455,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	struct backlight_properties props;
+ 	struct backlight_device *bl;
+ 	struct pwm_bl_data *pb;
++	struct pwm_state initial_state;
+ 	struct pwm_state state;
+ 	unsigned int i;
+ 	int ret;
+@@ -517,8 +518,13 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	dev_dbg(&pdev->dev, "got pwm for backlight\n");
+ 
+ 	/* Sync up PWM state. */
++	pwm_get_state(pb->pwm, &initial_state);
+ 	pwm_init_state(pb->pwm, &state);
+ 
++	if (initial_state.period == state.period &&
++	    initial_state.polarity == state.polarity)
++		state.duty_cycle = initial_state.duty_cycle;
++
+ 	/*
+ 	 * The DT case will set the pwm_period_ns field to 0 and store the
+ 	 * period, parsed from the DT, in the PWM device. For the non-DT case,

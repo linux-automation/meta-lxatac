@@ -22,7 +22,7 @@ Acked-by: Conor Dooley <conor.dooley@microchip.com>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/arm/stm32/stm32.yaml b/Documentation/devicetree/bindings/arm/stm32/stm32.yaml
-index 13e34241145b..11f8706101ec 100644
+index 4466b455bffa..4bf28e717a56 100644
 --- a/Documentation/devicetree/bindings/arm/stm32/stm32.yaml
 +++ b/Documentation/devicetree/bindings/arm/stm32/stm32.yaml
 @@ -143,7 +143,9 @@ properties:

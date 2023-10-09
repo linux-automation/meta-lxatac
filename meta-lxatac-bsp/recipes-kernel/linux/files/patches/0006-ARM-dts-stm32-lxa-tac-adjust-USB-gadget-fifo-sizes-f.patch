@@ -11,13 +11,13 @@ peripheral port at the same time.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 ---
- arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi | 4 ++++
+ arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
+diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 index 184b8bb4ebbf..1bb193440415 100644
---- a/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xc-lxa-tac.dtsi
+--- a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
++++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 @@ -580,6 +580,10 @@ &usbotg_hs {
  	vusb_d-supply = <&vdd_usb>;
  	vusb_a-supply = <&reg18>;
