@@ -1,9 +1,9 @@
 # umpf-base: v6.5
 # umpf-name: 6.5/customers/lxa/lxatac
-# umpf-version: 6.5/customers/lxa/lxatac/20230901-1
+# umpf-version: 6.5/customers/lxa/lxatac/20230901-2
 # umpf-topic: v6.5/customers/lxa/lxatac
-# umpf-hashinfo: 5749e67e0c2004dca628d140cb24009c7cdb51b1
-# umpf-topic-range: 2dde18cd1d8fac735875f2e4987f11817cc0bc2c..a13b48119b098c3886901cc46d01a8cd488f53ea
+# umpf-hashinfo: 3709235f8c53fc9b6f027de3390dfc59755a59aa
+# umpf-topic-range: 2dde18cd1d8fac735875f2e4987f11817cc0bc2c..3cb5f5381dd8aeff16f98be5e4084040d919429d
 SRC_URI += "\
   file://patches/0001-dt-bindings-can-m_can-change-from-additional-to-unev.patch \
   file://patches/0002-dt-bindings-net-dsa-microchip-add-interrupts-propert.patch \
@@ -13,10 +13,11 @@ SRC_URI += "\
   file://patches/0006-ARM-dts-stm32-lxa-tac-adjust-USB-gadget-fifo-sizes-f.patch \
   file://patches/0007-net-dsa-microchip-HACK-in-drive-strength-settings-to.patch \
   file://patches/0008-leds-trigger-tty-Use-led_set_brightness_nosleep-from.patch \
+  file://patches/0009-ARM-dts-stm32-lxa-tac-drive-powerboard-lines-as-open.patch \
   "
 # umpf-topic: v6.5/topic/pwm-stm32
 # umpf-hashinfo: 0a81cfa2fa0c23e9f0b7cb8fcac647af866b6b5b
-# umpf-topic-range: a13b48119b098c3886901cc46d01a8cd488f53ea..a037f83055cc0511dd0a939f5aea6abcd444f9fa
+# umpf-topic-range: 3cb5f5381dd8aeff16f98be5e4084040d919429d..17bbf2c7ec8a501b06316e26bf153b59b2a51a67
 SRC_URI += "\
   file://patches/0101-pwm-stm32-Replace-write_ccrx-with-regmap_write.patch \
   file://patches/0102-pwm-stm32-Make-ch-parameter-unsigned.patch \
@@ -25,19 +26,19 @@ SRC_URI += "\
   "
 # umpf-topic: v6.5/topic/pwm-backlight
 # umpf-hashinfo: 7f684487c94a882dd63183e8d8563c6ae90c983c
-# umpf-topic-range: a037f83055cc0511dd0a939f5aea6abcd444f9fa..d9ba11b8c2d4f94449041ab9d40278e5848b2259
+# umpf-topic-range: 17bbf2c7ec8a501b06316e26bf153b59b2a51a67..c0f576f113c2d9ea6050f2f35c7a2f7c716606d1
 SRC_URI += "\
   file://patches/0201-backlight-pwm_bl-Avoid-backlight-flicker-applying-in.patch \
   "
 # umpf-topic: v6.5/topic/lmp92064
 # umpf-hashinfo: 51bcd7180839086d74c7a74becccdc9e66597502
-# umpf-topic-range: d9ba11b8c2d4f94449041ab9d40278e5848b2259..1023956dbecbb04c6edcb1c38229034800a2b4e9
+# umpf-topic-range: c0f576f113c2d9ea6050f2f35c7a2f7c716606d1..5f3889a4a5231c48c036f8f1f951344f29da1dc9
 SRC_URI += "\
   file://patches/0301-iio-adc-add-buffering-support-to-the-TI-LMP92064-ADC.patch \
   "
-# umpf-release: 6.5/customers/lxa/lxatac/20230901-1
-# umpf-topic-range: 1023956dbecbb04c6edcb1c38229034800a2b4e9..1dd0a96389ccc12d1fe5cb4b15ab0aa7109246f4
+# umpf-release: 6.5/customers/lxa/lxatac/20230901-2
+# umpf-topic-range: 5f3889a4a5231c48c036f8f1f951344f29da1dc9..6eb45c5edee20824a6ce46a025f26af1c6367362
 SRC_URI += "\
-  file://patches/0401-Release-6.5-customers-lxa-lxatac-20230901-1.patch \
+  file://patches/0401-Release-6.5-customers-lxa-lxatac-20230901-2.patch \
   "
 # umpf-end
