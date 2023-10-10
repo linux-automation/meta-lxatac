@@ -31,10 +31,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 include/tlv/tlv.h
 
 diff --git a/common/Kconfig b/common/Kconfig
-index d99bff5eb2fd..3fdf3db7947c 100644
+index 5e814185ea45..d7b8c179b49c 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1010,6 +1010,30 @@ config BTHREAD
+@@ -1007,6 +1007,30 @@ config BTHREAD
  	  scheduled within delay loops and the console idle to asynchronously
  	  execute actions, like checking for link up or feeding a watchdog.
  
@@ -66,7 +66,7 @@ index d99bff5eb2fd..3fdf3db7947c 100644
  	bool "generic state infrastructure"
  	select CRC32
 diff --git a/common/Makefile b/common/Makefile
-index 8dc475f3244c..35edaa3cb325 100644
+index 7fb864f61480..643daba600a9 100644
 --- a/common/Makefile
 +++ b/common/Makefile
 @@ -65,6 +65,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
@@ -753,12 +753,12 @@ index 000000000000..54ebce2b4dd3
 +	return platform_driver_register(&decoder->_platform_driver);
 +}
 diff --git a/include/string.h b/include/string.h
-index 499f2ec03c02..14f404ef1691 100644
+index 43911b75762f..13eebc811aae 100644
 --- a/include/string.h
 +++ b/include/string.h
-@@ -18,4 +18,9 @@ void *__nokasan_default_memcpy(void * dest,const void *src,size_t count);
+@@ -20,4 +20,9 @@ char *parse_assignment(char *str);
  
- char *parse_assignment(char *str);
+ int strverscmp(const char *a, const char *b);
  
 +static inline bool is_nul_terminated(const char *val, size_t len)
 +{
