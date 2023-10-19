@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule GitLab actions to run on this TAC
+ConditionPathExists=/etc/gitlab-runner/config.toml
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/gitlab-runner run
+WorkingDirectory=/srv
+
+[Install]
+WantedBy=multi-user.target
