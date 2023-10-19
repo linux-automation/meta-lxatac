@@ -45,6 +45,7 @@ IMAGE_INSTALL:append = "\
     gdb \
     gdbserver \
     git \
+    github-act-runner \
     gstreamer1.0 \
     gstreamer1.0-plugins-bad-videoparsersbad \
     gstreamer1.0-plugins-base \

@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule GitHub actions to run on this TAC
+ConditionPathExists=/etc/github-act-runner/settings.json
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/github-act-runner run
+Environment="XDG_CACHE_HOME=/srv/github-act-runner"
+WorkingDirectory=/etc/github-act-runner
+
+[Install]
+WantedBy=multi-user.target

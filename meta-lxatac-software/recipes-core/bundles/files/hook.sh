@@ -73,6 +73,8 @@ case "$1" in
 		migrate /etc/machine-id
 		migrate /etc/labgrid/environment
 		migrate /etc/labgrid/userconfig.yaml
+		migrate /etc/github-act-runner/sessions.json
+		migrate /etc/github-act-runner/settings.json
 		for x in /etc/ssh/ssh_host*; do
 			migrate "${x}"
 		done
