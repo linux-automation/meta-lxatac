@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-RDEPENDS:${PN}:append = "bash"
+RDEPENDS:${PN}:append = "bash e2fsprogs-resize2fs"
 
 SRC_URI:append = " \
     file://require-mount-srv.conf \
