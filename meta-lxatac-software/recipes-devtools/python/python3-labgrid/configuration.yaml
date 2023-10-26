@@ -88,15 +88,15 @@ lxatac-usb-ports-p{{idx}}:
       '@ID_PATH': '{{sysfs}}'
   USBSerialPort:
     match:
-      '@ID_PATH': '{{sysfs}}'
+      '@ID_PATH': '{{sysfs}}:1.0'
   USBVideo:
     match:
       '@ID_PATH': '{{sysfs}}'
 ## Extra USB Ports exported as separate interfaces on the same USB port
 {% for if in [ '1', '2', '3'] %}
 lxatac-usb-ports-p{{idx}}.{{if}}:
-   USBSerialPort:
-     match:
-       '@ID_PATH': '{{sysfs}}:1.{{if}}'
+  USBSerialPort:
+    match:
+      '@ID_PATH': '{{sysfs}}:1.{{if}}'
 {% endfor %}
 {% endfor %}
