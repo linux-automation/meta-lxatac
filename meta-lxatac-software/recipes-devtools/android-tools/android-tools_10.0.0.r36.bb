@@ -85,6 +85,7 @@ SRC_URI += " \
     file://0001-patching-libundwind-to-build-in-yocto-environment.patch;patchdir=external/libunwind \
     file://0001-libext4_utils.mk-modifications-to-make-it-build-in-y.patch;patchdir=system/extras \
     file://0002-libfec-change-out_dir-in-makefile.patch;patchdir=system/extras \
+    file://0001-libext4_utils.mk-do-not-use-host-usr-include.patch;patchdir=system/extras \
     file://rules_yocto.mk;subdir=git \
     file://android-tools-adbd.service \
     file://adbd.mk;subdir=git/system/core/debian \
