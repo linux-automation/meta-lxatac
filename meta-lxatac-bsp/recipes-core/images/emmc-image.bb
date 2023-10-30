@@ -12,9 +12,7 @@ inherit genimage
 COMPATIBLE_MACHINE = "lxatac"
 
 GENIMAGE_IMAGE_SUFFIX = ""
-GENIMAGE_ROOTFS_IMAGE = "lxatac-core-image-base"
-GENIMAGE_ROOTFS_IMAGE_FSTYPE = "tar"
 
 do_genimage[depends] += " \
-    ${GENIMAGE_ROOTFS_IMAGE}:do_image_complete \
+    lxatac-core-image-base:do_image_complete \
 "
