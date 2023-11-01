@@ -1,9 +1,3 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-
-SRC_URI += " \
-    file://systemd-growfs-root.service \
-"
-
 RRECOMMENDS:${PN}:append = "less"
 # Enable lz4 and seccomp for systemd
 PACKAGECONFIG:append = "lz4 seccomp coredump elfutils"
@@ -21,13 +15,6 @@ do_install:append() {
     mv ${D}${systemd_system_unitdir}/sysinit.target.wants/systemd-journal-flush.service	\
        ${D}${systemd_system_unitdir}/multi-user.target.wants/
 
-    # Starting with mickledore this file is provided by systemd and we can
-    # remove this.
-    install -m 0644 ${WORKDIR}/systemd-growfs-root.service \
-       ${D}${systemd_system_unitdir}
-
     ln -s ../systemd-growfs-root.service \
        ${D}${systemd_system_unitdir}/sysinit.target.wants/
 }
-
-FILES:${PN}:append = " ${systemd_system_unitdir}/systemd-growfs-root.service"
