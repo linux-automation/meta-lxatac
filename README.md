@@ -500,24 +500,3 @@ console via the debug UART adapter / the USB console provided by barebox
 and execute `wd -x` on the shell. E.g.:
 
     barebox@Linux Automation Test Automation Controller (TAC):/ wd -x
-
-##### The installed bundle does not start
-
-When flashing the emmc-image only the first of two update partitions is
-initialized. The second one is set up on first boot and filled for the first time
-once you install a RAUC bundle on the system for the first time.
-There is a 50/50 chance that barebox is currently set up to boot from this
-non-existing partition, which will fail and reduce its retry counter.
-If the TAC does not boot after flashing you should power cycle the device
-about four times in slow succession to make sure the wrong partition is marked
-as bad and the correct partition is used.
-
-Alternatively you can choose the correct partition using the barebox console
-via a UART debug adapter:
-
-    # state.bootstate.system1.remaining_attempts=0
-    # state.bootstate.system1.priority=0
-    # state.bootstate.system0.remaining_attempts=3
-    # state.bootstate.system0.priority=1
-    # state -s
-    # reset
