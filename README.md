@@ -19,9 +19,10 @@ Installing official Images
 If you came here looking for the most recent software bundle for you LXA TAC
 and have no actual interest in building your own custom bundles (yet) there is
 great news for you. You do not have to follow this long README at all!
-The following command automatically installs the most recent stable software
+The following commands automatically install the most recent stable software
 bundle on your TAC:
 
+    $ rauc-enable-cert stable.cert.pem
     $ rauc install https://downloads.linux-automation.com/lxatac/software/stable/latest/lxatac-core-bundle-base-lxatac.raucb
 
 Building the image as-is
