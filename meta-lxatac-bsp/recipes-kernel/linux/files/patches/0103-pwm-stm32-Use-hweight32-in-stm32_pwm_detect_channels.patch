@@ -12,7 +12,7 @@ Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
  1 file changed, 2 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index d913ff66cf92..3f553d884ce0 100644
+index c0ef1f3431b8..1ecbb4107816 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -564,10 +564,9 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)

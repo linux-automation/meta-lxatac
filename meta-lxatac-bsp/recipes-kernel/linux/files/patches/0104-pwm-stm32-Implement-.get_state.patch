@@ -13,7 +13,7 @@ Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
  1 file changed, 56 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 3f553d884ce0..50aaec945e6c 100644
+index 1ecbb4107816..f1641dadbd1c 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -471,9 +471,51 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
@@ -113,5 +113,5 @@ index 3f553d884ce0..50aaec945e6c 100644
 +	for (i = 0; i < num_enabled; i++)
 +		clk_enable(priv->clk);
  
- 	ret = pwmchip_add(&priv->chip);
+ 	ret = devm_pwmchip_add(dev, &priv->chip);
  	if (ret < 0)

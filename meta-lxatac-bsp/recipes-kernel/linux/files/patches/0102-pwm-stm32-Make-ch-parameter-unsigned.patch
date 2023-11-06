@@ -11,7 +11,7 @@ Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 8284a624c1da..d913ff66cf92 100644
+index fda85e452007..c0ef1f3431b8 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -308,7 +308,7 @@ static int stm32_pwm_capture(struct pwm_chip *chip, struct pwm_device *pwm,
