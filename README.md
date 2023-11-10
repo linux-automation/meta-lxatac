@@ -19,10 +19,13 @@ Installing official Images
 If you came here looking for the most recent software bundle for you LXA TAC
 and have no actual interest in building your own custom bundles (yet) there is
 great news for you. You do not have to follow this long README at all!
-The following command automatically installs the most recent stable software
+The following commands automatically install the most recent stable software
 bundle on your TAC:
 
+    $ rauc-enable-cert stable.cert.pem
     $ rauc install https://downloads.linux-automation.com/lxatac/software/stable/latest/lxatac-core-bundle-base-lxatac.raucb
+
+If that does not work you may want to [re-install via USB](#installing-images-via-usb).
 
 Building the image as-is
 ------------------------
@@ -398,7 +401,22 @@ This process mirrors the steps we use when we bring up the LXA TAC for the
 first time, so it should always work, even if the device is completely bricked
 software-wise and you can no longer deploy any RAUC bundles.
 
-### Build the Firmware Files
+### Get the Firmware Files
+
+There are two ways to get the firmware files required to revive a bricked TAC.
+
+You can either download them from our Linux Automation GmbH download server,
+or build them yourself using the recipes in this repository.
+
+#### Download Official Firmware Files
+
+Go to the [`downloads.linux-automation.com`](https://downloads.linux-automation.com/lxatac/software/stable/latest)
+download server and download all of the provided files except for the `.raucb`
+file, which is not required for initial bringup.
+
+Then you are ready to proceed by [bringing the device into USB boot mode](#bring-the-device-into-usb-boot-mode).
+
+#### Build Your Own Firmware Files
 
 Flashing the LXA TAC from scratch requires a different set of firmware files
 than installing a RAUC update bundle. To build these files run:
@@ -406,6 +424,8 @@ than installing a RAUC update bundle. To build these files run:
     $ bitbake emmc-image emmc-boot-image tf-a-stm32mp
 
 The required files should then appear in `tmp/deploy/images/lxatac/`.
+
+    $ cd tmp/deploy/images/lxatac/
 
 ### Bring the Device into USB Boot Mode
 
@@ -443,8 +463,6 @@ Next you can upload the required pieces of software:
 
     $ lsusb | grep DFU
     Bus 001 Device 038: ID 0483:df11 STMicroelectronics STM Device in DFU Mode
-
-    $ cd tmp/deploy/images/lxatac/
 
     # Trusted Firmware-A handles some early hardware setup and then jumps
     # into the actual bootloader
