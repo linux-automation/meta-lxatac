@@ -9,6 +9,12 @@ IMAGE_FSTYPES += "ext4"
 # use a fixed directory hash seed to reduce the image delta size
 EXTRA_IMAGECMD:ext4 = "-i 4096 -E hash_seed=4267a9cf-754d-4506-9156-d3f4a18842e5"
 
+# Disable the orphan_file feature which is not supported by langdale's
+# resize2fs and which would otherwise break installation of new RAUC bundles on
+# langdale-based TACs.
+# The override can be removed when updates from langedale are no longer needed.
+EXTRA_IMAGECMD:ext4 += "-O ^orphan_file"
+
 IMAGE_LINGUAS = "en-us"
 
 IMAGE_INSTALL:append = "\
