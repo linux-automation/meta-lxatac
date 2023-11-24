@@ -29,7 +29,7 @@ index 8a34d15e9005..4cc177031661 100644
  		spi-max-frequency = <5000000>;
  		vdd-supply = <&reg_pb_3v3>;
 diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
-index 1bb193440415..e5dad090551c 100644
+index b67da69ad748..788c9d099639 100644
 --- a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 +++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 @@ -409,7 +409,7 @@ &sdmmc2 {

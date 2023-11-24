@@ -13,10 +13,10 @@ Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
  1 file changed, 56 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 1ecbb4107816..f1641dadbd1c 100644
+index cc6cae07c02c..97a2c3c09b69 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
-@@ -471,9 +471,51 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
+@@ -471,8 +471,50 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
  	return ret;
  }
  
@@ -62,13 +62,12 @@ index 1ecbb4107816..f1641dadbd1c 100644
 +}
 +
  static const struct pwm_ops stm32pwm_ops = {
- 	.owner = THIS_MODULE,
  	.apply = stm32_pwm_apply_locked,
 +	.get_state = stm32_pwm_get_state,
  	.capture = IS_ENABLED(CONFIG_DMA_ENGINE) ? stm32_pwm_capture : NULL,
  };
  
-@@ -564,17 +606,21 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
+@@ -563,17 +605,21 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
  	priv->have_complementary_output = (ccer != 0);
  }
  
@@ -93,7 +92,7 @@ index 1ecbb4107816..f1641dadbd1c 100644
  
  	return hweight32(ccer & TIM_CCER_CCXE);
  }
-@@ -585,6 +631,8 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+@@ -584,6 +630,8 @@ static int stm32_pwm_probe(struct platform_device *pdev)
  	struct device_node *np = dev->of_node;
  	struct stm32_timers *ddata = dev_get_drvdata(pdev->dev.parent);
  	struct stm32_pwm *priv;
@@ -102,7 +101,7 @@ index 1ecbb4107816..f1641dadbd1c 100644
  	int ret;
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -607,7 +655,11 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+@@ -606,7 +654,11 @@ static int stm32_pwm_probe(struct platform_device *pdev)
  
  	priv->chip.dev = dev;
  	priv->chip.ops = &stm32pwm_ops;

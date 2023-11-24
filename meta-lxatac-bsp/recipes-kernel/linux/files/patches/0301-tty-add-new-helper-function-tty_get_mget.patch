@@ -15,19 +15,19 @@ trigger.
 
 Signed-off-by: Florian Eckert <fe@dev.tdt.de>
 ---
- drivers/tty/tty_io.c | 29 +++++++++++++++++++++++------
+ drivers/tty/tty_io.c | 31 ++++++++++++++++++++++++-------
  include/linux/tty.h  |  1 +
- 2 files changed, 24 insertions(+), 6 deletions(-)
+ 2 files changed, 25 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 8a94e5a43c6d..8070ed0ce41f 100644
+index 06414e43e0b5..cfd734ef5256 100644
 --- a/drivers/tty/tty_io.c
 +++ b/drivers/tty/tty_io.c
-@@ -2494,6 +2494,25 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
- 	return retval;
+@@ -2499,7 +2499,26 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
  }
  
-+/**
+ /**
+- * tty_tiocmget - get modem status
 + * tty_get_mget		-	get modem status
 + * @tty: tty device
 + *
@@ -46,10 +46,12 @@ index 8a94e5a43c6d..8070ed0ce41f 100644
 +}
 +EXPORT_SYMBOL_GPL(tty_get_mget);
 +
- /**
-  * tty_tiocmget		-	get modem status
++/**
++ * tty_tiocmget		-	get modem status
   * @tty: tty device
-@@ -2506,14 +2525,12 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+  * @p: pointer to result
+  *
+@@ -2510,14 +2529,12 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
   */
  static int tty_tiocmget(struct tty_struct *tty, int __user *p)
  {
@@ -69,10 +71,10 @@ index 8a94e5a43c6d..8070ed0ce41f 100644
  }
  
 diff --git a/include/linux/tty.h b/include/linux/tty.h
-index f002d0f25db7..7b9edd4a7007 100644
+index 4b6340ac2af2..bebf0bc9e733 100644
 --- a/include/linux/tty.h
 +++ b/include/linux/tty.h
-@@ -421,6 +421,7 @@ int tty_unthrottle_safe(struct tty_struct *tty);
+@@ -419,6 +419,7 @@ bool tty_unthrottle_safe(struct tty_struct *tty);
  int tty_do_resize(struct tty_struct *tty, struct winsize *ws);
  int tty_get_icount(struct tty_struct *tty,
  		struct serial_icounter_struct *icount);
