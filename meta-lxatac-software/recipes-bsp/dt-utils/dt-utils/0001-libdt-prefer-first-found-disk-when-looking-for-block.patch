@@ -1,0 +1,40 @@
+From 9306b37db6a5249c8b0f8f873be3446e3017ac15 Mon Sep 17 00:00:00 2001
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Mon, 6 Nov 2023 12:04:05 +0100
+Subject: [PATCH] libdt: prefer first found disk when looking for block devices
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Recent rework introduced a regression for state located in the eMMC
+user area described by DT fixed partitions. Whereas before, the first
+device with type "disk" was taken, dt-utils will now iterate over all
+devices to try to find a matching GPT partition. If it doesn't find any,
+it will instead take the last device with type "disk", which will be the
+second boot partition for eMMC devices leading barebox-state to access
+/dev/mmcblkXboot1 instead of /dev/mmcblkX.
+
+Let's fix this regression by restoring the old behavior of preferring the
+first disk. This may not be totally future proof, but it worked ok for
+years and a better solution can always be added later with a regular
+release.
+
+Reported-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ src/libdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libdt.c b/src/libdt.c
+index 650b404..72e8ab4 100644
+--- a/src/libdt.c
++++ b/src/libdt.c
+@@ -2301,7 +2301,7 @@ static int cdev_from_block_device(struct udev_device *dev,
+ 		devtype = udev_device_get_devtype(part);
+ 		if (!devtype)
+ 			continue;
+-		if (!strcmp(devtype, "disk")) {
++		if (!strcmp(devtype, "disk") && !best_match) {
+ 			best_match = part;
+ 
+ 			/* Should we try to find a matching partition first? */
