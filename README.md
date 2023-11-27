@@ -43,7 +43,7 @@ available from the official mirror mentioned above.
 
 Obtaining the recipes and required git submodules:
 
-    $ git clone --recursive --branch langdale \
+    $ git clone --recursive \
       https://github.com/linux-automation/meta-lxatac.git
     $ cd meta-lxatac
 
@@ -201,7 +201,7 @@ placed outside the already cloned `meta-lxatac` repository.
 
 Add `meta-lxatac` as git submodule and initialize _its_ submodules:
 
-    $ git submodule add --branch langdale https://github.com/linux-automation/meta-lxatac.git
+    $ git submodule add https://github.com/linux-automation/meta-lxatac.git
     $ git submodule update --init --recursive
     $ cp meta-lxatac/.gitignore .
     $ git add .
