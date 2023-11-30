@@ -27,6 +27,18 @@ bundle on your TAC:
 
 If that does not work you may want to [re-install via USB](#installing-images-via-usb).
 
+If you've made changes to your TACs configuration that you want to preserve,
+which are not covered by the default update migration logic,
+you can add a list of additional files to migrate to the
+`/etc/rauc/migrate.d`:
+
+    root@lxatac-00010:~ cat /etc/rauc/migrate.d/git_config.conf
+    /etc/gitconfig
+    /home/root/.gitconfig
+
+If that is not enough customization for you then read on to learn
+how to build fully-custom images for your LXA TAC.
+
 Building the image as-is
 ------------------------
 
