@@ -286,6 +286,7 @@ Next you should add the following lines to `meta-lxatac-example/conf/layer.conf`
     RAUC_KEY_FILE = "${LAYERDIR}/files/example.key.pem"
     RAUC_CERT_FILE = "${LAYERDIR}/files/example.cert.pem"
     RAUC_KEYRING_FILE = "${LAYERDIR}/files/example.cert.pem"
+    RAUC_CERT_ENABLE = "example.cert.pem"
 
 Now you should be able to build bundles signed using your own keys,
 that you can share with other developers using git:
