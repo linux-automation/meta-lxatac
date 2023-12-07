@@ -490,6 +490,19 @@ Next you can upload the required pieces of software:
 You are now done flashing the LXA TAC and can remove the pull-down on `BT1`
 and power cycle it to boot into your newly flashed image.
 
+### Enabling an update channel
+
+The official filesystem images do not enable an update channel by default.
+This means you will not be notified about updates and can not install official
+RAUC bundles from `downloads.linux-automation.com`.
+
+Use `rauc-enable-cert` to enable the stable update channel and
+`rauc-disable-cert` to prevent RAUC bundles signed with the insecure devel
+key from being installed:
+
+    $ ssh root@lxatac-00010 rauc-enable-cert stable.cert.pem
+    $ ssh root@lxatac-00010 rauc-disable-cert devel.cert.pem
+
 #### Troubleshooting
 
 ##### The device should be in bootrom but does not show up on the Host
