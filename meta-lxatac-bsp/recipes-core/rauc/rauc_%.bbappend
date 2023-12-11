@@ -46,9 +46,10 @@ do_install:append() {
 
     # Due to the certificate enable/disable logic in the RAUC hook the
     # following line is only relevant for images _not_ installed via RAUC.
-    # Enable the certificate this image was built with.
-    ln -s ../certificates-available/${KEYRING_FILE_NAME} \
-        ${D}${sysconfdir}/rauc/certificates-enabled/${KEYRING_FILE_NAME}
+    for cert in ${RAUC_CERT_ENABLE}; do
+        ln -s ../certificates-available/${cert} \
+            ${D}${sysconfdir}/rauc/certificates-enabled/${cert}
+    done
 
     openssl rehash ${D}${sysconfdir}/rauc/certificates-enabled
 }
