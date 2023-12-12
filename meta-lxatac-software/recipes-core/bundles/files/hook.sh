@@ -57,7 +57,7 @@ case "$1" in
 		migrate /etc/labgrid/environment
 		migrate /etc/labgrid/userconfig.yaml
 		for x in /etc/ssh/ssh_host*; do
-			migrate "$x"
+			migrate "${x}"
 		done
 		migrate /var/lib/chrony/drift
 		migrate /home/root/.bash_history
