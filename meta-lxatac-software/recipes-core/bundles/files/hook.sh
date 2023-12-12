@@ -2,6 +2,7 @@
 
 set -exu -o pipefail
 
+EXTRA_MIGRATE_LISTS_DIR="/etc/rauc/migrate.d"
 CERT_AVAILABLE_DIR="${RAUC_SLOT_MOUNT_POINT}/etc/rauc/certificates-available"
 CERT_ENABLED_DIR="${RAUC_SLOT_MOUNT_POINT}/etc/rauc/certificates-enabled"
 
@@ -44,6 +45,22 @@ function migrate () {
 	cp -a "$1" "${RAUC_SLOT_MOUNT_POINT}/$1"
 }
 
+function process_migrate_lists () {
+	if [ ! -d "${EXTRA_MIGRATE_LISTS_DIR}" ]; then
+		return
+	fi
+
+	for migrate_list in "${EXTRA_MIGRATE_LISTS_DIR}"/*.conf; do
+		# Migrate files in the list line by line
+		while read -r line; do
+			migrate "${line}"
+		done < "${migrate_list}"
+
+		# Also migrate the list itself
+		migrate "${migrate_list}"
+	done
+}
+
 case "$1" in
 	slot-post-install)
 		enable_certificates
@@ -63,6 +80,12 @@ case "$1" in
 		migrate /home/root/.bash_history
 		migrate /home/root/.ssh/authorized_keys
 		migrate /var/cache/lxa-iobus/lss-cache
+
+		# Also allow the running system to specify additional files to
+		# migrate to the new slot via files in /etc/rauc/migrate.d.
+                # The files should contain one file per line that should be
+                # migrated to the new slot.
+		process_migrate_lists
 		;;
 	*)
 		exit 1
