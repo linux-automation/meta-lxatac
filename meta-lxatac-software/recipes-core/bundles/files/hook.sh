@@ -23,7 +23,7 @@ function enable_certificates () {
 		# channel certificate will only be able to install other
 		# bundles from the same release channel.
 		for bundle_hash in ${RAUC_BUNDLE_SPKI_HASHES}; do
-			if [ "${bundle_hash}" == "${cert_hash}" ]; then
+			if [[ "${bundle_hash}" == "${cert_hash}" ]]; then
 				echo "Enable certificate ${cert_name}"
 				ln -s \
 				   "../certificates-available/${cert_name}"\
@@ -36,7 +36,7 @@ function enable_certificates () {
 }
 
 function migrate () {
-	if [ ! -f "$1" ]; then
+	if [[ ! -f "$1" ]]; then
 		return
 	fi
 
