@@ -17,7 +17,7 @@ USB_HOST2="tac:green:usbh2"
 USB_HOST3="tac:green:usbh3"
 
 # RGB Status LED
-if [ -e "${BASE}/${STATUS}/trigger" ]
+if [[ -e "${BASE}/${STATUS}/trigger" ]]
 then
     # Light up in a nice yellow, as the "okay green" is a bit overused by
     # the other LEDs.
@@ -28,7 +28,7 @@ else
 fi
 
 # CAN Interface activity
-if [ -e "${BASE}/${IOBUS}/trigger" ]
+if [[ -e "${BASE}/${IOBUS}/trigger" ]]
 then
     echo netdev > "${BASE}/${IOBUS}/trigger"
     echo can0_iobus > "${BASE}/${IOBUS}/device_name"
@@ -39,7 +39,7 @@ else
     echo "Not setting up IOBus Trigger"
 fi
 
-if [ -e "${BASE}/${CAN}/trigger" ]
+if [[ -e "${BASE}/${CAN}/trigger" ]]
 then
     echo netdev > "${BASE}/${CAN}/trigger"
     echo can1 > "${BASE}/${CAN}/device_name"
@@ -51,7 +51,7 @@ else
 fi
 
 # DUT UART activity
-if [ -e "${BASE}/${UART_RX}/trigger" ]
+if [[ -e "${BASE}/${UART_RX}/trigger" ]]
 then
     echo tty > "${BASE}/${UART_RX}/trigger"
     echo ttySTM1 > "${BASE}/${UART_RX}/ttyname"
@@ -61,7 +61,7 @@ else
     echo "Not setting up UART RX Trigger"
 fi
 
-if [ -e "${BASE}/${UART_TX}/trigger" ]
+if [[ -e "${BASE}/${UART_TX}/trigger" ]]
 then
     echo tty > "${BASE}/${UART_TX}/trigger"
     echo ttySTM1 > "${BASE}/${UART_TX}/ttyname"
@@ -72,7 +72,7 @@ else
 fi
 
 # USB Host ports
-if [ -e "${BASE}/${USB_HOST1}/trigger" ]
+if [[ -e "${BASE}/${USB_HOST1}/trigger" ]]
 then
     echo usbport > "${BASE}/${USB_HOST1}/trigger"
     echo 1 > "${BASE}/${USB_HOST1}/ports/1-1-port1"
@@ -80,7 +80,7 @@ else
     echo "Not setting up USB Host 1 Trigger"
 fi
 
-if [ -e "${BASE}/${USB_HOST2}/trigger" ]
+if [[ -e "${BASE}/${USB_HOST2}/trigger" ]]
 then
     echo usbport > "${BASE}/${USB_HOST2}/trigger"
     echo 1 > "${BASE}/${USB_HOST2}/ports/1-1-port2"
@@ -88,7 +88,7 @@ else
     echo "Not setting up USB Host 2 Trigger"
 fi
 
-if [ -e "${BASE}/${USB_HOST3}/trigger" ]
+if [[ -e "${BASE}/${USB_HOST3}/trigger" ]]
 then
     echo usbport > "${BASE}/${USB_HOST3}/trigger"
     echo 1 > "${BASE}/${USB_HOST3}/ports/1-1-port3"
