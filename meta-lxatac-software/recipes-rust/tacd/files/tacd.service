@@ -6,6 +6,7 @@ RequiresMountsFor=/srv/tacd
 [Service]
 Type=notify
 Environment="RUST_LOG=tacd=warn"
+ExecStartPre=mkdir -p /srv/www
 ExecStart=/usr/bin/tacd
 TimeoutStartSec=20
 Restart=on-failure
