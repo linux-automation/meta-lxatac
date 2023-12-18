@@ -67,17 +67,19 @@ def check_version(distro_version):
 
 def check_codename(codename):
     base_ref = os.environ.get("GITHUB_BASE_REF")
-    ref = os.environ.get("GITHUB_REF")
+    ref = os.environ.get("GITHUB_REF_NAME")
+    ref_type = os.environ.get("GITHUB_REF_TYPE")
 
-    if base_ref is not None:
+    if base_ref:
         print(f"Checking codename {codename} against pull request into {base_ref}")
         assert codename == f"tacos-{base_ref}"
-    elif ref is not None:
+    elif ref and ref_type == "branch":
         print(f"Checking codename {codename} against branch {ref}")
         assert codename == f"tacos-{ref}"
+    elif ref_type == "tag":
+        print("Running for a tag. Skipping codename check")
     else:
         print("Running outside of GitHub CI. Skipping codename check")
-        return
 
 
 def main():
