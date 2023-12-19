@@ -5,11 +5,11 @@
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
-	branch = mickledore
+	branch = nanbield
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
-	branch = mickledore
+	branch = master
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
@@ -17,12 +17,12 @@
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://github.com/lgirdk/meta-virtualization.git
-	branch = mickledore
+	branch = nanbield
 [submodule "poky"]
 	path = poky
 	url = https://git.yoctoproject.org/poky
-	branch = mickledore
+	branch = nanbield
 [submodule "meta-selinux"]
 	path = meta-selinux
 	url = https://git.yoctoproject.org/meta-selinux
-	branch = mickledore
+	branch = nanbield
