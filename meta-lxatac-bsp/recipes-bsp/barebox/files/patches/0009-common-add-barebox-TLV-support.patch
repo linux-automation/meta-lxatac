@@ -31,10 +31,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 include/tlv/tlv.h
 
 diff --git a/common/Kconfig b/common/Kconfig
-index 5e814185ea45..d7b8c179b49c 100644
+index f0d37018cb67..4dfc58f3fbff 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1007,6 +1007,30 @@ config BTHREAD
+@@ -1012,6 +1012,30 @@ config BTHREAD
  	  scheduled within delay loops and the console idle to asynchronously
  	  execute actions, like checking for link up or feeding a watchdog.
  

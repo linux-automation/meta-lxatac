@@ -6,7 +6,7 @@ SRC_URI += " \
 "
 require files/patches/series.inc
 
-SRC_URI[sha256sum] = "07823aa3cdc083087788a1cccded99a15a250746e259c2ff905dc48f8d9f409a"
+SRC_URI[sha256sum] = "8079c3c2d8d2f5bbf8dc6130af3202491d68fa94760a99edd240c827a84abc0d"
 
 COMPATIBLE_MACHINE = "lxatac"
 

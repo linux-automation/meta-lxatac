@@ -15,7 +15,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 11 insertions(+)
 
 diff --git a/include/net.h b/include/net.h
-index bdbaa65d0080..9407215ee5e8 100644
+index 1576ed544a48..6cb319349784 100644
 --- a/include/net.h
 +++ b/include/net.h
 @@ -372,6 +372,7 @@ int setenv_ip(const char *name, IPaddr_t ip);

@@ -201,10 +201,10 @@ index a32ec917a434..33f5c30a4beb 100644
  #define TLV_IS_VENDOR_SPECIFIC(val)	((*(u8 *)&(val) & 0x80) == 0x80)
  #define TLV_IS_GENERIC(val)		((*(u8 *)&(val) & 0x80) != 0x80)
 diff --git a/lib/string.c b/lib/string.c
-index 166ef190d6aa..8ed737e9b97e 100644
+index bf0f0455ab3f..bcfba154082f 100644
 --- a/lib/string.c
 +++ b/lib/string.c
-@@ -720,6 +720,27 @@ void *memchr(const void *s, int c, size_t n)
+@@ -791,6 +791,27 @@ void *memchr(const void *s, int c, size_t n)
  #endif
  EXPORT_SYMBOL(memchr);
  

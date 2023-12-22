@@ -44,7 +44,7 @@ index 8c653d184f5f..e34ff994874b 100644
  mxsimage
  mxsboot
 diff --git a/scripts/Makefile b/scripts/Makefile
-index 42ac4e548bb4..3014f8ee10a8 100644
+index cb1d916439b7..2c6ed9254a36 100644
 --- a/scripts/Makefile
 +++ b/scripts/Makefile
 @@ -10,6 +10,7 @@ hostprogs-always-y					+= bareboxenv
@@ -55,7 +55,7 @@ index 42ac4e548bb4..3014f8ee10a8 100644
  hostprogs-always-$(CONFIG_RSATOC)			+= rsatoc
  HOSTCFLAGS_rsatoc.o = `$(PKG_CONFIG) --cflags openssl`
  HOSTLDLIBS_rsatoc = `$(PKG_CONFIG) --libs openssl`
-@@ -43,6 +44,7 @@ HOSTLDLIBS_rk-usb-loader  = `$(PKG_CONFIG) --libs libusb-1.0`
+@@ -44,6 +45,7 @@ HOSTLDLIBS_rk-usb-loader  = `$(PKG_CONFIG) --libs libusb-1.0`
  hostprogs-always-$(CONFIG_RK_USB_LOADER)		+= rk-usb-loader
  
  userprogs-always-$(CONFIG_BAREBOXENV_TARGET)		+= bareboxenv-target

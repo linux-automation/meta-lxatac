@@ -14,7 +14,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 commands/tlv.c
 
 diff --git a/commands/Kconfig b/commands/Kconfig
-index c1bba22443e6..53219f88eb57 100644
+index a6806f198ec4..a4f4669d2bfb 100644
 --- a/commands/Kconfig
 +++ b/commands/Kconfig
 @@ -2375,6 +2375,18 @@ config CMD_STATE

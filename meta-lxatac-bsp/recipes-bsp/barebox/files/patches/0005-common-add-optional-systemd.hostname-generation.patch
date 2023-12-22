@@ -13,10 +13,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 24 insertions(+)
 
 diff --git a/common/Kconfig b/common/Kconfig
-index afa591cb76ff..5e814185ea45 100644
+index 76b28ceaafe0..f0d37018cb67 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1082,6 +1082,14 @@ config MACHINE_ID
+@@ -1087,6 +1087,14 @@ config MACHINE_ID
  	  Note: if no hashable information is available no machine id will be passed
  	  to the kernel.
  
