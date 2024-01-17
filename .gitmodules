@@ -9,7 +9,7 @@
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
-	branch = master
+	branch = nanbield
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
