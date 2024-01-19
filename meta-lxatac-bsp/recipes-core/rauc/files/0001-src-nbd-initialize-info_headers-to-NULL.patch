@@ -1,0 +1,38 @@
+From 967d32571e226d15c345b2d8cec932a651716f4b Mon Sep 17 00:00:00 2001
+From: Enrico Jorns <ejo@pengutronix.de>
+Date: Thu, 18 Jan 2024 16:49:46 +0100
+Subject: [PATCH] src/nbd: initialize info_headers to NULL
+
+When g_variant_dict_lookup() does not find the given key, it does not
+modify the values of the arguments provided.
+
+This results in info_headers being undefined and can cause the
+rauc-nbd-server to crash, which will result in a broken request on
+client side that lets RAUC terminate hard with:
+
+(rauc:769): rauc-nbd-ERROR **: 15:40:30.553: failed to recv nbd config reply header
+
+The behavior of g_variant_dict_lookup() has also recently been clarified
+in the glib documentation:
+https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3334
+
+Upstream-Status: Submitted [https://github.com/rauc/rauc/pull/1332]
+
+Signed-off-by: Enrico Jorns <ejo@pengutronix.de>
+---
+ src/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/nbd.c b/src/nbd.c
+index 41c43b3..018022e 100644
+--- a/src/nbd.c
++++ b/src/nbd.c
+@@ -562,7 +562,7 @@ static void start_configure(struct RaucNBDContext *ctx, struct RaucNBDTransfer *
+ 
+ 	/* only read from the client on the first try */
+ 	if (!ctx->url) {
+-		GStrv info_headers; /* array of strings such as 'Foo: bar' */
++		GStrv info_headers = NULL; /* array of strings such as 'Foo: bar' */
+ 
+ 		res = r_read_exact(ctx->sock, (guint8*)data, xfer->request.len, NULL);
+ 		g_assert_true(res);

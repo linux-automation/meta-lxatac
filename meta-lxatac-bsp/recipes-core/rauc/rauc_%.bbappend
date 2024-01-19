@@ -3,6 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 RDEPENDS:${PN}:append = "bash e2fsprogs-resize2fs"
 
 SRC_URI:append = " \
+    file://0001-src-nbd-initialize-info_headers-to-NULL.patch \
     file://require-mount-srv.conf \
     file://rauc-disable-cert.sh \
     file://rauc-enable-cert.sh \
