@@ -21,6 +21,6 @@ else
 	exit 2
 fi
 
-podman pull debian:bullseye
+podman pull debian:latest
 
 exit 0
