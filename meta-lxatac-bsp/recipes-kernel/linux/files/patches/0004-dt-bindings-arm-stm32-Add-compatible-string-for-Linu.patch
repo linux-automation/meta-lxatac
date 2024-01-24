@@ -17,6 +17,7 @@ In the future there will also be a STM32MP153 based hardware generation.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Applied-Upstream: v6.6-rc1, commit:e58944088cb01923f81b547809a8f332a30dc75b
 ---
  Documentation/devicetree/bindings/arm/stm32/stm32.yaml | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)

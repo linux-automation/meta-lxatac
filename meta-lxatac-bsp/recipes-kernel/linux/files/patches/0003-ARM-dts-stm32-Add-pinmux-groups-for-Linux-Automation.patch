@@ -9,6 +9,7 @@ Content-Transfer-Encoding: 8bit
 Add pinmux groups required for the Linux Automation GmbH TAC.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Applied-Upstream: v6.6-rc1, commit:d45cc9ea251eafbf645fdb8980da1d8390429e82
 ---
  arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi | 129 ++++++++++++++++++++++++++++
  1 file changed, 129 insertions(+)

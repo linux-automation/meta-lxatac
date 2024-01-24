@@ -1,12 +1,19 @@
 From: Philipp Zabel <p.zabel@pengutronix.de>
-Date: Tue, 18 Jul 2023 13:49:31 +0200
+Date: Thu, 19 Oct 2023 22:07:02 +0200
 Subject: [PATCH] pwm: stm32: Use hweight32 in stm32_pwm_detect_channels
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 Use hweight32() to count the CCxE bits in stm32_pwm_detect_channels().
 Since the return value is assigned to chip.npwm, change it to unsigned
 int as well.
 
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Origin: v6.8-rc1, commit:41fa8f57c0d269243fe3bde2bce71e82c884b9ad
 ---
  drivers/pwm/pwm-stm32.c | 17 ++---------------
  1 file changed, 2 insertions(+), 15 deletions(-)

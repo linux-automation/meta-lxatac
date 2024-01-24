@@ -1,11 +1,18 @@
 From: Philipp Zabel <p.zabel@pengutronix.de>
-Date: Tue, 18 Jul 2023 13:41:03 +0200
+Date: Thu, 19 Oct 2023 22:07:01 +0200
 Subject: [PATCH] pwm: stm32: Make ch parameter unsigned
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 The channel parameter is only ever set to pwm->hwpwm.
 Make it unsigned int as well.
 
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Origin: v6.8-rc1, commit:c0504f59ced46b080520c2fc15b2b58d70f9ec83
 ---
  drivers/pwm/pwm-stm32.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)

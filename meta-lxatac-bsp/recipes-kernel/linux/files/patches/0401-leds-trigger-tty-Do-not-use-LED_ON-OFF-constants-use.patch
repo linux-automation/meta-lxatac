@@ -26,6 +26,7 @@ Fixes: fd4a641ac88f ("leds: trigger: implement a tty trigger")
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Link: https://lore.kernel.org/r/20230802090753.13611-1-kabel@kernel.org
 Signed-off-by: Lee Jones <lee@kernel.org>
+Origin: v6.6-rc1, commit:730094577e0c37e1bc40be37cbd41f71b0a8a2a4
 ---
  drivers/leds/trigger/ledtrig-tty.c | 12 ++++++++----
  1 file changed, 8 insertions(+), 4 deletions(-)

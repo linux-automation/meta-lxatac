@@ -19,6 +19,7 @@ In the future there will also be a STM32MP153 based hardware generation.
 [1]: https://www.linux-automation.com/en/products/lxa-tac.html
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Applied-Upstream: v6.6-rc1, commit:518272af37b218161dc321e5a11316fc72422f9c
 ---
  arch/arm/boot/dts/st/Makefile                     |   2 +
  arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen1.dts |  93 ++++

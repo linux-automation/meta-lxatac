@@ -11,6 +11,7 @@ having to periodically poll the switch for link ups/downs and other
 asynchronous events.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Applied-Upstream: v6.6-rc1, commit:6d08cb0152a99ad8bd03d4b5205e4c4ade9652dc
 ---
  Documentation/devicetree/bindings/net/dsa/microchip,ksz.yaml | 3 +++
  1 file changed, 3 insertions(+)
