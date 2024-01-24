@@ -10,7 +10,9 @@ This results in a slight improvement in EMI performance due to the lines
 no longer being driven by the somewhat noisy VDD_IO supply of the SoM.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
-Forwarded: id:20231018203154.1681457-2-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Applied-Upstream: next-20240125, commit:1d4e8b91d242c4afa1970ca6f7e850aab66bf452
 ---
  arch/arm/boot/dts/st/stm32mp157c-lxa-tac-gen2.dts | 2 +-
  arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi     | 2 +-

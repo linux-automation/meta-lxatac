@@ -20,7 +20,7 @@ Origin: v6.8-rc1, commit:19f1016ea9600ed89bc24247c36ff5934ad94fbb
  1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 695479ead78b..50aaec945e6c 100644
+index 2fd6cf35cd9f..f1641dadbd1c 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -606,17 +606,21 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
@@ -68,5 +68,5 @@ index 695479ead78b..50aaec945e6c 100644
 +	for (i = 0; i < num_enabled; i++)
 +		clk_enable(priv->clk);
  
- 	ret = pwmchip_add(&priv->chip);
+ 	ret = devm_pwmchip_add(dev, &priv->chip);
  	if (ret < 0)

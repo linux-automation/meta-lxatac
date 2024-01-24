@@ -11,7 +11,6 @@ cycle until backlight_update_state() will apply the state with the
 configured brightness.
 
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Forwarded: id:20230608-backlight-pwm-avoid-flicker-v1-1-afd380d50174@pengutronix.de
 ---
  drivers/video/backlight/pwm_bl.c | 6 ++++++
  1 file changed, 6 insertions(+)

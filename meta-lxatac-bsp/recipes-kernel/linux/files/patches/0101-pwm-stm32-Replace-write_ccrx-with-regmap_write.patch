@@ -22,7 +22,7 @@ Origin: v6.8-rc1, commit:e495f47274a145dd802748fed66608f46d9ae11d
  1 file changed, 1 insertion(+), 16 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 62e397aeb9aa..8284a624c1da 100644
+index 3d6be7749e23..fda85e452007 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -52,21 +52,6 @@ static u32 active_channels(struct stm32_pwm *dev)

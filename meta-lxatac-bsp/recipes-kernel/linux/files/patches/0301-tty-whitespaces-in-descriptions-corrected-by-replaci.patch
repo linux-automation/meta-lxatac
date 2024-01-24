@@ -2,9 +2,6 @@ From: Florian Eckert <fe@dev.tdt.de>
 Date: Thu, 19 Oct 2023 13:28:07 +0200
 Subject: [PATCH] tty: whitespaces in descriptions corrected by replacing tabs
  with spaces
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
 Tabs were used in the function description, to make this look more
 uniform, the tabs were replaced by spaces where necessary.
@@ -14,14 +11,15 @@ only those are supported by sphinx.
 
 Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
 Signed-off-by: Florian Eckert <fe@dev.tdt.de>
-Origin: https://lore.kernel.org/linux-leds/20231019112809.881730-2-fe@dev.tdt.de (v4)
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20231019112809.881730-2-fe@dev.tdt.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Origin: v6.7-rc1, commit:838eb763c3e939a8de8d4c55a17ddcce737685c1
 ---
- drivers/tty/tty_io.c | 102 +++++++++++++++++++++++++--------------------------
- 1 file changed, 51 insertions(+), 51 deletions(-)
+ drivers/tty/tty_io.c | 94 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 47 insertions(+), 47 deletions(-)
 
 diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 63db04b9113a..358047971381 100644
+index 8a94e5a43c6d..027c6f5845c8 100644
 --- a/drivers/tty/tty_io.c
 +++ b/drivers/tty/tty_io.c
 @@ -159,7 +159,7 @@ static int tty_fasync(int fd, struct file *filp, int on);
@@ -42,7 +40,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty structure
   *
   * Convert a tty structure into a name. The name reflects the kernel naming
-@@ -297,7 +297,7 @@ static int check_tty_count(struct tty_struct *tty, const char *routine)
+@@ -295,7 +295,7 @@ static void check_tty_count(struct tty_struct *tty, const char *routine)
  }
  
  /**
@@ -51,7 +49,7 @@ index 63db04b9113a..358047971381 100644
   * @device: device identifier
   * @index: returns the index of the tty
   *
-@@ -322,7 +322,7 @@ static struct tty_driver *get_tty_driver(dev_t device, int *index)
+@@ -320,7 +320,7 @@ static struct tty_driver *get_tty_driver(dev_t device, int *index)
  }
  
  /**
@@ -60,7 +58,7 @@ index 63db04b9113a..358047971381 100644
   * @name: user space name of device under /dev
   * @number: pointer to dev_t that this function will populate
   *
-@@ -374,7 +374,7 @@ EXPORT_SYMBOL_GPL(tty_dev_name_to_number);
+@@ -372,7 +372,7 @@ EXPORT_SYMBOL_GPL(tty_dev_name_to_number);
  #ifdef CONFIG_CONSOLE_POLL
  
  /**
@@ -69,7 +67,7 @@ index 63db04b9113a..358047971381 100644
   * @name: name string to match
   * @line: pointer to resulting tty line nr
   *
-@@ -507,7 +507,7 @@ static DEFINE_SPINLOCK(redirect_lock);
+@@ -505,7 +505,7 @@ static DEFINE_SPINLOCK(redirect_lock);
  static struct file *redirect;
  
  /**
@@ -78,7 +76,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: terminal
   *
   * Internal and external helper for wakeups of tty. This function informs the
-@@ -531,7 +531,7 @@ void tty_wakeup(struct tty_struct *tty)
+@@ -529,7 +529,7 @@ void tty_wakeup(struct tty_struct *tty)
  EXPORT_SYMBOL_GPL(tty_wakeup);
  
  /**
@@ -87,7 +85,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   *
   * This is available to the pty code so if the master closes, if the slave is a
-@@ -552,7 +552,7 @@ static struct file *tty_release_redirect(struct tty_struct *tty)
+@@ -550,7 +550,7 @@ static struct file *tty_release_redirect(struct tty_struct *tty)
  }
  
  /**
@@ -96,7 +94,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @exit_session: if non-zero, signal all foreground group processes
   *
-@@ -675,7 +675,7 @@ static void do_tty_hangup(struct work_struct *work)
+@@ -673,7 +673,7 @@ static void do_tty_hangup(struct work_struct *work)
  }
  
  /**
@@ -105,7 +103,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty to hangup
   *
   * A carrier loss (virtual or otherwise) has occurred on @tty. Schedule a
-@@ -689,7 +689,7 @@ void tty_hangup(struct tty_struct *tty)
+@@ -687,7 +687,7 @@ void tty_hangup(struct tty_struct *tty)
  EXPORT_SYMBOL(tty_hangup);
  
  /**
@@ -114,7 +112,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty to hangup
   *
   * The user has asked via system call for the terminal to be hung up. We do
-@@ -705,7 +705,7 @@ EXPORT_SYMBOL(tty_vhangup);
+@@ -703,7 +703,7 @@ EXPORT_SYMBOL(tty_vhangup);
  
  
  /**
@@ -123,7 +121,7 @@ index 63db04b9113a..358047971381 100644
   *
   * Perform a vhangup on the current controlling tty
   */
-@@ -721,7 +721,7 @@ void tty_vhangup_self(void)
+@@ -719,7 +719,7 @@ void tty_vhangup_self(void)
  }
  
  /**
@@ -132,7 +130,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty to hangup
   *
   * The session leader is exiting and hanging up its controlling terminal.
-@@ -737,7 +737,7 @@ void tty_vhangup_session(struct tty_struct *tty)
+@@ -735,7 +735,7 @@ void tty_vhangup_session(struct tty_struct *tty)
  }
  
  /**
@@ -141,7 +139,7 @@ index 63db04b9113a..358047971381 100644
   * @filp: file pointer of tty
   *
   * Return: true if the tty has been subject to a vhangup or a carrier loss
-@@ -758,7 +758,7 @@ void __stop_tty(struct tty_struct *tty)
+@@ -756,7 +756,7 @@ void __stop_tty(struct tty_struct *tty)
  }
  
  /**
@@ -150,7 +148,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty to stop
   *
   * Perform flow control to the driver. May be called on an already stopped
-@@ -792,7 +792,7 @@ void __start_tty(struct tty_struct *tty)
+@@ -790,7 +790,7 @@ void __start_tty(struct tty_struct *tty)
  }
  
  /**
@@ -159,7 +157,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty to start
   *
   * Start a tty that has been stopped if at all possible. If @tty was previously
-@@ -901,7 +901,7 @@ static int iterate_tty_read(struct tty_ldisc *ld, struct tty_struct *tty,
+@@ -898,7 +898,7 @@ static ssize_t iterate_tty_read(struct tty_ldisc *ld, struct tty_struct *tty,
  
  
  /**
@@ -168,7 +166,7 @@ index 63db04b9113a..358047971381 100644
   * @iocb: kernel I/O control block
   * @to: destination for the data read
   *
-@@ -1101,7 +1101,7 @@ static ssize_t file_tty_write(struct file *file, struct kiocb *iocb, struct iov_
+@@ -1091,7 +1091,7 @@ static ssize_t file_tty_write(struct file *file, struct kiocb *iocb, struct iov_
  }
  
  /**
@@ -177,7 +175,7 @@ index 63db04b9113a..358047971381 100644
   * @iocb: kernel I/O control block
   * @from: iov_iter with data to write
   *
-@@ -1143,7 +1143,7 @@ ssize_t redirected_tty_write(struct kiocb *iocb, struct iov_iter *iter)
+@@ -1133,7 +1133,7 @@ ssize_t redirected_tty_write(struct kiocb *iocb, struct iov_iter *iter)
  }
  
  /**
@@ -186,7 +184,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: the tty to send to
   * @ch: xchar to send
   *
-@@ -1177,7 +1177,7 @@ int tty_send_xchar(struct tty_struct *tty, char ch)
+@@ -1167,7 +1167,7 @@ int tty_send_xchar(struct tty_struct *tty, char ch)
  }
  
  /**
@@ -195,7 +193,7 @@ index 63db04b9113a..358047971381 100644
   * @driver: the tty driver in use
   * @index: the minor number
   * @p: output buffer of at least 6 bytes
-@@ -1198,7 +1198,7 @@ static void pty_line_name(struct tty_driver *driver, int index, char *p)
+@@ -1188,7 +1188,7 @@ static void pty_line_name(struct tty_driver *driver, int index, char *p)
  }
  
  /**
@@ -204,7 +202,7 @@ index 63db04b9113a..358047971381 100644
   * @driver: the tty driver in use
   * @index: the minor number
   * @p: output buffer of at least 7 bytes
-@@ -1249,7 +1249,7 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
+@@ -1239,7 +1239,7 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
  }
  
  /**
@@ -213,7 +211,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: the tty to set up
   *
   * Initialise the termios structure for this tty. This runs under the
-@@ -1332,7 +1332,7 @@ static void tty_driver_remove_tty(struct tty_driver *driver, struct tty_struct *
+@@ -1322,7 +1322,7 @@ static void tty_driver_remove_tty(struct tty_driver *driver, struct tty_struct *
  }
  
  /**
@@ -222,7 +220,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: the tty to open
   *
   * Re-opens on master ptys are not allowed and return -%EIO.
-@@ -1376,7 +1376,7 @@ static int tty_reopen(struct tty_struct *tty)
+@@ -1366,7 +1366,7 @@ static int tty_reopen(struct tty_struct *tty)
  }
  
  /**
@@ -231,7 +229,7 @@ index 63db04b9113a..358047971381 100644
   * @driver: tty driver we are opening a device on
   * @idx: device index
   *
-@@ -1498,7 +1498,7 @@ void tty_save_termios(struct tty_struct *tty)
+@@ -1488,7 +1488,7 @@ void tty_save_termios(struct tty_struct *tty)
  EXPORT_SYMBOL_GPL(tty_save_termios);
  
  /**
@@ -240,7 +238,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device to flush works for (or either end of a pty pair)
   *
   * Sync flush all works belonging to @tty (and the 'other' tty).
-@@ -1514,7 +1514,7 @@ static void tty_flush_works(struct tty_struct *tty)
+@@ -1504,7 +1504,7 @@ static void tty_flush_works(struct tty_struct *tty)
  }
  
  /**
@@ -249,7 +247,7 @@ index 63db04b9113a..358047971381 100644
   * @work: work of tty we are obliterating
   *
   * Releases memory associated with a tty structure, and clears out the
-@@ -1562,7 +1562,7 @@ static void queue_release_one_tty(struct kref *kref)
+@@ -1552,7 +1552,7 @@ static void queue_release_one_tty(struct kref *kref)
  }
  
  /**
@@ -258,7 +256,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   *
   * Release a reference to the @tty device and if need be let the kref layer
-@@ -1576,7 +1576,7 @@ void tty_kref_put(struct tty_struct *tty)
+@@ -1566,7 +1566,7 @@ void tty_kref_put(struct tty_struct *tty)
  EXPORT_SYMBOL(tty_kref_put);
  
  /**
@@ -267,7 +265,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device release
   * @idx: index of the tty device release
   *
-@@ -1653,7 +1653,7 @@ static int tty_release_checks(struct tty_struct *tty, int idx)
+@@ -1643,7 +1643,7 @@ static int tty_release_checks(struct tty_struct *tty, int idx)
  }
  
  /**
@@ -276,7 +274,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   *
   * Performs the final steps to release and free a tty device. It is the same as
-@@ -1683,7 +1683,7 @@ void tty_kclose(struct tty_struct *tty)
+@@ -1673,7 +1673,7 @@ void tty_kclose(struct tty_struct *tty)
  EXPORT_SYMBOL_GPL(tty_kclose);
  
  /**
@@ -285,7 +283,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @idx: index of the tty
   *
-@@ -1712,7 +1712,7 @@ void tty_release_struct(struct tty_struct *tty, int idx)
+@@ -1702,7 +1702,7 @@ void tty_release_struct(struct tty_struct *tty, int idx)
  EXPORT_SYMBOL_GPL(tty_release_struct);
  
  /**
@@ -294,7 +292,7 @@ index 63db04b9113a..358047971381 100644
   * @inode: inode of tty
   * @filp: file pointer for handle to tty
   *
-@@ -1993,7 +1993,7 @@ static struct tty_struct *tty_kopen(dev_t device, int shared)
+@@ -1983,7 +1983,7 @@ static struct tty_struct *tty_kopen(dev_t device, int shared)
  }
  
  /**
@@ -303,7 +301,7 @@ index 63db04b9113a..358047971381 100644
   * @device: dev_t of device to open
   *
   * Opens tty exclusively for kernel. Performs the driver lookup, makes sure
-@@ -2013,7 +2013,7 @@ struct tty_struct *tty_kopen_exclusive(dev_t device)
+@@ -2003,7 +2003,7 @@ struct tty_struct *tty_kopen_exclusive(dev_t device)
  EXPORT_SYMBOL_GPL(tty_kopen_exclusive);
  
  /**
@@ -312,7 +310,7 @@ index 63db04b9113a..358047971381 100644
   * @device: dev_t of device to open
   *
   * Opens an already existing tty for in-kernel use. Compared to
-@@ -2028,7 +2028,7 @@ struct tty_struct *tty_kopen_shared(dev_t device)
+@@ -2018,7 +2018,7 @@ struct tty_struct *tty_kopen_shared(dev_t device)
  EXPORT_SYMBOL_GPL(tty_kopen_shared);
  
  /**
@@ -321,7 +319,7 @@ index 63db04b9113a..358047971381 100644
   * @device: dev_t of device to open
   * @filp: file pointer to tty
   *
-@@ -2096,7 +2096,7 @@ static struct tty_struct *tty_open_by_driver(dev_t device,
+@@ -2086,7 +2086,7 @@ static struct tty_struct *tty_open_by_driver(dev_t device,
  }
  
  /**
@@ -330,7 +328,7 @@ index 63db04b9113a..358047971381 100644
   * @inode: inode of device file
   * @filp: file pointer to tty
   *
-@@ -2190,7 +2190,7 @@ static int tty_open(struct inode *inode, struct file *filp)
+@@ -2180,7 +2180,7 @@ static int tty_open(struct inode *inode, struct file *filp)
  
  
  /**
@@ -339,7 +337,7 @@ index 63db04b9113a..358047971381 100644
   * @filp: file being polled
   * @wait: poll wait structures to update
   *
-@@ -2268,7 +2268,7 @@ static int tty_fasync(int fd, struct file *filp, int on)
+@@ -2258,7 +2258,7 @@ static int tty_fasync(int fd, struct file *filp, int on)
  
  static bool tty_legacy_tiocsti __read_mostly = IS_ENABLED(CONFIG_LEGACY_TIOCSTI);
  /**
@@ -348,7 +346,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty to fake input into
   * @p: pointer to character
   *
-@@ -2305,7 +2305,7 @@ static int tiocsti(struct tty_struct *tty, char __user *p)
+@@ -2295,7 +2295,7 @@ static int tiocsti(struct tty_struct *tty, char __user *p)
  }
  
  /**
@@ -357,7 +355,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty
   * @arg: user buffer for result
   *
-@@ -2326,7 +2326,7 @@ static int tiocgwinsz(struct tty_struct *tty, struct winsize __user *arg)
+@@ -2316,7 +2316,7 @@ static int tiocgwinsz(struct tty_struct *tty, struct winsize __user *arg)
  }
  
  /**
@@ -366,7 +364,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty being resized
   * @ws: new dimensions
   *
-@@ -2356,7 +2356,7 @@ int tty_do_resize(struct tty_struct *tty, struct winsize *ws)
+@@ -2346,7 +2346,7 @@ int tty_do_resize(struct tty_struct *tty, struct winsize *ws)
  EXPORT_SYMBOL(tty_do_resize);
  
  /**
@@ -375,7 +373,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty side of tty
   * @arg: user buffer for result
   *
-@@ -2383,7 +2383,7 @@ static int tiocswinsz(struct tty_struct *tty, struct winsize __user *arg)
+@@ -2373,7 +2373,7 @@ static int tiocswinsz(struct tty_struct *tty, struct winsize __user *arg)
  }
  
  /**
@@ -384,7 +382,7 @@ index 63db04b9113a..358047971381 100644
   * @file: the file to become console
   *
   * Allow the administrator to move the redirected console device.
-@@ -2422,7 +2422,7 @@ static int tioccons(struct file *file)
+@@ -2412,7 +2412,7 @@ static int tioccons(struct file *file)
  }
  
  /**
@@ -393,7 +391,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @p: pointer to user data
   *
-@@ -2444,7 +2444,7 @@ static int tiocsetd(struct tty_struct *tty, int __user *p)
+@@ -2434,7 +2434,7 @@ static int tiocsetd(struct tty_struct *tty, int __user *p)
  }
  
  /**
@@ -402,7 +400,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @p: pointer to user data
   *
-@@ -2467,7 +2467,7 @@ static int tiocgetd(struct tty_struct *tty, int __user *p)
+@@ -2457,7 +2457,7 @@ static int tiocgetd(struct tty_struct *tty, int __user *p)
  }
  
  /**
@@ -411,7 +409,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: device to break on
   * @duration: timeout in mS
   *
-@@ -2505,7 +2505,7 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+@@ -2495,7 +2495,7 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
  }
  
  /**
@@ -420,7 +418,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @p: pointer to result
   *
-@@ -2528,7 +2528,7 @@ static int tty_tiocmget(struct tty_struct *tty, int __user *p)
+@@ -2518,7 +2518,7 @@ static int tty_tiocmget(struct tty_struct *tty, int __user *p)
  }
  
  /**
@@ -429,7 +427,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @cmd: command - clear bits, set bits or set all
   * @p: pointer to desired bits
-@@ -2569,7 +2569,7 @@ static int tty_tiocmset(struct tty_struct *tty, unsigned int cmd,
+@@ -2559,7 +2559,7 @@ static int tty_tiocmset(struct tty_struct *tty, unsigned int cmd,
  }
  
  /**
@@ -438,7 +436,7 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty device
   * @icount: output parameter
   *
-@@ -3132,7 +3132,7 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
+@@ -3122,7 +3122,7 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
  }
  
  /**
@@ -447,39 +445,3 @@ index 63db04b9113a..358047971381 100644
   * @tty: tty
   * @ch: character to write
   *
-@@ -3310,7 +3310,7 @@ void tty_unregister_device(struct tty_driver *driver, unsigned index)
- EXPORT_SYMBOL(tty_unregister_device);
- 
- /**
-- * __tty_alloc_driver -- allocate tty driver
-+ * __tty_alloc_driver - allocate tty driver
-  * @lines: count of lines this driver can handle at most
-  * @owner: module which is responsible for this driver
-  * @flags: some of %TTY_DRIVER_ flags, will be set in driver->flags
-@@ -3403,7 +3403,7 @@ static void destruct_tty_driver(struct kref *kref)
- }
- 
- /**
-- * tty_driver_kref_put -- drop a reference to a tty driver
-+ * tty_driver_kref_put - drop a reference to a tty driver
-  * @driver: driver of which to drop the reference
-  *
-  * The final put will destroy and free up the driver.
-@@ -3415,7 +3415,7 @@ void tty_driver_kref_put(struct tty_driver *driver)
- EXPORT_SYMBOL(tty_driver_kref_put);
- 
- /**
-- * tty_register_driver -- register a tty driver
-+ * tty_register_driver - register a tty driver
-  * @driver: driver to register
-  *
-  * Called by a tty driver to register itself.
-@@ -3480,7 +3480,7 @@ int tty_register_driver(struct tty_driver *driver)
- EXPORT_SYMBOL(tty_register_driver);
- 
- /**
-- * tty_unregister_driver -- unregister a tty driver
-+ * tty_unregister_driver - unregister a tty driver
-  * @driver: driver to unregister
-  *
-  * Called by a tty driver to unregister itself.

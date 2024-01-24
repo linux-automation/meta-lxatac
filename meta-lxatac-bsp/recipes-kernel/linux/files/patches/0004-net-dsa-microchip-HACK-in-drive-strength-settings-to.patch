@@ -9,12 +9,18 @@ Content-Transfer-Encoding: 8bit
 The drive strength values in this patch drastically reduce the emissions
 radiated by an LXA TAC.
 
-This hack should be replaced by a generic one that takes the correct drive
-strenghts from the devicetree.
+This hack should be replaced by a generic one that takes the correct
+drive strenghts from the devicetree.
 
-The values could be tweaked higher if we ever notice issues with the RGMII link.
+The values could be tweaked higher if we ever notice issues with the
+RGMII link.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+[ukl: Note that even in the presence of commit d67d7247f641 ("net:
+dsa: microchip: Add drive strength configuration") and the properties
+microchip,hi-drive-strength-microamp and
+microchip,lo-drive-strength-microamp, this hack is necessary as of
+v6.8-rc1. ore is scheduled to work on this.]
 ---
  drivers/net/dsa/microchip/ksz9477.c | 5 +++++
  1 file changed, 5 insertions(+)
