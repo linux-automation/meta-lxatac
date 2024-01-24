@@ -19,10 +19,10 @@ Origin: v6.8-rc1, commit:e56ec7b7527c2be54a0c15064c71838fd5c49d4b
  1 file changed, 42 insertions(+)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 1ecbb4107816..2fd6cf35cd9f 100644
+index cc6cae07c02c..68239567a564 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
-@@ -471,9 +471,51 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
+@@ -471,8 +471,50 @@ static int stm32_pwm_apply_locked(struct pwm_chip *chip, struct pwm_device *pwm,
  	return ret;
  }
  
@@ -68,7 +68,6 @@ index 1ecbb4107816..2fd6cf35cd9f 100644
 +}
 +
  static const struct pwm_ops stm32pwm_ops = {
- 	.owner = THIS_MODULE,
  	.apply = stm32_pwm_apply_locked,
 +	.get_state = stm32_pwm_get_state,
  	.capture = IS_ENABLED(CONFIG_DMA_ENGINE) ? stm32_pwm_capture : NULL,

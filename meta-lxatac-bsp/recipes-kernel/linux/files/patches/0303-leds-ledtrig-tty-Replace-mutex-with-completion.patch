@@ -15,6 +15,7 @@ Signed-off-by: Florian Eckert <fe@dev.tdt.de>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Link: https://lore.kernel.org/r/20231127110311.3583957-3-fe@dev.tdt.de
 Signed-off-by: Lee Jones <lee@kernel.org>
+Origin: v6.8-rc1, commit:76675f69bed5f1e8ae44ba72904ff7f97aa95c0a
 ---
  drivers/leds/trigger/ledtrig-tty.c | 59 +++++++++++++++++++-------------------
  1 file changed, 30 insertions(+), 29 deletions(-)

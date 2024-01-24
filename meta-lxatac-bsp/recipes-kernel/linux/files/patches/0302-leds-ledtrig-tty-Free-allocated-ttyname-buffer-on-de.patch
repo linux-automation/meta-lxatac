@@ -20,6 +20,7 @@ Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Link: https://lore.kernel.org/r/20231127081621.774866-1-fe@dev.tdt.de
 Signed-off-by: Lee Jones <lee@kernel.org>
+Origin: v6.8-rc1, commit:25054b232681c286fca9c678854f56494d1352cc
 ---
  drivers/leds/trigger/ledtrig-tty.c | 4 ++++
  1 file changed, 4 insertions(+)

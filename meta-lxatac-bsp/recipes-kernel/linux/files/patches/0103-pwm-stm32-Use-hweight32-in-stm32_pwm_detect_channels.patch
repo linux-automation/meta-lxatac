@@ -19,10 +19,10 @@ Origin: v6.8-rc1, commit:41fa8f57c0d269243fe3bde2bce71e82c884b9ad
  1 file changed, 2 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index c0ef1f3431b8..1ecbb4107816 100644
+index 009f9c1a5eca..cc6cae07c02c 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
-@@ -564,10 +564,9 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
+@@ -563,10 +563,9 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
  	priv->have_complementary_output = (ccer != 0);
  }
  
@@ -34,7 +34,7 @@ index c0ef1f3431b8..1ecbb4107816 100644
  
  	/*
  	 * If channels enable bits don't exist writing 1 will have no
-@@ -577,19 +576,7 @@ static int stm32_pwm_detect_channels(struct stm32_pwm *priv)
+@@ -576,19 +575,7 @@ static int stm32_pwm_detect_channels(struct stm32_pwm *priv)
  	regmap_read(priv->regmap, TIM_CCER, &ccer);
  	regmap_clear_bits(priv->regmap, TIM_CCER, TIM_CCER_CCXE);
  

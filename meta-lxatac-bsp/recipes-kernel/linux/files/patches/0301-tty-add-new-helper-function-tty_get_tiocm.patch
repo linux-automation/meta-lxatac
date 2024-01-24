@@ -19,10 +19,10 @@ Origin: v6.8-rc1, commit:4ff4379ce6eefe81695bcc2e021ce1dac3d707d2
  2 files changed, 23 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 027c6f5845c8..fec9c91380bb 100644
+index 06414e43e0b5..e2e93404133e 100644
 --- a/drivers/tty/tty_io.c
 +++ b/drivers/tty/tty_io.c
-@@ -2494,6 +2494,24 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+@@ -2498,6 +2498,24 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
  	return retval;
  }
  
@@ -47,7 +47,7 @@ index 027c6f5845c8..fec9c91380bb 100644
  /**
   * tty_tiocmget - get modem status
   * @tty: tty device
-@@ -2506,14 +2524,12 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+@@ -2510,14 +2528,12 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
   */
  static int tty_tiocmget(struct tty_struct *tty, int __user *p)
  {
@@ -67,10 +67,10 @@ index 027c6f5845c8..fec9c91380bb 100644
  }
  
 diff --git a/include/linux/tty.h b/include/linux/tty.h
-index f002d0f25db7..8e4d0b3b12b7 100644
+index 4b6340ac2af2..d219a11e3fe0 100644
 --- a/include/linux/tty.h
 +++ b/include/linux/tty.h
-@@ -421,6 +421,7 @@ int tty_unthrottle_safe(struct tty_struct *tty);
+@@ -419,6 +419,7 @@ bool tty_unthrottle_safe(struct tty_struct *tty);
  int tty_do_resize(struct tty_struct *tty, struct winsize *ws);
  int tty_get_icount(struct tty_struct *tty,
  		struct serial_icounter_struct *icount);

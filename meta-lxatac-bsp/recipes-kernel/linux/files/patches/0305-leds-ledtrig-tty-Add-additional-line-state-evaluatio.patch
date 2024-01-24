@@ -51,6 +51,7 @@ Reviewed-by: Maarten Brock <m.brock@vanmierlo.com>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Link: https://lore.kernel.org/r/20231127110311.3583957-5-fe@dev.tdt.de
 Signed-off-by: Lee Jones <lee@kernel.org>
+Origin: v6.8-rc1, commit:6dec659896b4e683beaea223d306e71e174e84cd
 ---
  .../ABI/testing/sysfs-class-led-trigger-tty        | 40 +++++++++++
  drivers/leds/trigger/ledtrig-tty.c                 | 78 +++++++++++++++++++++-

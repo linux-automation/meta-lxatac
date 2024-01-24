@@ -15,7 +15,7 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  1 file changed, 4 insertions(+)
 
 diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
-index e5dad090551c..c940ea305412 100644
+index 788c9d099639..7e002b591071 100644
 --- a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 +++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 @@ -471,6 +471,10 @@ switch: switch@0 {

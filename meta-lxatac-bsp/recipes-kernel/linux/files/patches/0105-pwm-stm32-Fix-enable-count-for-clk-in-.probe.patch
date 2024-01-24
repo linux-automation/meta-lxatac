@@ -20,10 +20,10 @@ Origin: v6.8-rc1, commit:19f1016ea9600ed89bc24247c36ff5934ad94fbb
  1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 2fd6cf35cd9f..f1641dadbd1c 100644
+index 68239567a564..97a2c3c09b69 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
-@@ -606,17 +606,21 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
+@@ -605,17 +605,21 @@ static void stm32_pwm_detect_complementary(struct stm32_pwm *priv)
  	priv->have_complementary_output = (ccer != 0);
  }
  
@@ -48,7 +48,7 @@ index 2fd6cf35cd9f..f1641dadbd1c 100644
  
  	return hweight32(ccer & TIM_CCER_CCXE);
  }
-@@ -627,6 +631,8 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+@@ -626,6 +630,8 @@ static int stm32_pwm_probe(struct platform_device *pdev)
  	struct device_node *np = dev->of_node;
  	struct stm32_timers *ddata = dev_get_drvdata(pdev->dev.parent);
  	struct stm32_pwm *priv;
@@ -57,7 +57,7 @@ index 2fd6cf35cd9f..f1641dadbd1c 100644
  	int ret;
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -649,7 +655,11 @@ static int stm32_pwm_probe(struct platform_device *pdev)
+@@ -648,7 +654,11 @@ static int stm32_pwm_probe(struct platform_device *pdev)
  
  	priv->chip.dev = dev;
  	priv->chip.ops = &stm32pwm_ops;

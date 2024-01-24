@@ -16,7 +16,7 @@ Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
-index a51fbab96368..2c82bad54947 100644
+index 289bd9ce4d36..bacce7880b06 100644
 --- a/drivers/video/backlight/pwm_bl.c
 +++ b/drivers/video/backlight/pwm_bl.c
 @@ -455,6 +455,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
