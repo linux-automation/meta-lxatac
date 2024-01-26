@@ -13,10 +13,15 @@ PRODUCTNAME="LXATAC"
 UDC_ADDR="49000000.usb-otg"
 
 clear_gadget () {
+    already_set_up="false"
+    for dir in "${MAINDIR}"/*; do
+        test -s "${dir}/UDC" && already_set_up="true"
+    done
+
     if [[ -s "${DEVDIR}/UDC" ]]; then
         echo "USB Gadget is already set up."
         exit 11
-    elif [[ -s "${MAINDIR}"/*/UDC ]]; then
+    elif [[ "x${already_set_up}" != "xfalse" ]]; then
         echo "Remove existing USB Gadgets."
         # when removing a gadget we have to reverse the init process
         for dir in "${MAINDIR}"/*/configs/*/strings/*; do
