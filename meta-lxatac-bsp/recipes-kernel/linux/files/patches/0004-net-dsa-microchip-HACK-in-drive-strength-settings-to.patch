@@ -1,0 +1,41 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Mon, 24 Jan 2022 08:53:36 +0100
+Subject: [PATCH] net: dsa: microchip: HACK in drive strength settings to
+ reduce EMI
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The drive strength values in this patch drastically reduce the emissions
+radiated by an LXA TAC.
+
+This hack should be replaced by a generic one that takes the correct
+drive strenghts from the devicetree.
+
+The values could be tweaked higher if we ever notice issues with the
+RGMII link.
+
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+[ukl: Note that even in the presence of commit d67d7247f641 ("net:
+dsa: microchip: Add drive strength configuration") and the properties
+microchip,hi-drive-strength-microamp and
+microchip,lo-drive-strength-microamp, this hack is necessary as of
+v6.8-rc1. ore is scheduled to work on this.]
+---
+ drivers/net/dsa/microchip/ksz9477.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index 7f745628c84d..046c498f3f7a 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -1323,6 +1323,9 @@ int ksz9477_setup(struct dsa_switch *ds)
+ 	 */
+ 	ksz_write8(dev, REG_SW_PME_CTRL, 0);
+ 
++	/* set drive strenghts */
++	ksz_write8(dev, 0x010D, 0x02);
++
+ 	return 0;
+ }
+ 

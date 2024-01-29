@@ -1,0 +1,21 @@
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Mon, 29 Jan 2024 11:05:56 +0100
+Subject: [PATCH] Release 6.7/customers/lxa/lxatac/20240129-1
+
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index c6f549f6a4ae..5d3c3596af48 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@
+ VERSION = 6
+ PATCHLEVEL = 7
+ SUBLEVEL = 0
+-EXTRAVERSION =
++EXTRAVERSION =-20240129-1
+ NAME = Hurr durr I'ma ninja sloth
+ 
+ # *DOCUMENTATION*

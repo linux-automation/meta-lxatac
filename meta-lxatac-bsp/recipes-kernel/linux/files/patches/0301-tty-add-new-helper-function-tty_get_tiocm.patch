@@ -1,0 +1,80 @@
+From: Florian Eckert <fe@dev.tdt.de>
+Date: Mon, 27 Nov 2023 12:03:08 +0100
+Subject: [PATCH] tty: add new helper function tty_get_tiocm
+
+There is no in-kernel function to get the status register of a tty device
+like the TIOCMGET ioctl returns to userspace. Create a new function,
+tty_get_tiocm(), to obtain the status register that other portions of the
+kernel can call if they need this information, and move the existing
+internal tty_tiocmget() function to use this interface.
+
+Signed-off-by: Florian Eckert <fe@dev.tdt.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20231127110311.3583957-2-fe@dev.tdt.de
+Signed-off-by: Lee Jones <lee@kernel.org>
+Origin: v6.8-rc1, commit:4ff4379ce6eefe81695bcc2e021ce1dac3d707d2
+---
+ drivers/tty/tty_io.c | 28 ++++++++++++++++++++++------
+ include/linux/tty.h  |  1 +
+ 2 files changed, 23 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index 06414e43e0b5..e2e93404133e 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2498,6 +2498,24 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+ 	return retval;
+ }
+ 
++/**
++ * tty_get_tiocm - get tiocm status register
++ * @tty: tty device
++ *
++ * Obtain the modem status bits from the tty driver if the feature
++ * is supported.
++ */
++int tty_get_tiocm(struct tty_struct *tty)
++{
++	int retval = -ENOTTY;
++
++	if (tty->ops->tiocmget)
++		retval = tty->ops->tiocmget(tty);
++
++	return retval;
++}
++EXPORT_SYMBOL_GPL(tty_get_tiocm);
++
+ /**
+  * tty_tiocmget - get modem status
+  * @tty: tty device
+@@ -2510,14 +2528,12 @@ static int send_break(struct tty_struct *tty, unsigned int duration)
+  */
+ static int tty_tiocmget(struct tty_struct *tty, int __user *p)
+ {
+-	int retval = -ENOTTY;
++	int retval;
+ 
+-	if (tty->ops->tiocmget) {
+-		retval = tty->ops->tiocmget(tty);
++	retval = tty_get_tiocm(tty);
++	if (retval >= 0)
++		retval = put_user(retval, p);
+ 
+-		if (retval >= 0)
+-			retval = put_user(retval, p);
+-	}
+ 	return retval;
+ }
+ 
+diff --git a/include/linux/tty.h b/include/linux/tty.h
+index 4b6340ac2af2..d219a11e3fe0 100644
+--- a/include/linux/tty.h
++++ b/include/linux/tty.h
+@@ -419,6 +419,7 @@ bool tty_unthrottle_safe(struct tty_struct *tty);
+ int tty_do_resize(struct tty_struct *tty, struct winsize *ws);
+ int tty_get_icount(struct tty_struct *tty,
+ 		struct serial_icounter_struct *icount);
++int tty_get_tiocm(struct tty_struct *tty);
+ int is_current_pgrp_orphaned(void);
+ void tty_hangup(struct tty_struct *tty);
+ void tty_vhangup(struct tty_struct *tty);

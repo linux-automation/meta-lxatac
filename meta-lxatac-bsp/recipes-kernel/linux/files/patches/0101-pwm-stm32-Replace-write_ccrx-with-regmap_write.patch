@@ -1,6 +1,9 @@
 From: Philipp Zabel <p.zabel@pengutronix.de>
-Date: Tue, 18 Jul 2023 13:32:40 +0200
+Date: Thu, 19 Oct 2023 22:07:00 +0200
 Subject: [PATCH] pwm: stm32: Replace write_ccrx with regmap_write
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 The TIM_CCR1...4 registers are consecutive, so replace the switch
 case with a simple calculation. Since ch is known to be in the 0...3
@@ -10,12 +13,16 @@ not warrant keeping the write_ccrx() function around, so instead call
 regmap_write() directly at the singular call site.
 
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Origin: v6.8-rc1, commit:e495f47274a145dd802748fed66608f46d9ae11d
 ---
  drivers/pwm/pwm-stm32.c | 17 +----------------
  1 file changed, 1 insertion(+), 16 deletions(-)
 
 diff --git a/drivers/pwm/pwm-stm32.c b/drivers/pwm/pwm-stm32.c
-index 62e397aeb9aa..8284a624c1da 100644
+index 3303a754ea02..5e48584e3bd4 100644
 --- a/drivers/pwm/pwm-stm32.c
 +++ b/drivers/pwm/pwm-stm32.c
 @@ -52,21 +52,6 @@ static u32 active_channels(struct stm32_pwm *dev)
