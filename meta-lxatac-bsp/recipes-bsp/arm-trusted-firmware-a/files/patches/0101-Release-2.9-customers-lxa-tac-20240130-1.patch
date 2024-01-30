@@ -1,0 +1,21 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Tue, 30 Jan 2024 08:17:08 +0100
+Subject: [PATCH] Release 2.9/customers/lxa/tac/20240130-1
+
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 2c5748fe1567..5cd36be33361 100644
+--- a/Makefile
++++ b/Makefile
+@@ -330,7 +330,7 @@ endif
+ ifeq (${BUILD_STRING},)
+         BUILD_STRING  :=  $(shell git describe --always --dirty --tags 2> /dev/null)
+ endif
+-VERSION_STRING    :=  v${VERSION}(${BUILD_TYPE}):${BUILD_STRING}
++VERSION_STRING    :=  v${VERSION}(${BUILD_TYPE}):${BUILD_STRING}-20240130-1
+ 
+ ifeq (${AARCH32_INSTRUCTION_SET},A32)
+ TF_CFLAGS_aarch32	+=	-marm
