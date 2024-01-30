@@ -1,12 +1,30 @@
 From: Rouven Czerwinski <rouven@czerwinskis.de>
 Date: Fri, 18 Jun 2021 11:07:20 +0200
-Subject: [PATCH] fdts: add lxa tac
+Subject: [PATCH] fdts: lxa-tac: add Linux Automation GmbH TAC
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The Linux Automation Test Automation Controller (LXA TAC)[1] is an embedded
+software development tool built around the Octavo Systems OSD32MP15x SiP.
+
+The device contains an eMMC for storage, a DSA-capable on board ethernet
+switch with two external ports, dual CAN busses, a power switch to turn
+a device under test on or off and some other I/O.
+
+As of now there are two STM32MP157 based hardware generations (Gen 1 and
+Gen 2) that have most of their hardware config in common.
+In the future there will also be a STM32MP153 based hardware generation.
+
+[1]: https://www.linux-automation.com/en/products/lxa-tac.html
 
 Signed-off-by: Rouven Czerwinski <rouven@czerwinskis.de>
+Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
 ---
- fdts/stm32mp157c-lxa-tac-fw-config.dts |  7 +++
- fdts/stm32mp157c-lxa-tac.dts           | 81 ++++++++++++++++++++++++++++++++++
- 2 files changed, 88 insertions(+)
+ fdts/stm32mp157c-lxa-tac-fw-config.dts |   7 ++
+ fdts/stm32mp157c-lxa-tac.dts           | 134 +++++++++++++++++++++++++++++++++
+ 2 files changed, 141 insertions(+)
  create mode 100644 fdts/stm32mp157c-lxa-tac-fw-config.dts
  create mode 100644 fdts/stm32mp157c-lxa-tac.dts
 
@@ -25,10 +43,10 @@ index 000000000000..9ee09e93e9ea
 +#include "stm32mp15-fw-config.dtsi"
 diff --git a/fdts/stm32mp157c-lxa-tac.dts b/fdts/stm32mp157c-lxa-tac.dts
 new file mode 100644
-index 000000000000..c5f55cae1d2a
+index 000000000000..5988fded94da
 --- /dev/null
 +++ b/fdts/stm32mp157c-lxa-tac.dts
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,134 @@
 +/* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause) */
 +/*
 + * Copyright (C) 2020 STMicroelectronics - All Rights Reserved
@@ -109,4 +127,57 @@ index 000000000000..c5f55cae1d2a
 +			bias-disable;
 +		};
 +	};
++};
++
++/* VCO = 624 MHz => P = 208, Q = 48, R = 104 */
++&pll3 {
++	cfg = <1 51 2 12 5 PQR(1,1,1)>;
++	/delete-property/ frac;
++};
++
++/* VCO = 750.0 MHz => P = 125, Q = 75, R = 62.5 */
++&pll4 {
++	cfg = <3 124 5 9 11 PQR(1,1,1)>;
++	/delete-property/ frac;
++};
++
++&rcc {
++	/* change parent clocks */
++	st,pkcs = <
++		CLK_CKPER_HSE
++		CLK_FMC_ACLK
++		CLK_QSPI_ACLK
++		CLK_ETH_PLL4P
++		CLK_SDMMC12_PLL3R
++		CLK_DSI_DSIPLL
++		CLK_STGEN_HSE
++		CLK_USBPHY_HSE
++		CLK_SPI2S1_PLL3Q
++		CLK_SPI2S23_PLL3Q
++		CLK_SPI45_HSI
++		CLK_SPI6_HSI
++		CLK_I2C46_HSI
++		CLK_SDMMC3_DISABLED
++		CLK_USBO_USBPHY
++		CLK_ADC_CKPER
++		CLK_CEC_DISABLED
++		CLK_I2C12_HSI
++		CLK_I2C35_HSI
++		CLK_UART1_HSI
++		CLK_UART24_HSI
++		CLK_UART35_HSI
++		CLK_UART6_HSI
++		CLK_UART78_HSI
++		CLK_SPDIF_DISABLED
++		CLK_FDCAN_PLL3Q
++		CLK_SAI1_DISABLED
++		CLK_SAI2_DISABLED
++		CLK_SAI3_DISABLED
++		CLK_SAI4_DISABLED
++		CLK_RNG1_LSI
++		CLK_RNG2_LSI
++		CLK_LPTIM1_PCLK1
++		CLK_LPTIM23_PCLK3
++		CLK_LPTIM45_LSE
++	>;
 +};

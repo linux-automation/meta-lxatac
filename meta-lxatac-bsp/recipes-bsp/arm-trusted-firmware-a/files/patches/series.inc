@@ -1,17 +1,15 @@
 # umpf-base: v2.9
 # umpf-name: 2.9/customers/lxa/tac
-# umpf-version: 2.9/customers/lxa/tac/20240130-1
+# umpf-version: 2.9/customers/lxa/tac/20240130-2
 # umpf-topic: v2.9/customers/lxa/tac
-# umpf-hashinfo: 760fec437d17c83e244decd02aafc8b1c5582c9b
-# umpf-topic-range: d3e71ead6ea5bc3555ac90a446efec84ef6c6122..c76dadca0b61699e5cfc1b4233faa0019c96bb68
+# umpf-hashinfo: e9c0f04902a5616a0af04fc9490edd9f1273ab7c
+# umpf-topic-range: d3e71ead6ea5bc3555ac90a446efec84ef6c6122..927790a02af8f782da3c11fc599017767d175de8
 SRC_URI += "\
-  file://patches/0001-fdts-add-lxa-tac.patch \
-  file://patches/0002-lxatac-ETH-PLL-configuration.patch \
-  file://patches/0003-lxatac-use-custom-PLL-configuration.patch \
+  file://patches/0001-fdts-lxa-tac-add-Linux-Automation-GmbH-TAC.patch \
   "
-# umpf-release: 2.9/customers/lxa/tac/20240130-1
-# umpf-topic-range: c76dadca0b61699e5cfc1b4233faa0019c96bb68..4c69731e814fca9a47e71cd301368833b0c7ec1d
+# umpf-release: 2.9/customers/lxa/tac/20240130-2
+# umpf-topic-range: 927790a02af8f782da3c11fc599017767d175de8..2c9a028d8673d1b3f8ce99e58ec61c4554b60fda
 SRC_URI += "\
-  file://patches/0101-Release-2.9-customers-lxa-tac-20240130-1.patch \
+  file://patches/0101-Release-2.9-customers-lxa-tac-20240130-2.patch \
   "
 # umpf-end
