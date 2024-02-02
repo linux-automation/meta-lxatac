@@ -229,7 +229,7 @@ CONFIG_EXTERNAL_DTS_FRAGMENTS=""
 # Android Fastboot
 #
 CONFIG_FASTBOOT_SPARSE=y
-# CONFIG_FASTBOOT_CMD_OEM is not set
+CONFIG_FASTBOOT_CMD_OEM=y
 # end of Android Fastboot
 # end of General Settings
 
