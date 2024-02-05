@@ -3,7 +3,7 @@ require arm-trusted-firmware-a.inc
 SUMMARY = "ARM Trusted Firmware-A for STM32MP1"
 LIC_FILES_CHKSUM = "file://docs/license.rst;md5=b2c740efedc159745b9b31f88ff03dde"
 
-SRC_URI[sha256sum] = "48a595475fc7766c3c54c0f4cf344921bf5a04879a88f6820c5d75645840ffc4"
+SRC_URI[sha256sum] = "bca3d122ae4552677a77a70076bb229fa8b8c0358ab85ec964666bb386a9cf1b"
 
 
 COMPATIBLE_MACHINE = "lxatac"
