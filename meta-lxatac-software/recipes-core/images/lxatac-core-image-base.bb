@@ -24,6 +24,7 @@ IMAGE_INSTALL:append = "\
     android-tools \
     avahi-utils \
     barebox-tools \
+    bcu \
     blktrace \
     bluez5 \
     bmap-tools \
