@@ -10,6 +10,7 @@ This results in an improvement of EMI performance by reducing the
 125MHz emission and its harmonics caused by the RGMII clock line.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Forwarded: https://lore.kernel.org/linux-arm-kernel/20240129114649.2458468-2-u.kleine-koenig@pengutronix.de
 ---
  arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi | 4 ++++
  1 file changed, 4 insertions(+)
