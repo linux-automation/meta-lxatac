@@ -3,7 +3,9 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 SUMMARY = "Export USB Gadget functions over the TAC USB-C connector"
 
-PACKAGE_ARCH = "lxatac"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+INHIBIT_DEFAULT_DEPS = "1"
 
 RDEPENDS:${PN} = " \
     bash \
