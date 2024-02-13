@@ -1,3 +1,4 @@
+SUMMARY = "Tool to make firmware files for the Linux display driver panel-mipi-dbi."
 SRC_URI = "git://github.com/notro/panel-mipi-dbi.git;protocol=https;branch=main \
            file://0001-Use-python3-in-shebang.patch \
            "
@@ -10,15 +11,12 @@ S = "${WORKDIR}/git"
 LICENSE = "CC0-1.0"
 LIC_FILES_CHKSUM = "file://mipi-dbi-cmd;beginline=4;endline=13;md5=5e3d3f14cc87aa9e8976d728520cbcae"
 
-DEPENDS = "python3-native"
+RDEPENDS:${PN} += "python3-native"
 
 inherit native
 
-do_configure () {
-}
-
-do_compile () {
-}
+do_configure[noexec] = "1"
+do_compile[noexec] = "1"
 
 do_install () {
     install -D -p -m 0755 ${S}/mipi-dbi-cmd ${D}${bindir}/mipi-dbi-cmd
