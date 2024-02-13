@@ -25,5 +25,3 @@ do_install:append() {
     install -d ${D}${sysconfdir}/dbus-1/system.d
     install -m 0644 ${WORKDIR}/de.pengutronix.tacd.conf ${D}/${sysconfdir}/dbus-1/system.d/
 }
-
-#FILES:${PN} += "${sysconfdir} ${systemd_system_unitdir} ${sysconfdir}/dbus-1/system.d"
