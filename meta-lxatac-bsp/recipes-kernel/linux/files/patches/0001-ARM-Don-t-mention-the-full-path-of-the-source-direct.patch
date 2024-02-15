@@ -1,0 +1,49 @@
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Tue, 13 Feb 2024 10:28:36 +0100
+Subject: [PATCH] ARM: Don't mention the full path of the source directory in
+ mach-types.h
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+To make package building reproducible independent of the location of the
+source tree, the absolute path of this source tree must not be mentioned
+in the built artifact. So strip $abs_srctree from FILENAME in the
+output.
+
+This fixes a warning issued by Yocto:
+	WARNING: linux-lxatac-6.7-r0 do_package_qa: QA Issue: File /usr/src/debug/linux-lxatac/6.7-r0/arch/arm/include/generated/asm/mach-types.h in package linux-lxatac-src contains reference to TMPDIR
+
+Forwarded: https://lore.kernel.org/r/20240213092835.754462-2-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ arch/arm/tools/gen-mach-types | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/tools/gen-mach-types b/arch/arm/tools/gen-mach-types
+index cbe1c33bb871..9592ceb8a102 100644
+--- a/arch/arm/tools/gen-mach-types
++++ b/arch/arm/tools/gen-mach-types
+@@ -21,10 +21,21 @@ NF == 3 {
+ 	  num[nr] = ""; nr++
+ 	}
+ 
++# prepend a \ to all special chars in a regexp
++function quote(s) {
++	return gensub("[][\\^$.|()*+?{}]", "\\\\&", "g", s)
++}
++
++# Strip the absolute path of the source tree from the parameter
++# to make the result independent of where the source is located.
++function relsrcfile(fn) {
++	sub("^" quote(ENVIRON["abs_srctree"]) "/", "", fn)
++	return fn
++}
+ 
+ END	{
+ 	  printf("/*\n");
+-	  printf(" * This was automagically generated from %s!\n", FILENAME);
++	  printf(" * This was automagically generated from %s!\n", relsrcfile(FILENAME));
+ 	  printf(" * Do NOT edit\n");
+ 	  printf(" */\n\n");
+ 	  printf("#ifndef __ASM_ARM_MACH_TYPE_H\n");
