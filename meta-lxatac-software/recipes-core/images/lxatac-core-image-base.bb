@@ -26,7 +26,6 @@ IMAGE_INSTALL:append = "\
     barebox-tools \
     bcu \
     blktrace \
-    bluez5 \
     bmap-tools \
     bonnie++ \
     bottom \
