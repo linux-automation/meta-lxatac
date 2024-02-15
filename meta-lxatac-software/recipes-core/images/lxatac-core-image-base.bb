@@ -65,7 +65,6 @@ IMAGE_INSTALL:append = "\
     iproute2-rtacct \
     iproute2-ss \
     iproute2-tc \
-    iw \
     libdrm-tests \
     libgpiod-tools \
     libiio \
@@ -98,7 +97,6 @@ IMAGE_INSTALL:append = "\
     openssh-sftp \
     openssh-sftp-server \
     openssl-engines \
-    packagegroup-base-wifi \
     perf \
     ply \
     podman \
