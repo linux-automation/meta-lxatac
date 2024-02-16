@@ -15,9 +15,10 @@ mkdir -p "${DST_LINK_FILE_BASE}"
 # (The transient hostname is passed via systemd.hostname= commandline)
 # --------------------------------------------------------------------
 
-if [ ! -e /etc/hostname ]
+if [[ ! -e /etc/hostname ]]
 then
-    hostnamectl --static hostname $(hostnamectl --transient hostname)
+    hostname="$(hostnamectl --transient hostname)"
+    hostnamectl --static hostname "${hostname}"
 fi
 
 # Read Factory Data passed to us by barebox via the devicetree
@@ -29,9 +30,9 @@ SERIAL=$(tr -d '\000' < "${SRC_BASEBOARD_BASE}/serial-number")
 mapfile -t MAC_ADDRESSES < <(
     for ADDR_FILE in "${SRC_BASEBOARD_BASE}/ethernet-address/address-"*
     do
-        tr -d '\000' < "${ADDR_FILE}"
+        tr -d '\000' < "${ADDR_FILE}" || true
         echo
-    done | sort
+    done | sort || true
 )
 
 MAC_BRIDGE=${MAC_ADDRESSES[0]}

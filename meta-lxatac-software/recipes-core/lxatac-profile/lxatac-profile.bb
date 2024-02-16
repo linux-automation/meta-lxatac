@@ -6,6 +6,8 @@ SRC_URI = "file://01-labgrid.sh"
 
 S = "${WORKDIR}"
 
+RDEPENDS:${PN} = "bash"
+
 do_install () {
 	install -d ${D}${sysconfdir}/profile.d/
 	install -m 0755 ${S}/01-labgrid.sh ${D}${sysconfdir}/profile.d/

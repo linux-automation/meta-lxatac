@@ -3,8 +3,9 @@
 set -exu -o pipefail
 
 EXTRA_MIGRATE_LISTS_DIR="/etc/rauc/migrate.d"
-CERT_AVAILABLE_DIR="${RAUC_SLOT_MOUNT_POINT}/etc/rauc/certificates-available"
-CERT_ENABLED_DIR="${RAUC_SLOT_MOUNT_POINT}/etc/rauc/certificates-enabled"
+CERT_AVAILABLE_DIR="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-available"
+CERT_ENABLED_DIR="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-enabled"
+BUNDLE_SPKI_HASHES="${RAUC_BUNDLE_SPKI_HASHES:?}"
 
 function enable_certificates () {
 	# Ignore the enabled certifcates from the bundle
@@ -23,7 +24,7 @@ function enable_certificates () {
 		# This means that a bundle signed with e.g. an official stable
 		# channel certificate will only be able to install other
 		# bundles from the same release channel.
-		for bundle_hash in ${RAUC_BUNDLE_SPKI_HASHES}; do
+		for bundle_hash in ${BUNDLE_SPKI_HASHES}; do
 			if [[ "${bundle_hash}" == "${cert_hash}" ]]; then
 				echo "Enable certificate ${cert_name}"
 				ln -s \
@@ -46,7 +47,7 @@ function migrate () {
 }
 
 function process_migrate_lists () {
-	if [ ! -d "${EXTRA_MIGRATE_LISTS_DIR}" ]; then
+	if [[ ! -d "${EXTRA_MIGRATE_LISTS_DIR}" ]]; then
 		return
 	fi
 
