@@ -1,3 +1,4 @@
+SUMMARY = "Board Remote Control Utilities"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=884d48c2aa7b82e1ad4a33909fab24b6"
 
