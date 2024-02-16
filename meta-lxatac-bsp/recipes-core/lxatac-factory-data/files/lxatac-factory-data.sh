@@ -67,3 +67,5 @@ MACAddress=${MAC_BRIDGE}
 MACAddressPolicy=none
 EOF
 
+# Make sure that the link file is used
+udevadm control --reload-rules
