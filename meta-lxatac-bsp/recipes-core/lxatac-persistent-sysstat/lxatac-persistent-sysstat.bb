@@ -8,6 +8,8 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
+inherit allarch
+
 do_install () {
     install -d ${D}${systemd_system_unitdir}/
     install -m 0644 -t ${D}${systemd_system_unitdir}/ ${S}/var-log-sa.mount
