@@ -1,0 +1,18 @@
+name: oe-stylize
+
+on:
+  create: # tags and branches
+  pull_request:
+  push:
+jobs:
+  check:
+    name: lint recipes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Run oe-stylize for all recipes
+        run: .github/workflows/oe-stylize.sh
