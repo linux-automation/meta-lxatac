@@ -1,5 +1,4 @@
 PACKAGECONFIG = "testapp apps"
-PACKAGECONFIG:remove[apps] = "--enable-kcapi-hasher"
 
 do_install:append() {
     # avoid conflicts with busybox and coreutils

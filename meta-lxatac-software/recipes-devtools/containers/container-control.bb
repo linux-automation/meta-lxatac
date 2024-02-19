@@ -17,5 +17,3 @@ do_install() {
     install -D -m0755 ${WORKDIR}/container-start.sh ${D}${bindir}/container-start
     install -D -m0755 ${WORKDIR}/container-update.sh ${D}${bindir}/container-update
 }
-
-FILES_${PN} = "${bindir}"
