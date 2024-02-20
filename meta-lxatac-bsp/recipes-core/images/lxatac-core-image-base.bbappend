@@ -9,5 +9,3 @@ IMAGE_INSTALL:append = "\
     kernel-devicetree \
     dt-utils-barebox-state \
 "
-
-ROOTFS_POSTPROCESS_COMMAND += " make_zimage_symlink_relative; "
