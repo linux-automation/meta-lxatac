@@ -1,10 +1,12 @@
 [Unit]
 Description=Gather and Distribute Factory Data
-Before=NetworkManager.service
+DefaultDependencies=no
+After=systemd-remount-fs.service
+Before=systemd-udevd.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/lxatac-factory-data
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sysinit.target
