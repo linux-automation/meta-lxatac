@@ -71,6 +71,7 @@ case "$1" in
 		# installing from an eMMC image.
 		rm -f "${RAUC_SLOT_MOUNT_POINT}/system-update"
 
+		migrate /etc/hostname
 		migrate /etc/machine-id
 		migrate /etc/labgrid/environment
 		migrate /etc/labgrid/userconfig.yaml
