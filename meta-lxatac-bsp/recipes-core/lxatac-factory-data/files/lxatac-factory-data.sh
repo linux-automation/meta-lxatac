@@ -67,4 +67,3 @@ OriginalName=tac-bridge
 MACAddress=${MAC_BRIDGE}
 MACAddressPolicy=none
 EOF
-
