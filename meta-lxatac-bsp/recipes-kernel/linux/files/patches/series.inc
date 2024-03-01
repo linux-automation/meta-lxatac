@@ -1,46 +1,44 @@
-# umpf-base: v6.7
-# umpf-name: 6.7/customers/lxa/lxatac
-# umpf-version: 6.7/customers/lxa/lxatac/20240213-1
-# umpf-topic: v6.7/topic/reproducible-build
-# umpf-hashinfo: d313a8ff84dc39d70aa91df0fd78f8df643f0d1c
-# umpf-topic-range: 0dd3ee31125508cd67f7e7172247f05b7fd1753a..b16e94460bdcef2303c9af731d73b94dac3204dc
+# umpf-base: v6.8
+# umpf-name: 6.8/customers/lxa/lxatac
+# umpf-version: 6.8/customers/lxa/lxatac/20240321-1
+# umpf-topic: v6.8/topic/reproducible-build
+# umpf-hashinfo: f6d939fc20195e315035607c0c72d358f0bb73e3
+# umpf-topic-range: e8f897f4afef0031fe618a8e94127a0934896aba..8ad3d577c03c3e815d8a493f94f9762b74a6b3c6
 SRC_URI += "\
   file://patches/0001-ARM-Don-t-mention-the-full-path-of-the-source-direct.patch \
-  file://patches/0002-vt-conmakehash-improve-reproducibility.patch \
-  file://patches/0003-lib-build_OID_registry-fix-reproducibility-issues.patch \
+  file://patches/0002-lib-build_OID_registry-Don-t-mention-the-full-path-o.patch \
+  file://patches/0003-tty-vt-conmakehash-Don-t-mention-the-full-path-of-th.patch \
   "
-# umpf-topic: v6.7/customers/lxa/lxatac
-# umpf-hashinfo: 65acf36d24b3cf1964d37ee9a9ebc220e1c49f6d
-# umpf-topic-range: b16e94460bdcef2303c9af731d73b94dac3204dc..57e0561ea46bf2f20e7f4d47012c5257ba2e7bf7
+# umpf-topic: v6.7/topic/net-ksz-switch
+# umpf-hashinfo: dece8110fbc77c4701c16cac2cd3297ff0cbe0ee
+# umpf-topic-range: 8ad3d577c03c3e815d8a493f94f9762b74a6b3c6..f7fee7ab4b141f28acda48eff1dd8f2c80b2bfae
 SRC_URI += "\
-  file://patches/0101-ARM-dts-stm32-lxa-tac-adjust-USB-gadget-fifo-sizes-f.patch \
-  file://patches/0102-ARM-dts-stm32-lxa-tac-drive-powerboard-lines-as-open.patch \
-  file://patches/0103-ARM-dts-stm32-lxa-tac-reduce-RGMII-interface-drive-s.patch \
-  file://patches/0104-net-dsa-microchip-HACK-in-drive-strength-settings-to.patch \
+  file://patches/0101-net-dsa-microchip-make-sure-drive-strength-configura.patch \
+  file://patches/0102-net-bridge-switchdev-Improve-error-message-clarity-f.patch \
+  file://patches/0103-net-dsa-microchip-add-regmap_range-for-KSZ9563-chip.patch \
   "
-# umpf-topic: v6.7/topic/pwm-stm32
-# umpf-hashinfo: d11fc1b76a295d643d17314df8f3a4c815900e4b
-# umpf-topic-range: 57e0561ea46bf2f20e7f4d47012c5257ba2e7bf7..7963e1ff8ebe30574ac8065e51490d239500dc6f
+# umpf-topic: v6.8/topic/mmc-fix
+# umpf-hashinfo: 828f8f71f7ffdfff2298b08fb840232dec3a9fad
+# umpf-topic-range: f7fee7ab4b141f28acda48eff1dd8f2c80b2bfae..27dbef9799e218300fd3f8843edcd24a91a258be
 SRC_URI += "\
-  file://patches/0201-pwm-stm32-Replace-write_ccrx-with-regmap_write.patch \
-  file://patches/0202-pwm-stm32-Make-ch-parameter-unsigned.patch \
-  file://patches/0203-pwm-stm32-Use-hweight32-in-stm32_pwm_detect_channels.patch \
-  file://patches/0204-pwm-stm32-Implement-.get_state.patch \
-  file://patches/0205-pwm-stm32-Fix-enable-count-for-clk-in-.probe.patch \
+  file://patches/0201-mmc-core-block.c-initialize-mmc_blk_ioc_data.patch \
+  file://patches/0202-mmc-core-block.c-avoid-negative-index-with-array-acc.patch \
   "
-# umpf-topic: v6.7/topic/tty-trigger
-# umpf-hashinfo: 6c436e04db10c52d628131d3645ed0e98e8609b7
-# umpf-topic-range: 7963e1ff8ebe30574ac8065e51490d239500dc6f..d71d5e0c446248c3e62f4f719f618870402bdfac
+# umpf-topic: v6.8/customers/lxa/lxatac
+# umpf-hashinfo: fda5ce9210c0279e8902f12179f2c00f9f214653
+# umpf-topic-range: 27dbef9799e218300fd3f8843edcd24a91a258be..d8efdb1b43b959f3358bfe44d9017053db3dbf6c
 SRC_URI += "\
-  file://patches/0301-tty-add-new-helper-function-tty_get_tiocm.patch \
-  file://patches/0302-leds-ledtrig-tty-Free-allocated-ttyname-buffer-on-de.patch \
-  file://patches/0303-leds-ledtrig-tty-Replace-mutex-with-completion.patch \
-  file://patches/0304-leds-ledtrig-tty-Make-rx-tx-activitate-configurable.patch \
-  file://patches/0305-leds-ledtrig-tty-Add-additional-line-state-evaluatio.patch \
+  file://patches/0301-ARM-dts-stm32-lxa-tac-adjust-USB-gadget-fifo-sizes-f.patch \
+  file://patches/0302-ARM-dts-stm32-lxa-tac-drive-powerboard-lines-as-open.patch \
+  file://patches/0303-ARM-dts-stm32-lxa-tac-reduce-RGMII-interface-drive-s.patch \
   "
-# umpf-release: 6.7/customers/lxa/lxatac/20240213-1
-# umpf-topic-range: d71d5e0c446248c3e62f4f719f618870402bdfac..4ea732c93541a067022a4c74cfe3586084fd96ee
+# umpf-release: 6.8/customers/lxa/lxatac/20240321-1
+# umpf-topic-range: d8efdb1b43b959f3358bfe44d9017053db3dbf6c..f6bb1566d4d8ec6c3d634740e665aea78a466bd6
 SRC_URI += "\
-  file://patches/0401-Release-6.7-customers-lxa-lxatac-20240213-1.patch \
+  file://patches/0401-Release-6.8-customers-lxa-lxatac-20240321-1.patch \
   "
+UMPF_BASE = "6.8"
+UMPF_VERSION = "20240321-1"
+PV = "${UMPF_BASE}-${UMPF_VERSION}"
+LINUX_VERSION = "${UMPF_BASE}"
 # umpf-end
