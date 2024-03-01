@@ -5,23 +5,24 @@ SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-PV = "6.7"
-
-SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${PV}.tar.xz \
+SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_VERSION}.tar.xz \
            file://defconfig \
            "
 
-SRC_URI[sha256sum] = "ef31144a2576d080d8c31698e83ec9f66bf97c677fa2aaf0d5bbb9f3345b1069"
+SRC_URI[sha256sum] = "c969dea4e8bb6be991bbf7c010ba0e0a5643a3a8d8fb0a2aaa053406f1e965f3"
 
 require files/patches/series.inc
 
-S = "${WORKDIR}/linux-${PV}"
+S = "${WORKDIR}/linux-${LINUX_VERSION}"
 
 COMPATIBLE_MACHINE = "lxatac"
 
 RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""
 
 DEPENDS:append = " panel-shineworld-lh133k"
+
+# Some options depend on CONFIG_PAHOLE_VERSION, so need to make pahole-native available before do_kernel_configme
+do_kernel_configme[depends] += "pahole-native:do_populate_sysroot"
 
 do_copy_fw() {
     mkdir -p ${S}/firmware/
