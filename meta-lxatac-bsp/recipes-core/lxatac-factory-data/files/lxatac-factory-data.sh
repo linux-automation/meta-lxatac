@@ -11,14 +11,14 @@ DST_LINK_FILE_BASE="/run/systemd/network/"
 mkdir -p "${DST_ENVS_BASE}"
 mkdir -p "${DST_LINK_FILE_BASE}"
 
-# Set the static hostname if it is not set yet
-# (The transient hostname is passed via systemd.hostname= commandline)
-# --------------------------------------------------------------------
+# If no hostname is set yet persist the one we currently have.
+# The hostname is passed in from the bootloader via the
+# systemd.hostname= kernel commandline and interpreted by init.
+# -------------------------------------------------------------
 
 if [[ ! -e /etc/hostname ]]
 then
-    hostname="$(hostnamectl --transient hostname)"
-    hostnamectl --static hostname "${hostname}"
+    hostname > /etc/hostname
 fi
 
 # Read Factory Data passed to us by barebox via the devicetree
@@ -67,4 +67,3 @@ OriginalName=tac-bridge
 MACAddress=${MAC_BRIDGE}
 MACAddressPolicy=none
 EOF
-
