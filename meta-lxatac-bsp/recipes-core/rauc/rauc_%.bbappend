@@ -1,8 +1,8 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-RDEPENDS:${PN}:append = "e2fsprogs-resize2fs"
+RDEPENDS:${PN} += "e2fsprogs-resize2fs"
 
-SRC_URI:append = " \
+SRC_URI += " \
     file://require-mount-srv.conf \
     "
 

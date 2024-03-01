@@ -1,9 +1,9 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-DEPENDS:append = "openssl-native"
-RDEPENDS:${PN}:append = "bash"
+DEPENDS += "openssl-native"
+RDEPENDS:${PN} += "bash"
 
-SRC_URI:append = " \
+SRC_URI += " \
     file://rauc-disable-cert.sh \
     file://rauc-enable-cert.sh \
     file://devel.cert.pem \
