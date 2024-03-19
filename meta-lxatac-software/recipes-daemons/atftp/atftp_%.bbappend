@@ -10,7 +10,7 @@ do_install:append() {
     rmdir ${D}/srv/tftp ${D}/srv
 
     install -D -m 0644 ${S}/../create-dir.conf \
-        ${D}${systemd_unitdir}/system/atftpd.service.d/create-dir.conf
+        ${D}${systemd_system_unitdir}/atftpd.service.d/create-dir.conf
 }
 
-FILES:${PN}d += "${systemd_unitdir}/system/atftpd.service.d"
+FILES:${PN}d += "${systemd_system_unitdir}/atftpd.service.d"
