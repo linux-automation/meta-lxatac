@@ -2,8 +2,7 @@ DEPENDS = "panel-mipi-dbi-native"
 
 PANEL_FIRMWARE_BIN ?= "${@d.getVar('PANEL_FIRMWARE').removesuffix('.txt')}.bin"
 
-do_configure () {
-}
+do_configure[noexec] = "1"
 
 do_compile () {
     mipi-dbi-cmd \
