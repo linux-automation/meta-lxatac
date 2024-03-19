@@ -7,7 +7,7 @@ SRC_URI += "file://hook.sh"
 
 RAUC_BUNDLE_FORMAT = "verity"
 
-RAUC_BUNDLE_COMPATIBLE ?= "Linux Automation GmbH - LXA TAC"
+RAUC_BUNDLE_COMPATIBLE = "Linux Automation GmbH - LXA TAC"
 
 RAUC_BUNDLE_VERSION = "${DISTRO_VERSION}-${DATETIME}"
 RAUC_BUNDLE_VERSION[vardepsexclude] = "DATETIME"
