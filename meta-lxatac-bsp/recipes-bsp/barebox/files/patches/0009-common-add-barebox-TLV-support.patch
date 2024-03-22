@@ -31,10 +31,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 include/tlv/tlv.h
 
 diff --git a/common/Kconfig b/common/Kconfig
-index f0d37018cb67..4dfc58f3fbff 100644
+index e25131b74198..c3d8eeabf63d 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1012,6 +1012,30 @@ config BTHREAD
+@@ -1014,6 +1014,30 @@ config BTHREAD
  	  scheduled within delay loops and the console idle to asynchronously
  	  execute actions, like checking for link up or feeding a watchdog.
  
@@ -66,7 +66,7 @@ index f0d37018cb67..4dfc58f3fbff 100644
  	bool "generic state infrastructure"
  	select CRC32
 diff --git a/common/Makefile b/common/Makefile
-index 7fb864f61480..643daba600a9 100644
+index 74ef8b7d8af2..08c38eaff358 100644
 --- a/common/Makefile
 +++ b/common/Makefile
 @@ -65,6 +65,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o

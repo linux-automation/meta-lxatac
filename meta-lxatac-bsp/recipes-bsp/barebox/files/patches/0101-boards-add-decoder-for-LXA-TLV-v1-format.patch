@@ -21,27 +21,27 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 common/boards/lxa/factory-data.c
 
 diff --git a/common/boards/Kconfig b/common/boards/Kconfig
-index a1d87c02158f..8c1dd928879a 100644
+index fe3a60d50879..7054a18007b8 100644
 --- a/common/boards/Kconfig
 +++ b/common/boards/Kconfig
-@@ -10,3 +10,8 @@ config BOARD_PHYTEC_SOM_DETECTION
- config BOARD_PHYTEC_SOM_IMX8M_DETECTION
+@@ -13,3 +13,8 @@ config BOARD_PHYTEC_SOM_IMX8M_DETECTION
+ 
+ config BOARD_TQ
  	bool
- 	select BOARD_PHYTEC_SOM_DETECTION
 +
 +config BOARD_LXA
 +	bool "LXA common board support" if COMPILE_TEST
 +	select TLV
 +	select TLV_BAREBOX
 diff --git a/common/boards/Makefile b/common/boards/Makefile
-index c1e1b78df383..f10d2e849838 100644
+index 147c36643d2b..4f30be78dce9 100644
 --- a/common/boards/Makefile
 +++ b/common/boards/Makefile
-@@ -2,3 +2,4 @@
- 
+@@ -3,3 +3,4 @@
  obj-$(CONFIG_BOARD_QEMU_VIRT)	+= qemu-virt/
  obj-$(CONFIG_BOARD_PHYTEC_SOM_DETECTION) += phytec/
-+obj-$(CONFIG_BOARD_LXA)		+= lxa/
+ obj-$(CONFIG_BOARD_TQ) += tq/
++obj-$(CONFIG_BOARD_LXA) += lxa/
 diff --git a/common/boards/include/boards/lxa/tlv.h b/common/boards/include/boards/lxa/tlv.h
 new file mode 100644
 index 000000000000..7b4222de43d0
