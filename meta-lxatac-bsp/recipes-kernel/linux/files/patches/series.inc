@@ -1,6 +1,6 @@
 # umpf-base: v6.8
 # umpf-name: 6.8/customers/lxa/lxatac
-# umpf-version: 6.8/customers/lxa/lxatac/20240321-1
+# umpf-version: 6.8/customers/lxa/lxatac/20240326-2
 # umpf-topic: v6.8/topic/reproducible-build
 # umpf-hashinfo: f6d939fc20195e315035607c0c72d358f0bb73e3
 # umpf-topic-range: e8f897f4afef0031fe618a8e94127a0934896aba..8ad3d577c03c3e815d8a493f94f9762b74a6b3c6
@@ -25,20 +25,21 @@ SRC_URI += "\
   file://patches/0202-mmc-core-block.c-avoid-negative-index-with-array-acc.patch \
   "
 # umpf-topic: v6.8/customers/lxa/lxatac
-# umpf-hashinfo: fda5ce9210c0279e8902f12179f2c00f9f214653
-# umpf-topic-range: 27dbef9799e218300fd3f8843edcd24a91a258be..d8efdb1b43b959f3358bfe44d9017053db3dbf6c
+# umpf-hashinfo: b7d99b8a22130c95b0c6d25d6fb0d4f72bf8322e
+# umpf-topic-range: 27dbef9799e218300fd3f8843edcd24a91a258be..4e9a5adc75192e01956a7c0a789fa41ec8d0e8dc
 SRC_URI += "\
   file://patches/0301-ARM-dts-stm32-lxa-tac-adjust-USB-gadget-fifo-sizes-f.patch \
   file://patches/0302-ARM-dts-stm32-lxa-tac-drive-powerboard-lines-as-open.patch \
   file://patches/0303-ARM-dts-stm32-lxa-tac-reduce-RGMII-interface-drive-s.patch \
+  file://patches/0304-ARM-dts-stm32-lxa-tac-Add-support-for-generation-3-d.patch \
   "
-# umpf-release: 6.8/customers/lxa/lxatac/20240321-1
-# umpf-topic-range: d8efdb1b43b959f3358bfe44d9017053db3dbf6c..f6bb1566d4d8ec6c3d634740e665aea78a466bd6
+# umpf-release: 6.8/customers/lxa/lxatac/20240326-2
+# umpf-topic-range: 4e9a5adc75192e01956a7c0a789fa41ec8d0e8dc..75da87325056688fe6eb52cd116960aa3e716886
 SRC_URI += "\
-  file://patches/0401-Release-6.8-customers-lxa-lxatac-20240321-1.patch \
+  file://patches/0401-Release-6.8-customers-lxa-lxatac-20240326-2.patch \
   "
 UMPF_BASE = "6.8"
-UMPF_VERSION = "20240321-1"
+UMPF_VERSION = "20240326-2"
 PV = "${UMPF_BASE}-${UMPF_VERSION}"
 LINUX_VERSION = "${UMPF_BASE}"
 # umpf-end
