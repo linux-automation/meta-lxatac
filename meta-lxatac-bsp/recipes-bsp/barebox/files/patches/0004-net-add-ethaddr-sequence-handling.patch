@@ -19,11 +19,11 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  1 file changed, 20 insertions(+)
 
 diff --git a/include/net.h b/include/net.h
-index b7cbab7d720a..512046755781 100644
+index ffc1093ae6e7..a569fdcf470f 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -452,6 +452,26 @@ static inline int is_valid_ether_addr(const u8 *addr)
- 	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
+@@ -520,6 +520,26 @@ static inline void eth_addr_add(u8 *addr, long offset)
+ 	u64_to_ether_addr(u, addr);
  }
  
 +#define for_each_seq_ethaddr(eth_addr, eth_base, eth_count) \

@@ -10,30 +10,38 @@ used in a follow up commit.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 ---
- include/net.h |  1 +
- net/lib.c     | 10 ++++++++++
- 2 files changed, 11 insertions(+)
+ include/net.h |  2 ++
+ net/lib.c     | 17 +++++++++++++++++
+ 2 files changed, 19 insertions(+)
 
 diff --git a/include/net.h b/include/net.h
-index eab0699b2e14..3228b17056fd 100644
+index 0ec2519e2eff..728684b56646 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -375,6 +375,7 @@ int setenv_ip(const char *name, IPaddr_t ip);
+@@ -370,6 +370,8 @@ IPaddr_t getenv_ip(const char *name);
+ int setenv_ip(const char *name, IPaddr_t ip);
  
  int string_to_ethaddr(const char *str, u8 enetaddr[6]);
- void ethaddr_to_string(const u8 enetaddr[6], char *str);
++void ethaddr_to_string(const u8 enetaddr[6], char *str);
 +int ethaddr_string_cmp(const u8 enetaddr_a[6], const char *str_b);
  
  #ifdef CONFIG_NET_RESOLV
  int resolv(const char *host, IPaddr_t *ip);
 diff --git a/net/lib.c b/net/lib.c
-index d4536441bd71..59bd4c280caf 100644
+index dc6e138f392c..59bd4c280caf 100644
 --- a/net/lib.c
 +++ b/net/lib.c
-@@ -44,6 +44,16 @@ void ethaddr_to_string(const u8 enetaddr[ETH_ALEN], char *str)
- 		 enetaddr[4], enetaddr[5]);
+@@ -37,6 +37,23 @@ int string_to_ethaddr(const char *str, u8 enetaddr[ETH_ALEN])
+ 	return 0;
  }
  
++void ethaddr_to_string(const u8 enetaddr[ETH_ALEN], char *str)
++{
++	sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x",
++		 enetaddr[0], enetaddr[1], enetaddr[2], enetaddr[3],
++		 enetaddr[4], enetaddr[5]);
++}
++
 +int ethaddr_string_cmp(const u8 enetaddr_a[ETH_ALEN], const char *str_b)
 +{
 +	u8 enetaddr_b[ETH_ALEN];

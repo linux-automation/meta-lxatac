@@ -21,12 +21,12 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 common/boards/lxa/factory-data.c
 
 diff --git a/common/boards/Kconfig b/common/boards/Kconfig
-index e27273b7671d..088940941fdb 100644
+index fe3a60d50879..7054a18007b8 100644
 --- a/common/boards/Kconfig
 +++ b/common/boards/Kconfig
-@@ -2,3 +2,8 @@
+@@ -13,3 +13,8 @@ config BOARD_PHYTEC_SOM_IMX8M_DETECTION
  
- config BOARD_QEMU_VIRT
+ config BOARD_TQ
  	bool
 +
 +config BOARD_LXA
@@ -34,14 +34,14 @@ index e27273b7671d..088940941fdb 100644
 +	select TLV
 +	select TLV_BAREBOX
 diff --git a/common/boards/Makefile b/common/boards/Makefile
-index 5b4e429c13e9..33eb8a84cae0 100644
+index 147c36643d2b..4f30be78dce9 100644
 --- a/common/boards/Makefile
 +++ b/common/boards/Makefile
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
- 
+@@ -3,3 +3,4 @@
  obj-$(CONFIG_BOARD_QEMU_VIRT)	+= qemu-virt/
-+obj-$(CONFIG_BOARD_LXA)		+= lxa/
+ obj-$(CONFIG_BOARD_PHYTEC_SOM_DETECTION) += phytec/
+ obj-$(CONFIG_BOARD_TQ) += tq/
++obj-$(CONFIG_BOARD_LXA) += lxa/
 diff --git a/common/boards/include/boards/lxa/tlv.h b/common/boards/include/boards/lxa/tlv.h
 new file mode 100644
 index 000000000000..7b4222de43d0
@@ -175,7 +175,7 @@ index 000000000000..70ddbc734613
 +	return tlv_register_decoder(&lxa_tlv_powerboard_v1);
 +}
 diff --git a/include/string.h b/include/string.h
-index 14f404ef1691..11604c463ea4 100644
+index 13eebc811aae..785437ee59a7 100644
 --- a/include/string.h
 +++ b/include/string.h
 @@ -10,6 +10,8 @@ char *strsep_unescaped(char **, const char *);
@@ -201,10 +201,10 @@ index a32ec917a434..33f5c30a4beb 100644
  #define TLV_IS_VENDOR_SPECIFIC(val)	((*(u8 *)&(val) & 0x80) == 0x80)
  #define TLV_IS_GENERIC(val)		((*(u8 *)&(val) & 0x80) != 0x80)
 diff --git a/lib/string.c b/lib/string.c
-index 005f4532bb3b..b0d334a1a86b 100644
+index bf0f0455ab3f..bcfba154082f 100644
 --- a/lib/string.c
 +++ b/lib/string.c
-@@ -734,6 +734,27 @@ void *memchr(const void *s, int c, size_t n)
+@@ -791,6 +791,27 @@ void *memchr(const void *s, int c, size_t n)
  #endif
  EXPORT_SYMBOL(memchr);
  

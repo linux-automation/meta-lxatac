@@ -21,10 +21,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 34 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/of/of_path.c b/drivers/of/of_path.c
-index 1268cf36ee5b..ca656edd6f56 100644
+index 12a2dfce553e..522109c17b55 100644
 --- a/drivers/of/of_path.c
 +++ b/drivers/of/of_path.c
-@@ -223,7 +223,11 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
+@@ -254,7 +254,11 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
   * @outpath: if this function returns 0 outpath will contain the path belonging
   *           to the input path description. Must be freed with free().
   * @flags: use OF_FIND_PATH_FLAGS_BB to return the .bb device if available
@@ -36,7 +36,7 @@ index 1268cf36ee5b..ca656edd6f56 100644
   * paths in the devicetree have the form of a multistring property. The first
   * string contains the full path to the physical device containing the path or
   * a full path to a partition described by the OF partition binding.
-@@ -239,29 +243,40 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
+@@ -270,29 +274,40 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
   * device-path = &mmc0, "partname:0";
   * device-path = &norflash, "partname:barebox-environment";
   * device-path = &environment_nor;
@@ -95,10 +95,10 @@ index 1268cf36ee5b..ca656edd6f56 100644
  	}
  
 diff --git a/include/of.h b/include/of.h
-index 6d0aca0102c6..804965bd4346 100644
+index 19b8e7c038a4..51ad5773007b 100644
 --- a/include/of.h
 +++ b/include/of.h
-@@ -324,7 +324,8 @@ int of_add_memory(struct device_node *node, bool dump);
+@@ -336,7 +336,8 @@ int of_add_memory(struct device_node *node, bool dump);
  int of_add_memory_bank(struct device_node *node, bool dump, int r,
  		u64 base, u64 size);
  struct device *of_find_device_by_node_path(const char *path);
@@ -106,5 +106,5 @@ index 6d0aca0102c6..804965bd4346 100644
 +#define OF_FIND_PATH_FLAGS_BB		0x01	/* return .bb device if available */
 +#define OF_FIND_PATH_FLAGS_PHANDLE0	0x10	/* parse phandle instead of string */
  int of_find_path(struct device_node *node, const char *propname, char **outpath, unsigned flags);
+ struct cdev *of_cdev_find(struct device_node *node);
  int of_find_path_by_node(struct device_node *node, char **outpath, unsigned flags);
- struct device_node *of_find_node_by_devpath(struct device_node *root, const char *path);

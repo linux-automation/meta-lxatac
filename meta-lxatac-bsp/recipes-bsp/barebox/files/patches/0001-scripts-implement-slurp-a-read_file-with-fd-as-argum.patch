@@ -12,7 +12,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 30 insertions(+)
 
 diff --git a/scripts/common.c b/scripts/common.c
-index e2c53c5aef71..e9a935efa33b 100644
+index 49c468a1ea35..5d47efd197f9 100644
 --- a/scripts/common.c
 +++ b/scripts/common.c
 @@ -97,6 +97,35 @@ void *read_file(const char *filename, size_t *size)

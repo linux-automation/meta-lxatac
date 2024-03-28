@@ -486,6 +486,11 @@ Next you can upload the required pieces of software:
     # Nothing is being flashed permanently yet.
     $ dfu-util --alt 3 -D emmc-boot-image-lxatac.fip
 
+    # Start a fastboot command in the background that disables the watchdog
+    # once the LXA TAC shows up as fastboot device.
+    # This also stops the automatic boot process.
+    $ fastboot oem exec "wd -x" &
+
     # Exit the USB Boot mode. The TF-A will run and jump into the Barebox in
     # RAM.
     $ dfu-util --alt 0 -e
@@ -500,9 +505,11 @@ Next you can upload the required pieces of software:
     # This will overwrite the data you've stored there.
     $ fastboot flash mmc emmc-image-lxatac.simg
 
+    # Boot the newly flashed root filesystem
+    $ fastboot oem exec boot root-a
 
-You are now done flashing the LXA TAC and can remove the pull-down on `BT1`
-and power cycle it to boot into your newly flashed image.
+The LXA TAC should now boot into the newly flashed image.
+Once that is done you can remove the pull-down on `BT1`.
 
 #### Troubleshooting
 
@@ -522,16 +529,6 @@ show up on the host. Otherwise there might be something wrong with the USB-C cab
 If `fastboot` sits idle `< waiting for any device >`, this can be an error with
 the permissions on the USB device. Any easy check for this is to run `fastboot`
 as `root` using e.g. `sudo`.
-
-##### The TAC disconnects during fastboot
-
-This can happen when the watchdog timer is set up in the barebox bootloader
-loaded into RAM via `dfu-util`.
-To prevent the TAC from rebooting during fastboot connect to the barebox
-console via the debug UART adapter / the USB console provided by barebox
-and execute `wd -x` on the shell. E.g.:
-
-    barebox@Linux Automation Test Automation Controller (TAC):/ wd -x
 
 Contributing
 ------------
