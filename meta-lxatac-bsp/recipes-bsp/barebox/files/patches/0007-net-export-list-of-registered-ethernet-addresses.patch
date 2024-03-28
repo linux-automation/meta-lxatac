@@ -24,10 +24,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 11 insertions(+), 9 deletions(-)
 
 diff --git a/include/net.h b/include/net.h
-index 23afee4e6b68..eab0699b2e14 100644
+index 7e2d0a0168f0..bdbaa65d0080 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -559,6 +559,15 @@ void ifdown_all(void);
+@@ -627,6 +627,15 @@ void ifdown_all(void);
  
  extern struct list_head netdev_list;
  

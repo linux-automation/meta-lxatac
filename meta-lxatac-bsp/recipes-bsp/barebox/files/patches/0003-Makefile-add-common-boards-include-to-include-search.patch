@@ -11,10 +11,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  1 file changed, 1 insertion(+)
 
 diff --git a/Makefile b/Makefile
-index af7af91112be..ae44cbe003d0 100644
+index dc22ea546428..c513a8742504 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -436,6 +436,7 @@ LINUXINCLUDE    := -Iinclude \
+@@ -445,6 +445,7 @@ LINUXINCLUDE    := -Iinclude \
                     -I$(srctree)/dts/include \
  		   -I$(srctree)/arch/$(SRCARCH)/include \
  		   -I$(objtree)/arch/$(SRCARCH)/include \

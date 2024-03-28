@@ -14,10 +14,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 commands/tlv.c
 
 diff --git a/commands/Kconfig b/commands/Kconfig
-index ec15f4e543bf..d7677b49edc5 100644
+index c1bba22443e6..53219f88eb57 100644
 --- a/commands/Kconfig
 +++ b/commands/Kconfig
-@@ -2324,6 +2324,18 @@ config CMD_STATE
+@@ -2375,6 +2375,18 @@ config CMD_STATE
  	depends on STATE
  	prompt "state"
  
@@ -37,10 +37,10 @@ index ec15f4e543bf..d7677b49edc5 100644
  	bool
  	prompt "dhrystone"
 diff --git a/commands/Makefile b/commands/Makefile
-index cac1d4f2535b..19a9d00e8660 100644
+index 4924755500e3..3ff5ed1ae7ca 100644
 --- a/commands/Makefile
 +++ b/commands/Makefile
-@@ -129,6 +129,7 @@ obj-$(CONFIG_CMD_CMP)		+= cmp.o
+@@ -132,6 +132,7 @@ obj-$(CONFIG_CMD_CMP)		+= cmp.o
  obj-$(CONFIG_CMD_NV)		+= nv.o
  obj-$(CONFIG_CMD_DEFAULTENV)	+= defaultenv.o
  obj-$(CONFIG_CMD_STATE)		+= state.o

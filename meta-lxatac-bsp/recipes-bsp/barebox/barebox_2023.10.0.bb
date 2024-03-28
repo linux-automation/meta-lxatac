@@ -6,9 +6,11 @@ SRC_URI += " \
 "
 require files/patches/series.inc
 
-SRC_URI[sha256sum] = "d0f78a69ba240327247c8fd0e1d45287e4a0dff99ed847e9a696cc2da0cf388c"
+SRC_URI[sha256sum] = "07823aa3cdc083087788a1cccded99a15a250746e259c2ff905dc48f8d9f409a"
 
 COMPATIBLE_MACHINE = "lxatac"
+
+BAREBOX_IMAGES = "*.stm32"
 
 # barebox DTs are needed in the FIP image, so deploy all built DTs as barebox-*.dtb
 BAREBOX_DTBS_TO_DEPLOY = "arch/arm/dts/*.dtb"
