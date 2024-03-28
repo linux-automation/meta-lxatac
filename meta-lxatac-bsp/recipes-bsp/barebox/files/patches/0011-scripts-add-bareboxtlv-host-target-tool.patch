@@ -19,11 +19,11 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  scripts/.gitignore                |   2 +
  scripts/Makefile                  |   2 +
  scripts/bareboxtlv-target.c       |   1 +
- scripts/bareboxtlv.c              | 184 ++++++++++++++++++++++++++++++++++++++
+ scripts/bareboxtlv.c              | 183 ++++++++++++++++++++++++++++++++++++++
  scripts/include/asm/unaligned.h   |  21 +++++
  scripts/include/linux/build_bug.h |   8 ++
  scripts/include/linux/stringify.h |  14 +++
- 7 files changed, 232 insertions(+)
+ 7 files changed, 231 insertions(+)
  create mode 100644 scripts/bareboxtlv-target.c
  create mode 100644 scripts/bareboxtlv.c
  create mode 100644 scripts/include/asm/unaligned.h
@@ -31,10 +31,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 scripts/include/linux/stringify.h
 
 diff --git a/scripts/.gitignore b/scripts/.gitignore
-index f78793eab7da..27363bface3b 100644
+index 8c653d184f5f..e34ff994874b 100644
 --- a/scripts/.gitignore
 +++ b/scripts/.gitignore
-@@ -22,6 +22,8 @@ bareboxenv-target
+@@ -20,6 +20,8 @@ bareboxenv-target
  kernel-install-target
  bareboxcrc32-target
  bareboximd-target
@@ -44,18 +44,18 @@ index f78793eab7da..27363bface3b 100644
  mxsimage
  mxsboot
 diff --git a/scripts/Makefile b/scripts/Makefile
-index 39d71d4e994e..09173ba94725 100644
+index cb1d916439b7..2c6ed9254a36 100644
 --- a/scripts/Makefile
 +++ b/scripts/Makefile
-@@ -11,6 +11,7 @@ hostprogs-always-y					+= bareboxenv
+@@ -10,6 +10,7 @@ hostprogs-always-y					+= bareboxenv
  hostprogs-always-y					+= bareboxcrc32
  hostprogs-always-y					+= kernel-install
  hostprogs-always-$(CONFIG_QOICONV)			+= qoiconv
 +hostprogs-always-$(CONFIG_TLV)				+= bareboxtlv
- hostprogs-always-$(CONFIG_CRYPTO_RSA_BUILTIN_KEYS)	+= rsatoc
- HOSTCFLAGS_rsatoc = `pkg-config --cflags openssl`
- HOSTLDLIBS_rsatoc = `pkg-config --libs openssl`
-@@ -44,6 +45,7 @@ HOSTLDLIBS_rk-usb-loader  = `pkg-config --libs libusb-1.0`
+ hostprogs-always-$(CONFIG_RSATOC)			+= rsatoc
+ HOSTCFLAGS_rsatoc.o = `$(PKG_CONFIG) --cflags openssl`
+ HOSTLDLIBS_rsatoc = `$(PKG_CONFIG) --libs openssl`
+@@ -44,6 +45,7 @@ HOSTLDLIBS_rk-usb-loader  = `$(PKG_CONFIG) --libs libusb-1.0`
  hostprogs-always-$(CONFIG_RK_USB_LOADER)		+= rk-usb-loader
  
  userprogs-always-$(CONFIG_BAREBOXENV_TARGET)		+= bareboxenv-target
@@ -72,10 +72,10 @@ index 000000000000..52437edef634
 +#include "bareboxtlv.c"
 diff --git a/scripts/bareboxtlv.c b/scripts/bareboxtlv.c
 new file mode 100644
-index 000000000000..eca430104af9
+index 000000000000..0aabb1175f10
 --- /dev/null
 +++ b/scripts/bareboxtlv.c
-@@ -0,0 +1,184 @@
+@@ -0,0 +1,183 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +// SPDX-FileCopyrightText: 2021 Ahmad Fatoum, Pengutronix
 +
@@ -225,8 +225,7 @@ index 000000000000..eca430104af9
 +			if (ret < 0)
 +				goto out;
 +		}
-+		if (ret >= 0)
-+			ret = write_full_verbose(1, p, size);
++		ret = write_full_verbose(1, p, size);
 +		if (ret < 0)
 +			goto out;
 +	}
