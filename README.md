@@ -43,7 +43,7 @@ how to build fully-custom images for your LXA TAC.
 Building the image as-is
 ------------------------
 
-This chapter describes building rougly the same RAUC bundles as the ones
+This chapter describes building roughly the same RAUC bundles as the ones
 available from the official mirror mentioned above.
 
 > The image building process will compile a lot of software from source code,

@@ -10,6 +10,7 @@ SRC_URI[sha256sum] = "d0f78a69ba240327247c8fd0e1d45287e4a0dff99ed847e9a696cc2da0
 
 COMPATIBLE_MACHINE = "lxatac"
 
+# barebox DTs are needed in the FIP image, so deploy all built DTs as barebox-*.dtb
 BAREBOX_DTBS_TO_DEPLOY = "arch/arm/dts/*.dtb"
 
 do_deploy:append () {
