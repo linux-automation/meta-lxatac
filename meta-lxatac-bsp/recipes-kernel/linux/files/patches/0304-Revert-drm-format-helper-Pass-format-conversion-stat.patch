@@ -1,0 +1,1283 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Thu, 28 Mar 2024 10:33:15 +0100
+Subject: [PATCH] Revert "drm/format-helper: Pass format-conversion state to
+ helpers"
+
+This reverts commit 4cd24d4b1a9548f42cdb7f449edc6f869a8ae730.
+---
+ drivers/gpu/drm/drm_format_helper.c            | 123 +++++++++++--------------
+ drivers/gpu/drm/drm_mipi_dbi.c                 |  19 ++--
+ drivers/gpu/drm/gud/gud_pipe.c                 |  30 +++---
+ drivers/gpu/drm/solomon/ssd130x.c              |  16 ++--
+ drivers/gpu/drm/tests/drm_format_helper_test.c |  72 ++++++---------
+ drivers/gpu/drm/tiny/cirrus.c                  |   3 +-
+ drivers/gpu/drm/tiny/ili9225.c                 |  10 +-
+ drivers/gpu/drm/tiny/ofdrm.c                   |   2 +-
+ drivers/gpu/drm/tiny/repaper.c                 |  10 +-
+ drivers/gpu/drm/tiny/simpledrm.c               |   2 +-
+ drivers/gpu/drm/tiny/st7586.c                  |  19 ++--
+ include/drm/drm_format_helper.h                |  30 +++---
+ include/drm/drm_mipi_dbi.h                     |   4 +-
+ 13 files changed, 140 insertions(+), 200 deletions(-)
+
+diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
+index b1be458ed4dd..28d013d42778 100644
+--- a/drivers/gpu/drm/drm_format_helper.c
++++ b/drivers/gpu/drm/drm_format_helper.c
+@@ -223,25 +223,29 @@ static int drm_fb_xfrm(struct iosys_map *dst,
+ 		       const unsigned int *dst_pitch, const u8 *dst_pixsize,
+ 		       const struct iosys_map *src, const struct drm_framebuffer *fb,
+ 		       const struct drm_rect *clip, bool vaddr_cached_hint,
+-		       struct drm_format_conv_state *state,
+ 		       void (*xfrm_line)(void *dbuf, const void *sbuf, unsigned int npixels))
+ {
+ 	static const unsigned int default_dst_pitch[DRM_FORMAT_MAX_PLANES] = {
+ 		0, 0, 0, 0
+ 	};
++	struct drm_format_conv_state fmtcnv_state = DRM_FORMAT_CONV_STATE_INIT;
++	int ret;
+ 
+ 	if (!dst_pitch)
+ 		dst_pitch = default_dst_pitch;
+ 
+ 	/* TODO: handle src in I/O memory here */
+ 	if (dst[0].is_iomem)
+-		return __drm_fb_xfrm_toio(dst[0].vaddr_iomem, dst_pitch[0], dst_pixsize[0],
+-					  src[0].vaddr, fb, clip, vaddr_cached_hint, state,
+-					  xfrm_line);
++		ret = __drm_fb_xfrm_toio(dst[0].vaddr_iomem, dst_pitch[0], dst_pixsize[0],
++					 src[0].vaddr, fb, clip, vaddr_cached_hint, &fmtcnv_state,
++					 xfrm_line);
+ 	else
+-		return __drm_fb_xfrm(dst[0].vaddr, dst_pitch[0], dst_pixsize[0],
+-				     src[0].vaddr, fb, clip, vaddr_cached_hint, state,
+-				     xfrm_line);
++		ret = __drm_fb_xfrm(dst[0].vaddr, dst_pitch[0], dst_pixsize[0],
++				    src[0].vaddr, fb, clip, vaddr_cached_hint, &fmtcnv_state,
++				    xfrm_line);
++	drm_format_conv_state_release(&fmtcnv_state);
++
++	return ret;
+ }
+ 
+ /**
+@@ -327,7 +331,6 @@ static void drm_fb_swab32_line(void *dbuf, const void *sbuf, unsigned int pixels
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+  * @cached: Source buffer is mapped cached (eg. not write-combined)
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and swaps per-pixel
+  * bytes during the process. Destination and framebuffer formats must match. The
+@@ -342,8 +345,7 @@ static void drm_fb_swab32_line(void *dbuf, const void *sbuf, unsigned int pixels
+  */
+ void drm_fb_swab(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 		 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-		 const struct drm_rect *clip, bool cached,
+-		 struct drm_format_conv_state *state)
++		 const struct drm_rect *clip, bool cached)
+ {
+ 	const struct drm_format_info *format = fb->format;
+ 	u8 cpp = DIV_ROUND_UP(drm_format_info_bpp(format, 0), 8);
+@@ -362,7 +364,7 @@ void drm_fb_swab(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 		return;
+ 	}
+ 
+-	drm_fb_xfrm(dst, dst_pitch, &cpp, src, fb, clip, cached, state, swab_line);
++	drm_fb_xfrm(dst, dst_pitch, &cpp, src, fb, clip, cached, swab_line);
+ }
+ EXPORT_SYMBOL(drm_fb_swab);
+ 
+@@ -389,7 +391,6 @@ static void drm_fb_xrgb8888_to_rgb332_line(void *dbuf, const void *sbuf, unsigne
+  * @src: Array of XRGB8888 source buffers
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+  * color format during the process. Destination and framebuffer formats must match. The
+@@ -404,13 +405,13 @@ static void drm_fb_xrgb8888_to_rgb332_line(void *dbuf, const void *sbuf, unsigne
+  */
+ void drm_fb_xrgb8888_to_rgb332(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			       const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			       const struct drm_rect *clip, struct drm_format_conv_state *state)
++			       const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		1,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_rgb332_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb332);
+@@ -459,7 +460,6 @@ static void drm_fb_xrgb8888_to_rgb565_swab_line(void *dbuf, const void *sbuf,
+  * @src: Array of XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  * @swab: Swap bytes
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+@@ -475,8 +475,7 @@ static void drm_fb_xrgb8888_to_rgb565_swab_line(void *dbuf, const void *sbuf,
+  */
+ void drm_fb_xrgb8888_to_rgb565(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			       const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			       const struct drm_rect *clip, struct drm_format_conv_state *state,
+-			       bool swab)
++			       const struct drm_rect *clip, bool swab)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		2,
+@@ -489,7 +488,7 @@ void drm_fb_xrgb8888_to_rgb565(struct iosys_map *dst, const unsigned int *dst_pi
+ 	else
+ 		xfrm_line = drm_fb_xrgb8888_to_rgb565_line;
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state, xfrm_line);
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, xfrm_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
+ 
+@@ -518,7 +517,6 @@ static void drm_fb_xrgb8888_to_xrgb1555_line(void *dbuf, const void *sbuf, unsig
+  * @src: Array of XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts
+  * the color format during the process. The parameters @dst, @dst_pitch and
+@@ -534,13 +532,13 @@ static void drm_fb_xrgb8888_to_xrgb1555_line(void *dbuf, const void *sbuf, unsig
+  */
+ void drm_fb_xrgb8888_to_xrgb1555(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state)
++				 const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		2,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_xrgb1555_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_xrgb1555);
+@@ -571,7 +569,6 @@ static void drm_fb_xrgb8888_to_argb1555_line(void *dbuf, const void *sbuf, unsig
+  * @src: Array of XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts
+  * the color format during the process. The parameters @dst, @dst_pitch and
+@@ -587,13 +584,13 @@ static void drm_fb_xrgb8888_to_argb1555_line(void *dbuf, const void *sbuf, unsig
+  */
+ void drm_fb_xrgb8888_to_argb1555(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state)
++				 const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		2,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_argb1555_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_argb1555);
+@@ -624,7 +621,6 @@ static void drm_fb_xrgb8888_to_rgba5551_line(void *dbuf, const void *sbuf, unsig
+  * @src: Array of XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts
+  * the color format during the process. The parameters @dst, @dst_pitch and
+@@ -640,13 +636,13 @@ static void drm_fb_xrgb8888_to_rgba5551_line(void *dbuf, const void *sbuf, unsig
+  */
+ void drm_fb_xrgb8888_to_rgba5551(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state)
++				 const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		2,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_rgba5551_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgba5551);
+@@ -675,7 +671,6 @@ static void drm_fb_xrgb8888_to_rgb888_line(void *dbuf, const void *sbuf, unsigne
+  * @src: Array of XRGB8888 source buffers
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+  * color format during the process. Destination and framebuffer formats must match. The
+@@ -691,13 +686,13 @@ static void drm_fb_xrgb8888_to_rgb888_line(void *dbuf, const void *sbuf, unsigne
+  */
+ void drm_fb_xrgb8888_to_rgb888(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			       const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			       const struct drm_rect *clip, struct drm_format_conv_state *state)
++			       const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		3,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_rgb888_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888);
+@@ -724,7 +719,6 @@ static void drm_fb_xrgb8888_to_argb8888_line(void *dbuf, const void *sbuf, unsig
+  * @src: Array of XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+  * color format during the process. The parameters @dst, @dst_pitch and @src refer
+@@ -740,13 +734,13 @@ static void drm_fb_xrgb8888_to_argb8888_line(void *dbuf, const void *sbuf, unsig
+  */
+ void drm_fb_xrgb8888_to_argb8888(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state)
++				 const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		4,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_argb8888_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_argb8888);
+@@ -771,14 +765,13 @@ static void drm_fb_xrgb8888_to_abgr8888_line(void *dbuf, const void *sbuf, unsig
+ static void drm_fb_xrgb8888_to_abgr8888(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 					const struct iosys_map *src,
+ 					const struct drm_framebuffer *fb,
+-					const struct drm_rect *clip,
+-					struct drm_format_conv_state *state)
++					const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		4,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_abgr8888_line);
+ }
+ 
+@@ -802,14 +795,13 @@ static void drm_fb_xrgb8888_to_xbgr8888_line(void *dbuf, const void *sbuf, unsig
+ static void drm_fb_xrgb8888_to_xbgr8888(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 					const struct iosys_map *src,
+ 					const struct drm_framebuffer *fb,
+-					const struct drm_rect *clip,
+-					struct drm_format_conv_state *state)
++					const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		4,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_xbgr8888_line);
+ }
+ 
+@@ -839,7 +831,6 @@ static void drm_fb_xrgb8888_to_xrgb2101010_line(void *dbuf, const void *sbuf, un
+  * @src: Array of XRGB8888 source buffers
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+  * color format during the process. Destination and framebuffer formats must match. The
+@@ -855,14 +846,13 @@ static void drm_fb_xrgb8888_to_xrgb2101010_line(void *dbuf, const void *sbuf, un
+  */
+ void drm_fb_xrgb8888_to_xrgb2101010(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				    const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				    const struct drm_rect *clip,
+-				    struct drm_format_conv_state *state)
++				    const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		4,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_xrgb2101010_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_xrgb2101010);
+@@ -894,7 +884,6 @@ static void drm_fb_xrgb8888_to_argb2101010_line(void *dbuf, const void *sbuf, un
+  * @src: Array of XRGB8888 source buffers
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts
+  * the color format during the process. The parameters @dst, @dst_pitch and
+@@ -910,14 +899,13 @@ static void drm_fb_xrgb8888_to_argb2101010_line(void *dbuf, const void *sbuf, un
+  */
+ void drm_fb_xrgb8888_to_argb2101010(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				    const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				    const struct drm_rect *clip,
+-				    struct drm_format_conv_state *state)
++				    const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		4,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_argb2101010_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_argb2101010);
+@@ -947,7 +935,6 @@ static void drm_fb_xrgb8888_to_gray8_line(void *dbuf, const void *sbuf, unsigned
+  * @src: Array of XRGB8888 source buffers
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+  * color format during the process. Destination and framebuffer formats must match. The
+@@ -967,13 +954,13 @@ static void drm_fb_xrgb8888_to_gray8_line(void *dbuf, const void *sbuf, unsigned
+  */
+ void drm_fb_xrgb8888_to_gray8(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			      const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			      const struct drm_rect *clip, struct drm_format_conv_state *state)
++			      const struct drm_rect *clip)
+ {
+ 	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
+ 		1,
+ 	};
+ 
+-	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
++	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false,
+ 		    drm_fb_xrgb8888_to_gray8_line);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_gray8);
+@@ -987,7 +974,6 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_gray8);
+  * @src:	The framebuffer memory to copy from
+  * @fb:		The framebuffer to copy from
+  * @clip:	Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory. If the
+  * formats of the display and the framebuffer mismatch, the blit function
+@@ -1006,7 +992,7 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_gray8);
+  */
+ int drm_fb_blit(struct iosys_map *dst, const unsigned int *dst_pitch, uint32_t dst_format,
+ 		const struct iosys_map *src, const struct drm_framebuffer *fb,
+-		const struct drm_rect *clip, struct drm_format_conv_state *state)
++		const struct drm_rect *clip)
+ {
+ 	uint32_t fb_format = fb->format->format;
+ 
+@@ -1014,44 +1000,44 @@ int drm_fb_blit(struct iosys_map *dst, const unsigned int *dst_pitch, uint32_t d
+ 		drm_fb_memcpy(dst, dst_pitch, src, fb, clip);
+ 		return 0;
+ 	} else if (fb_format == (dst_format | DRM_FORMAT_BIG_ENDIAN)) {
+-		drm_fb_swab(dst, dst_pitch, src, fb, clip, false, state);
++		drm_fb_swab(dst, dst_pitch, src, fb, clip, false);
+ 		return 0;
+ 	} else if (fb_format == (dst_format & ~DRM_FORMAT_BIG_ENDIAN)) {
+-		drm_fb_swab(dst, dst_pitch, src, fb, clip, false, state);
++		drm_fb_swab(dst, dst_pitch, src, fb, clip, false);
+ 		return 0;
+ 	} else if (fb_format == DRM_FORMAT_XRGB8888) {
+ 		if (dst_format == DRM_FORMAT_RGB565) {
+-			drm_fb_xrgb8888_to_rgb565(dst, dst_pitch, src, fb, clip, state, false);
++			drm_fb_xrgb8888_to_rgb565(dst, dst_pitch, src, fb, clip, false);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_XRGB1555) {
+-			drm_fb_xrgb8888_to_xrgb1555(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_xrgb1555(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_ARGB1555) {
+-			drm_fb_xrgb8888_to_argb1555(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_argb1555(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_RGBA5551) {
+-			drm_fb_xrgb8888_to_rgba5551(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_rgba5551(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_RGB888) {
+-			drm_fb_xrgb8888_to_rgb888(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_rgb888(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_ARGB8888) {
+-			drm_fb_xrgb8888_to_argb8888(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_argb8888(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_XBGR8888) {
+-			drm_fb_xrgb8888_to_xbgr8888(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_xbgr8888(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_ABGR8888) {
+-			drm_fb_xrgb8888_to_abgr8888(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_abgr8888(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_XRGB2101010) {
+-			drm_fb_xrgb8888_to_xrgb2101010(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_xrgb2101010(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_ARGB2101010) {
+-			drm_fb_xrgb8888_to_argb2101010(dst, dst_pitch, src, fb, clip, state);
++			drm_fb_xrgb8888_to_argb2101010(dst, dst_pitch, src, fb, clip);
+ 			return 0;
+ 		} else if (dst_format == DRM_FORMAT_BGRX8888) {
+-			drm_fb_swab(dst, dst_pitch, src, fb, clip, false, state);
++			drm_fb_swab(dst, dst_pitch, src, fb, clip, false);
+ 			return 0;
+ 		}
+ 	}
+@@ -1088,7 +1074,6 @@ static void drm_fb_gray8_to_mono_line(void *dbuf, const void *sbuf, unsigned int
+  * @src: Array of XRGB8888 source buffers
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+- * @state: Transform and conversion state
+  *
+  * This function copies parts of a framebuffer to display memory and converts the
+  * color format during the process. Destination and framebuffer formats must match. The
+@@ -1113,7 +1098,7 @@ static void drm_fb_gray8_to_mono_line(void *dbuf, const void *sbuf, unsigned int
+  */
+ void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			     const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			     const struct drm_rect *clip, struct drm_format_conv_state *state)
++			     const struct drm_rect *clip)
+ {
+ 	static const unsigned int default_dst_pitch[DRM_FORMAT_MAX_PLANES] = {
+ 		0, 0, 0, 0
+@@ -1153,7 +1138,7 @@ void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitc
+ 	 * Allocate a buffer to be used for both copying from the cma
+ 	 * memory and to store the intermediate grayscale line pixels.
+ 	 */
+-	src32 = drm_format_conv_state_reserve(state, len_src32 + linepixels, GFP_KERNEL);
++	src32 = kmalloc(len_src32 + linepixels, GFP_KERNEL);
+ 	if (!src32)
+ 		return;
+ 
+@@ -1167,6 +1152,8 @@ void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitc
+ 		vaddr += fb->pitches[0];
+ 		mono += dst_pitch_0;
+ 	}
++
++	kfree(src32);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_mono);
+ 
+diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
+index daac649aabdb..e90f0bf895b3 100644
+--- a/drivers/gpu/drm/drm_mipi_dbi.c
++++ b/drivers/gpu/drm/drm_mipi_dbi.c
+@@ -197,14 +197,12 @@ EXPORT_SYMBOL(mipi_dbi_command_stackbuf);
+  * @fb: The source framebuffer
+  * @clip: Clipping rectangle of the area to be copied
+  * @swap: When true, swap MSB/LSB of 16-bit values
+- * @fmtcnv_state: Format-conversion state
+  *
+  * Returns:
+  * Zero on success, negative error code on failure.
+  */
+ int mipi_dbi_buf_copy(void *dst, struct iosys_map *src, struct drm_framebuffer *fb,
+-		      struct drm_rect *clip, bool swap,
+-		      struct drm_format_conv_state *fmtcnv_state)
++		      struct drm_rect *clip, bool swap)
+ {
+ 	struct drm_gem_object *gem = drm_gem_fb_get_obj(fb, 0);
+ 	struct iosys_map dst_map = IOSYS_MAP_INIT_VADDR(dst);
+@@ -217,13 +215,12 @@ int mipi_dbi_buf_copy(void *dst, struct iosys_map *src, struct drm_framebuffer *
+ 	switch (fb->format->format) {
+ 	case DRM_FORMAT_RGB565:
+ 		if (swap)
+-			drm_fb_swab(&dst_map, NULL, src, fb, clip, !gem->import_attach,
+-				    fmtcnv_state);
++			drm_fb_swab(&dst_map, NULL, src, fb, clip, !gem->import_attach);
+ 		else
+ 			drm_fb_memcpy(&dst_map, NULL, src, fb, clip);
+ 		break;
+ 	case DRM_FORMAT_XRGB8888:
+-		drm_fb_xrgb8888_to_rgb565(&dst_map, NULL, src, fb, clip, fmtcnv_state, swap);
++		drm_fb_xrgb8888_to_rgb565(&dst_map, NULL, src, fb, clip, swap);
+ 		break;
+ 	default:
+ 		drm_err_once(fb->dev, "Format is not supported: %p4cc\n",
+@@ -255,7 +252,7 @@ static void mipi_dbi_set_window_address(struct mipi_dbi_dev *dbidev,
+ }
+ 
+ static void mipi_dbi_fb_dirty(struct iosys_map *src, struct drm_framebuffer *fb,
+-			      struct drm_rect *rect, struct drm_format_conv_state *fmtcnv_state)
++			      struct drm_rect *rect)
+ {
+ 	struct mipi_dbi_dev *dbidev = drm_to_mipi_dbi_dev(fb->dev);
+ 	unsigned int height = rect->y2 - rect->y1;
+@@ -273,7 +270,7 @@ static void mipi_dbi_fb_dirty(struct iosys_map *src, struct drm_framebuffer *fb,
+ 	if (!dbi->dc || !full || swap ||
+ 	    fb->format->format == DRM_FORMAT_XRGB8888) {
+ 		tr = dbidev->tx_buf;
+-		ret = mipi_dbi_buf_copy(tr, src, fb, rect, swap, fmtcnv_state);
++		ret = mipi_dbi_buf_copy(tr, src, fb, rect, swap);
+ 		if (ret)
+ 			goto err_msg;
+ 	} else {
+@@ -335,8 +332,7 @@ void mipi_dbi_pipe_update(struct drm_simple_display_pipe *pipe,
+ 		return;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+-		mipi_dbi_fb_dirty(&shadow_plane_state->data[0], fb, &rect,
+-				  &shadow_plane_state->fmtcnv_state);
++		mipi_dbi_fb_dirty(&shadow_plane_state->data[0], fb, &rect);
+ 
+ 	drm_dev_exit(idx);
+ }
+@@ -372,8 +368,7 @@ void mipi_dbi_enable_flush(struct mipi_dbi_dev *dbidev,
+ 	if (!drm_dev_enter(&dbidev->drm, &idx))
+ 		return;
+ 
+-	mipi_dbi_fb_dirty(&shadow_plane_state->data[0], fb, &rect,
+-			  &shadow_plane_state->fmtcnv_state);
++	mipi_dbi_fb_dirty(&shadow_plane_state->data[0], fb, &rect);
+ 	backlight_enable(dbidev->backlight);
+ 
+ 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/gud/gud_pipe.c b/drivers/gpu/drm/gud/gud_pipe.c
+index e163649816d5..a02f75be81f0 100644
+--- a/drivers/gpu/drm/gud/gud_pipe.c
++++ b/drivers/gpu/drm/gud/gud_pipe.c
+@@ -51,8 +51,7 @@ static bool gud_is_big_endian(void)
+ 
+ static size_t gud_xrgb8888_to_r124(u8 *dst, const struct drm_format_info *format,
+ 				   void *src, struct drm_framebuffer *fb,
+-				   struct drm_rect *rect,
+-				   struct drm_format_conv_state *fmtcnv_state)
++				   struct drm_rect *rect)
+ {
+ 	unsigned int block_width = drm_format_info_block_width(format, 0);
+ 	unsigned int bits_per_pixel = 8 / block_width;
+@@ -76,7 +75,7 @@ static size_t gud_xrgb8888_to_r124(u8 *dst, const struct drm_format_info *format
+ 
+ 	iosys_map_set_vaddr(&dst_map, buf);
+ 	iosys_map_set_vaddr(&vmap, src);
+-	drm_fb_xrgb8888_to_gray8(&dst_map, NULL, &vmap, fb, rect, fmtcnv_state);
++	drm_fb_xrgb8888_to_gray8(&dst_map, NULL, &vmap, fb, rect);
+ 	pix8 = buf;
+ 
+ 	for (y = 0; y < height; y++) {
+@@ -153,8 +152,7 @@ static size_t gud_xrgb8888_to_color(u8 *dst, const struct drm_format_info *forma
+ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 			  const struct iosys_map *src, bool cached_reads,
+ 			  const struct drm_format_info *format, struct drm_rect *rect,
+-			  struct gud_set_buffer_req *req,
+-			  struct drm_format_conv_state *fmtcnv_state)
++			  struct gud_set_buffer_req *req)
+ {
+ 	u8 compression = gdrm->compression;
+ 	struct iosys_map dst;
+@@ -180,23 +178,23 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 	 */
+ 	if (format != fb->format) {
+ 		if (format->format == GUD_DRM_FORMAT_R1) {
+-			len = gud_xrgb8888_to_r124(buf, format, vaddr, fb, rect, fmtcnv_state);
++			len = gud_xrgb8888_to_r124(buf, format, vaddr, fb, rect);
+ 			if (!len)
+ 				return -ENOMEM;
+ 		} else if (format->format == DRM_FORMAT_R8) {
+-			drm_fb_xrgb8888_to_gray8(&dst, NULL, src, fb, rect, fmtcnv_state);
++			drm_fb_xrgb8888_to_gray8(&dst, NULL, src, fb, rect);
+ 		} else if (format->format == DRM_FORMAT_RGB332) {
+-			drm_fb_xrgb8888_to_rgb332(&dst, NULL, src, fb, rect, fmtcnv_state);
++			drm_fb_xrgb8888_to_rgb332(&dst, NULL, src, fb, rect);
+ 		} else if (format->format == DRM_FORMAT_RGB565) {
+-			drm_fb_xrgb8888_to_rgb565(&dst, NULL, src, fb, rect, fmtcnv_state,
++			drm_fb_xrgb8888_to_rgb565(&dst, NULL, src, fb, rect,
+ 						  gud_is_big_endian());
+ 		} else if (format->format == DRM_FORMAT_RGB888) {
+-			drm_fb_xrgb8888_to_rgb888(&dst, NULL, src, fb, rect, fmtcnv_state);
++			drm_fb_xrgb8888_to_rgb888(&dst, NULL, src, fb, rect);
+ 		} else {
+ 			len = gud_xrgb8888_to_color(buf, format, vaddr, fb, rect);
+ 		}
+ 	} else if (gud_is_big_endian() && format->cpp[0] > 1) {
+-		drm_fb_swab(&dst, NULL, src, fb, rect, cached_reads, fmtcnv_state);
++		drm_fb_swab(&dst, NULL, src, fb, rect, cached_reads);
+ 	} else if (compression && cached_reads && pitch == fb->pitches[0]) {
+ 		/* can compress directly from the framebuffer */
+ 		buf = vaddr + rect->y1 * pitch;
+@@ -268,8 +266,7 @@ static int gud_usb_bulk(struct gud_device *gdrm, size_t len)
+ 
+ static int gud_flush_rect(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 			  const struct iosys_map *src, bool cached_reads,
+-			  const struct drm_format_info *format, struct drm_rect *rect,
+-			  struct drm_format_conv_state *fmtcnv_state)
++			  const struct drm_format_info *format, struct drm_rect *rect)
+ {
+ 	struct gud_set_buffer_req req;
+ 	size_t len, trlen;
+@@ -277,7 +274,7 @@ static int gud_flush_rect(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 
+ 	drm_dbg(&gdrm->drm, "Flushing [FB:%d] " DRM_RECT_FMT "\n", fb->base.id, DRM_RECT_ARG(rect));
+ 
+-	ret = gud_prep_flush(gdrm, fb, src, cached_reads, format, rect, &req, fmtcnv_state);
++	ret = gud_prep_flush(gdrm, fb, src, cached_reads, format, rect, &req);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -321,7 +318,6 @@ static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb
+ 			     const struct iosys_map *src, bool cached_reads,
+ 			     struct drm_rect *damage)
+ {
+-	struct drm_format_conv_state fmtcnv_state = DRM_FORMAT_CONV_STATE_INIT;
+ 	const struct drm_format_info *format;
+ 	unsigned int i, lines;
+ 	size_t pitch;
+@@ -344,7 +340,7 @@ static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb
+ 		rect.y1 += i * lines;
+ 		rect.y2 = min_t(u32, rect.y1 + lines, damage->y2);
+ 
+-		ret = gud_flush_rect(gdrm, fb, src, cached_reads, format, &rect, &fmtcnv_state);
++		ret = gud_flush_rect(gdrm, fb, src, cached_reads, format, &rect);
+ 		if (ret) {
+ 			if (ret != -ENODEV && ret != -ECONNRESET &&
+ 			    ret != -ESHUTDOWN && ret != -EPROTO)
+@@ -354,8 +350,6 @@ static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb
+ 			break;
+ 		}
+ 	}
+-
+-	drm_format_conv_state_release(&fmtcnv_state);
+ }
+ 
+ void gud_flush_work(struct work_struct *work)
+diff --git a/drivers/gpu/drm/solomon/ssd130x.c b/drivers/gpu/drm/solomon/ssd130x.c
+index 71ea2076d085..cce043a4a1dc 100644
+--- a/drivers/gpu/drm/solomon/ssd130x.c
++++ b/drivers/gpu/drm/solomon/ssd130x.c
+@@ -808,8 +808,7 @@ static void ssd132x_clear_screen(struct ssd130x_device *ssd130x, u8 *data_array)
+ static int ssd130x_fb_blit_rect(struct drm_framebuffer *fb,
+ 				const struct iosys_map *vmap,
+ 				struct drm_rect *rect,
+-				u8 *buf, u8 *data_array,
+-				struct drm_format_conv_state *fmtcnv_state)
++				u8 *buf, u8 *data_array)
+ {
+ 	struct ssd130x_device *ssd130x = drm_to_ssd130x(fb->dev);
+ 	struct iosys_map dst;
+@@ -827,7 +826,7 @@ static int ssd130x_fb_blit_rect(struct drm_framebuffer *fb,
+ 		return ret;
+ 
+ 	iosys_map_set_vaddr(&dst, buf);
+-	drm_fb_xrgb8888_to_mono(&dst, &dst_pitch, vmap, fb, rect, fmtcnv_state);
++	drm_fb_xrgb8888_to_mono(&dst, &dst_pitch, vmap, fb, rect);
+ 
+ 	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+ 
+@@ -839,8 +838,7 @@ static int ssd130x_fb_blit_rect(struct drm_framebuffer *fb,
+ static int ssd132x_fb_blit_rect(struct drm_framebuffer *fb,
+ 				const struct iosys_map *vmap,
+ 				struct drm_rect *rect, u8 *buf,
+-				u8 *data_array,
+-				struct drm_format_conv_state *fmtcnv_state)
++				u8 *data_array)
+ {
+ 	struct ssd130x_device *ssd130x = drm_to_ssd130x(fb->dev);
+ 	unsigned int dst_pitch = drm_rect_width(rect);
+@@ -857,7 +855,7 @@ static int ssd132x_fb_blit_rect(struct drm_framebuffer *fb,
+ 		return ret;
+ 
+ 	iosys_map_set_vaddr(&dst, buf);
+-	drm_fb_xrgb8888_to_gray8(&dst, &dst_pitch, vmap, fb, rect, fmtcnv_state);
++	drm_fb_xrgb8888_to_gray8(&dst, &dst_pitch, vmap, fb, rect);
+ 
+ 	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+ 
+@@ -970,8 +968,7 @@ static void ssd130x_primary_plane_atomic_update(struct drm_plane *plane,
+ 
+ 		ssd130x_fb_blit_rect(fb, &shadow_plane_state->data[0], &dst_clip,
+ 				     ssd130x_plane_state->buffer,
+-				     ssd130x_crtc_state->data_array,
+-				     &shadow_plane_state->fmtcnv_state);
++				     ssd130x_crtc_state->data_array);
+ 	}
+ 
+ 	drm_dev_exit(idx);
+@@ -1005,8 +1002,7 @@ static void ssd132x_primary_plane_atomic_update(struct drm_plane *plane,
+ 
+ 		ssd132x_fb_blit_rect(fb, &shadow_plane_state->data[0], &dst_clip,
+ 				     ssd130x_plane_state->buffer,
+-				     ssd130x_crtc_state->data_array,
+-				     &shadow_plane_state->fmtcnv_state);
++				     ssd130x_crtc_state->data_array);
+ 	}
+ 
+ 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/tests/drm_format_helper_test.c b/drivers/gpu/drm/tests/drm_format_helper_test.c
+index 08992636ec05..f6408e56f786 100644
+--- a/drivers/gpu/drm/tests/drm_format_helper_test.c
++++ b/drivers/gpu/drm/tests/drm_format_helper_test.c
+@@ -20,10 +20,6 @@
+ 
+ #define TEST_USE_DEFAULT_PITCH 0
+ 
+-static unsigned char fmtcnv_state_mem[PAGE_SIZE];
+-static struct drm_format_conv_state fmtcnv_state =
+-	DRM_FORMAT_CONV_STATE_INIT_PREALLOCATED(fmtcnv_state_mem, sizeof(fmtcnv_state_mem));
+-
+ struct convert_to_gray8_result {
+ 	unsigned int dst_pitch;
+ 	const u8 expected[TEST_BUF_SIZE];
+@@ -634,7 +630,8 @@ static void drm_test_fb_xrgb8888_to_gray8(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_gray8(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_gray8(&dst, dst_pitch, &src, &fb, &params->clip);
++
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ }
+ 
+@@ -667,7 +664,7 @@ static void drm_test_fb_xrgb8888_to_rgb332(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_rgb332(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_rgb332(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ }
+ 
+@@ -700,14 +697,12 @@ static void drm_test_fb_xrgb8888_to_rgb565(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_rgb565(&dst, dst_pitch, &src, &fb, &params->clip,
+-				  &fmtcnv_state, false);
++	drm_fb_xrgb8888_to_rgb565(&dst, dst_pitch, &src, &fb, &params->clip, false);
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+ 	buf = dst.vaddr; /* restore original value of buf */
+-	drm_fb_xrgb8888_to_rgb565(&dst, &result->dst_pitch, &src, &fb, &params->clip,
+-				  &fmtcnv_state, true);
++	drm_fb_xrgb8888_to_rgb565(&dst, &result->dst_pitch, &src, &fb, &params->clip, true);
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected_swab, dst_size);
+ 
+@@ -716,8 +711,7 @@ static void drm_test_fb_xrgb8888_to_rgb565(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_RGB565, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_RGB565, &src, &fb, &params->clip);
+ 
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 
+@@ -754,7 +748,7 @@ static void drm_test_fb_xrgb8888_to_xrgb1555(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_xrgb1555(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_xrgb1555(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -763,8 +757,7 @@ static void drm_test_fb_xrgb8888_to_xrgb1555(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XRGB1555, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XRGB1555, &src, &fb, &params->clip);
+ 
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 
+@@ -801,7 +794,7 @@ static void drm_test_fb_xrgb8888_to_argb1555(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_argb1555(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_argb1555(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -810,8 +803,7 @@ static void drm_test_fb_xrgb8888_to_argb1555(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ARGB1555, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ARGB1555, &src, &fb, &params->clip);
+ 
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 
+@@ -848,7 +840,7 @@ static void drm_test_fb_xrgb8888_to_rgba5551(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_rgba5551(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_rgba5551(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -857,8 +849,7 @@ static void drm_test_fb_xrgb8888_to_rgba5551(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_RGBA5551, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_RGBA5551, &src, &fb, &params->clip);
+ 
+ 	buf = le16buf_to_cpu(test, (__force const __le16 *)buf, dst_size / sizeof(__le16));
+ 
+@@ -899,7 +890,7 @@ static void drm_test_fb_xrgb8888_to_rgb888(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_rgb888(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_rgb888(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+ 	buf = dst.vaddr; /* restore original value of buf */
+@@ -907,8 +898,7 @@ static void drm_test_fb_xrgb8888_to_rgb888(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_RGB888, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_RGB888, &src, &fb, &params->clip);
+ 
+ 	KUNIT_EXPECT_FALSE(test, blit_result);
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+@@ -943,7 +933,7 @@ static void drm_test_fb_xrgb8888_to_argb8888(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_argb8888(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_argb8888(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -952,8 +942,7 @@ static void drm_test_fb_xrgb8888_to_argb8888(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ARGB8888, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ARGB8888, &src, &fb, &params->clip);
+ 
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+@@ -990,7 +979,7 @@ static void drm_test_fb_xrgb8888_to_xrgb2101010(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_xrgb2101010(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_xrgb2101010(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	buf = le32buf_to_cpu(test, buf, dst_size / sizeof(u32));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -1000,7 +989,7 @@ static void drm_test_fb_xrgb8888_to_xrgb2101010(struct kunit *test)
+ 	int blit_result = 0;
+ 
+ 	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XRGB2101010, &src, &fb,
+-				  &params->clip, &fmtcnv_state);
++				  &params->clip);
+ 
+ 	KUNIT_EXPECT_FALSE(test, blit_result);
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+@@ -1035,7 +1024,7 @@ static void drm_test_fb_xrgb8888_to_argb2101010(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_argb2101010(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_argb2101010(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -1045,7 +1034,7 @@ static void drm_test_fb_xrgb8888_to_argb2101010(struct kunit *test)
+ 	int blit_result = 0;
+ 
+ 	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ARGB2101010, &src, &fb,
+-				  &params->clip, &fmtcnv_state);
++				  &params->clip);
+ 
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+@@ -1082,7 +1071,7 @@ static void drm_test_fb_xrgb8888_to_mono(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_xrgb8888_to_mono(&dst, dst_pitch, &src, &fb, &params->clip, &fmtcnv_state);
++	drm_fb_xrgb8888_to_mono(&dst, dst_pitch, &src, &fb, &params->clip);
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ }
+ 
+@@ -1115,7 +1104,7 @@ static void drm_test_fb_swab(struct kunit *test)
+ 	const unsigned int *dst_pitch = (result->dst_pitch == TEST_USE_DEFAULT_PITCH) ?
+ 		NULL : &result->dst_pitch;
+ 
+-	drm_fb_swab(&dst, dst_pitch, &src, &fb, &params->clip, false, &fmtcnv_state);
++	drm_fb_swab(&dst, dst_pitch, &src, &fb, &params->clip, false);
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 	KUNIT_EXPECT_MEMEQ(test, buf, result->expected, dst_size);
+ 
+@@ -1125,7 +1114,7 @@ static void drm_test_fb_swab(struct kunit *test)
+ 	int blit_result;
+ 
+ 	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XRGB8888 | DRM_FORMAT_BIG_ENDIAN,
+-				  &src, &fb, &params->clip, &fmtcnv_state);
++				  &src, &fb, &params->clip);
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+ 	KUNIT_EXPECT_FALSE(test, blit_result);
+@@ -1134,8 +1123,7 @@ static void drm_test_fb_swab(struct kunit *test)
+ 	buf = dst.vaddr;
+ 	memset(buf, 0, dst_size);
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_BGRX8888, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_BGRX8888, &src, &fb, &params->clip);
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+ 	KUNIT_EXPECT_FALSE(test, blit_result);
+@@ -1149,8 +1137,7 @@ static void drm_test_fb_swab(struct kunit *test)
+ 	mock_format.format |= DRM_FORMAT_BIG_ENDIAN;
+ 	fb.format = &mock_format;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XRGB8888, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XRGB8888, &src, &fb, &params->clip);
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+ 	KUNIT_EXPECT_FALSE(test, blit_result);
+@@ -1188,8 +1175,7 @@ static void drm_test_fb_xrgb8888_to_abgr8888(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ABGR8888, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_ABGR8888, &src, &fb, &params->clip);
+ 
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+@@ -1228,8 +1214,7 @@ static void drm_test_fb_xrgb8888_to_xbgr8888(struct kunit *test)
+ 
+ 	int blit_result = 0;
+ 
+-	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XBGR8888, &src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(&dst, dst_pitch, DRM_FORMAT_XBGR8888, &src, &fb, &params->clip);
+ 
+ 	buf = le32buf_to_cpu(test, (__force const __le32 *)buf, dst_size / sizeof(u32));
+ 
+@@ -1832,8 +1817,7 @@ static void drm_test_fb_memcpy(struct kunit *test)
+ 
+ 	int blit_result;
+ 
+-	blit_result = drm_fb_blit(dst, dst_pitches, params->format, src, &fb, &params->clip,
+-				  &fmtcnv_state);
++	blit_result = drm_fb_blit(dst, dst_pitches, params->format, src, &fb, &params->clip);
+ 
+ 	KUNIT_EXPECT_FALSE(test, blit_result);
+ 	for (size_t i = 0; i < fb.format->num_planes; i++) {
+diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+index 4e3a152f897a..c5c34cd2edc1 100644
+--- a/drivers/gpu/drm/tiny/cirrus.c
++++ b/drivers/gpu/drm/tiny/cirrus.c
+@@ -411,8 +411,7 @@ static void cirrus_primary_plane_helper_atomic_update(struct drm_plane *plane,
+ 		unsigned int offset = drm_fb_clip_offset(pitch, format, &damage);
+ 		struct iosys_map dst = IOSYS_MAP_INIT_OFFSET(&vaddr, offset);
+ 
+-		drm_fb_blit(&dst, &pitch, format->format, shadow_plane_state->data, fb,
+-			    &damage, &shadow_plane_state->fmtcnv_state);
++		drm_fb_blit(&dst, &pitch, format->format, shadow_plane_state->data, fb, &damage);
+ 	}
+ 
+ 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/tiny/ili9225.c b/drivers/gpu/drm/tiny/ili9225.c
+index dd8b0a181be9..4ceb68ffac4b 100644
+--- a/drivers/gpu/drm/tiny/ili9225.c
++++ b/drivers/gpu/drm/tiny/ili9225.c
+@@ -78,7 +78,7 @@ static inline int ili9225_command(struct mipi_dbi *dbi, u8 cmd, u16 data)
+ }
+ 
+ static void ili9225_fb_dirty(struct iosys_map *src, struct drm_framebuffer *fb,
+-			     struct drm_rect *rect, struct drm_format_conv_state *fmtcnv_state)
++			     struct drm_rect *rect)
+ {
+ 	struct mipi_dbi_dev *dbidev = drm_to_mipi_dbi_dev(fb->dev);
+ 	unsigned int height = rect->y2 - rect->y1;
+@@ -98,7 +98,7 @@ static void ili9225_fb_dirty(struct iosys_map *src, struct drm_framebuffer *fb,
+ 	if (!dbi->dc || !full || swap ||
+ 	    fb->format->format == DRM_FORMAT_XRGB8888) {
+ 		tr = dbidev->tx_buf;
+-		ret = mipi_dbi_buf_copy(tr, src, fb, rect, swap, fmtcnv_state);
++		ret = mipi_dbi_buf_copy(tr, src, fb, rect, swap);
+ 		if (ret)
+ 			goto err_msg;
+ 	} else {
+@@ -171,8 +171,7 @@ static void ili9225_pipe_update(struct drm_simple_display_pipe *pipe,
+ 		return;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+-		ili9225_fb_dirty(&shadow_plane_state->data[0], fb, &rect,
+-				 &shadow_plane_state->fmtcnv_state);
++		ili9225_fb_dirty(&shadow_plane_state->data[0], fb, &rect);
+ 
+ 	drm_dev_exit(idx);
+ }
+@@ -282,8 +281,7 @@ static void ili9225_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 
+ 	ili9225_command(dbi, ILI9225_DISPLAY_CONTROL_1, 0x1017);
+ 
+-	ili9225_fb_dirty(&shadow_plane_state->data[0], fb, &rect,
+-			 &shadow_plane_state->fmtcnv_state);
++	ili9225_fb_dirty(&shadow_plane_state->data[0], fb, &rect);
+ 
+ out_exit:
+ 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/tiny/ofdrm.c b/drivers/gpu/drm/tiny/ofdrm.c
+index 9de5f37da814..30967ce3b2d7 100644
+--- a/drivers/gpu/drm/tiny/ofdrm.c
++++ b/drivers/gpu/drm/tiny/ofdrm.c
+@@ -816,7 +816,7 @@ static void ofdrm_primary_plane_helper_atomic_update(struct drm_plane *plane,
+ 
+ 		iosys_map_incr(&dst, drm_fb_clip_offset(dst_pitch, dst_format, &dst_clip));
+ 		drm_fb_blit(&dst, &dst_pitch, dst_format->format, shadow_plane_state->data, fb,
+-			    &damage, &shadow_plane_state->fmtcnv_state);
++			    &damage);
+ 	}
+ 
+ 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/tiny/repaper.c b/drivers/gpu/drm/tiny/repaper.c
+index 8fd6758f5725..73dd4f4289c2 100644
+--- a/drivers/gpu/drm/tiny/repaper.c
++++ b/drivers/gpu/drm/tiny/repaper.c
+@@ -509,8 +509,7 @@ static void repaper_get_temperature(struct repaper_epd *epd)
+ 	epd->factored_stage_time = epd->stage_time * factor10x / 10;
+ }
+ 
+-static int repaper_fb_dirty(struct drm_framebuffer *fb,
+-			    struct drm_format_conv_state *fmtcnv_state)
++static int repaper_fb_dirty(struct drm_framebuffer *fb)
+ {
+ 	struct drm_gem_dma_object *dma_obj = drm_fb_dma_get_gem_obj(fb, 0);
+ 	struct repaper_epd *epd = drm_to_epd(fb->dev);
+@@ -546,7 +545,7 @@ static int repaper_fb_dirty(struct drm_framebuffer *fb,
+ 
+ 	iosys_map_set_vaddr(&dst, buf);
+ 	iosys_map_set_vaddr(&vmap, dma_obj->vaddr);
+-	drm_fb_xrgb8888_to_mono(&dst, &dst_pitch, &vmap, fb, &clip, fmtcnv_state);
++	drm_fb_xrgb8888_to_mono(&dst, &dst_pitch, &vmap, fb, &clip);
+ 
+ 	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+ 
+@@ -831,16 +830,13 @@ static void repaper_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				struct drm_plane_state *old_state)
+ {
+ 	struct drm_plane_state *state = pipe->plane.state;
+-	struct drm_format_conv_state fmtcnv_state = DRM_FORMAT_CONV_STATE_INIT;
+ 	struct drm_rect rect;
+ 
+ 	if (!pipe->crtc.state->active)
+ 		return;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+-		repaper_fb_dirty(state->fb, &fmtcnv_state);
+-
+-	drm_format_conv_state_release(&fmtcnv_state);
++		repaper_fb_dirty(state->fb);
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs repaper_pipe_funcs = {
+diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
+index de43f32329ae..45f0f66c9534 100644
+--- a/drivers/gpu/drm/tiny/simpledrm.c
++++ b/drivers/gpu/drm/tiny/simpledrm.c
+@@ -608,7 +608,7 @@ static void simpledrm_primary_plane_helper_atomic_update(struct drm_plane *plane
+ 
+ 		iosys_map_incr(&dst, drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip));
+ 		drm_fb_blit(&dst, &sdev->pitch, sdev->format->format, shadow_plane_state->data,
+-			    fb, &damage, &shadow_plane_state->fmtcnv_state);
++			    fb, &damage);
+ 	}
+ 
+ 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/tiny/st7586.c b/drivers/gpu/drm/tiny/st7586.c
+index 7336fa1ddaed..3cf4eec16a81 100644
+--- a/drivers/gpu/drm/tiny/st7586.c
++++ b/drivers/gpu/drm/tiny/st7586.c
+@@ -64,8 +64,7 @@ static const u8 st7586_lookup[] = { 0x7, 0x4, 0x2, 0x0 };
+ 
+ static void st7586_xrgb8888_to_gray332(u8 *dst, void *vaddr,
+ 				       struct drm_framebuffer *fb,
+-				       struct drm_rect *clip,
+-				       struct drm_format_conv_state *fmtcnv_state)
++				       struct drm_rect *clip)
+ {
+ 	size_t len = (clip->x2 - clip->x1) * (clip->y2 - clip->y1);
+ 	unsigned int x, y;
+@@ -78,7 +77,7 @@ static void st7586_xrgb8888_to_gray332(u8 *dst, void *vaddr,
+ 
+ 	iosys_map_set_vaddr(&dst_map, buf);
+ 	iosys_map_set_vaddr(&vmap, vaddr);
+-	drm_fb_xrgb8888_to_gray8(&dst_map, NULL, &vmap, fb, clip, fmtcnv_state);
++	drm_fb_xrgb8888_to_gray8(&dst_map, NULL, &vmap, fb, clip);
+ 	src = buf;
+ 
+ 	for (y = clip->y1; y < clip->y2; y++) {
+@@ -94,7 +93,7 @@ static void st7586_xrgb8888_to_gray332(u8 *dst, void *vaddr,
+ }
+ 
+ static int st7586_buf_copy(void *dst, struct iosys_map *src, struct drm_framebuffer *fb,
+-			   struct drm_rect *clip, struct drm_format_conv_state *fmtcnv_state)
++			   struct drm_rect *clip)
+ {
+ 	int ret;
+ 
+@@ -102,7 +101,7 @@ static int st7586_buf_copy(void *dst, struct iosys_map *src, struct drm_framebuf
+ 	if (ret)
+ 		return ret;
+ 
+-	st7586_xrgb8888_to_gray332(dst, src->vaddr, fb, clip, fmtcnv_state);
++	st7586_xrgb8888_to_gray332(dst, src->vaddr, fb, clip);
+ 
+ 	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+ 
+@@ -110,7 +109,7 @@ static int st7586_buf_copy(void *dst, struct iosys_map *src, struct drm_framebuf
+ }
+ 
+ static void st7586_fb_dirty(struct iosys_map *src, struct drm_framebuffer *fb,
+-			    struct drm_rect *rect, struct drm_format_conv_state *fmtcnv_state)
++			    struct drm_rect *rect)
+ {
+ 	struct mipi_dbi_dev *dbidev = drm_to_mipi_dbi_dev(fb->dev);
+ 	struct mipi_dbi *dbi = &dbidev->dbi;
+@@ -122,7 +121,7 @@ static void st7586_fb_dirty(struct iosys_map *src, struct drm_framebuffer *fb,
+ 
+ 	DRM_DEBUG_KMS("Flushing [FB:%d] " DRM_RECT_FMT "\n", fb->base.id, DRM_RECT_ARG(rect));
+ 
+-	ret = st7586_buf_copy(dbidev->tx_buf, src, fb, rect, fmtcnv_state);
++	ret = st7586_buf_copy(dbidev->tx_buf, src, fb, rect);
+ 	if (ret)
+ 		goto err_msg;
+ 
+@@ -161,8 +160,7 @@ static void st7586_pipe_update(struct drm_simple_display_pipe *pipe,
+ 		return;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+-		st7586_fb_dirty(&shadow_plane_state->data[0], fb, &rect,
+-				&shadow_plane_state->fmtcnv_state);
++		st7586_fb_dirty(&shadow_plane_state->data[0], fb, &rect);
+ 
+ 	drm_dev_exit(idx);
+ }
+@@ -240,8 +238,7 @@ static void st7586_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 
+ 	msleep(100);
+ 
+-	st7586_fb_dirty(&shadow_plane_state->data[0], fb, &rect,
+-			&shadow_plane_state->fmtcnv_state);
++	st7586_fb_dirty(&shadow_plane_state->data[0], fb, &rect);
+ 
+ 	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
+ out_exit:
+diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
+index f13b34e0b752..724a9baf7315 100644
+--- a/include/drm/drm_format_helper.h
++++ b/include/drm/drm_format_helper.h
+@@ -74,49 +74,45 @@ void drm_fb_memcpy(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 		   const struct drm_rect *clip);
+ void drm_fb_swab(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 		 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-		 const struct drm_rect *clip, bool cached,
+-		 struct drm_format_conv_state *state);
++		 const struct drm_rect *clip, bool cached);
+ void drm_fb_xrgb8888_to_rgb332(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			       const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			       const struct drm_rect *clip, struct drm_format_conv_state *state);
++			       const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_rgb565(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			       const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			       const struct drm_rect *clip, struct drm_format_conv_state *state,
+-			       bool swab);
++			       const struct drm_rect *clip, bool swab);
+ void drm_fb_xrgb8888_to_xrgb1555(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state);
++				 const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_argb1555(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state);
++				 const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_rgba5551(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state);
++				 const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_rgb888(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			       const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			       const struct drm_rect *clip, struct drm_format_conv_state *state);
++			       const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_argb8888(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				 const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				 const struct drm_rect *clip, struct drm_format_conv_state *state);
++				 const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_xrgb2101010(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				    const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				    const struct drm_rect *clip,
+-				    struct drm_format_conv_state *state);
++				    const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_argb2101010(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 				    const struct iosys_map *src, const struct drm_framebuffer *fb,
+-				    const struct drm_rect *clip,
+-				    struct drm_format_conv_state *state);
++				    const struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_gray8(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			      const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			      const struct drm_rect *clip, struct drm_format_conv_state *state);
++			      const struct drm_rect *clip);
+ 
+ int drm_fb_blit(struct iosys_map *dst, const unsigned int *dst_pitch, uint32_t dst_format,
+ 		const struct iosys_map *src, const struct drm_framebuffer *fb,
+-		const struct drm_rect *clip, struct drm_format_conv_state *state);
++		const struct drm_rect *rect);
+ 
+ void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitch,
+ 			     const struct iosys_map *src, const struct drm_framebuffer *fb,
+-			     const struct drm_rect *clip, struct drm_format_conv_state *state);
++			     const struct drm_rect *clip);
+ 
+ size_t drm_fb_build_fourcc_list(struct drm_device *dev,
+ 				const u32 *native_fourccs, size_t native_nfourccs,
+diff --git a/include/drm/drm_mipi_dbi.h b/include/drm/drm_mipi_dbi.h
+index e8e0f8d39f3a..816f196b3d4c 100644
+--- a/include/drm/drm_mipi_dbi.h
++++ b/include/drm/drm_mipi_dbi.h
+@@ -12,7 +12,6 @@
+ #include <drm/drm_device.h>
+ #include <drm/drm_simple_kms_helper.h>
+ 
+-struct drm_format_conv_state;
+ struct drm_rect;
+ struct gpio_desc;
+ struct iosys_map;
+@@ -193,8 +192,7 @@ int mipi_dbi_command_buf(struct mipi_dbi *dbi, u8 cmd, u8 *data, size_t len);
+ int mipi_dbi_command_stackbuf(struct mipi_dbi *dbi, u8 cmd, const u8 *data,
+ 			      size_t len);
+ int mipi_dbi_buf_copy(void *dst, struct iosys_map *src, struct drm_framebuffer *fb,
+-		      struct drm_rect *clip, bool swap,
+-		      struct drm_format_conv_state *fmtcnv_state);
++		      struct drm_rect *clip, bool swap);
+ 
+ /**
+  * mipi_dbi_command - MIPI DCS command with optional parameter(s)

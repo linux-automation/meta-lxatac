@@ -1,0 +1,64 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Thu, 28 Mar 2024 10:33:09 +0100
+Subject: [PATCH] Revert "drm/ssd130x: Preallocate format-conversion buffer in
+ atomic_check"
+
+This reverts commit c669875041d038e91fa99766a07ec2d8bd6dcf6a.
+---
+ drivers/gpu/drm/solomon/ssd130x.c | 22 ----------------------
+ 1 file changed, 22 deletions(-)
+
+diff --git a/drivers/gpu/drm/solomon/ssd130x.c b/drivers/gpu/drm/solomon/ssd130x.c
+index 3d0e093a7e6e..71ea2076d085 100644
+--- a/drivers/gpu/drm/solomon/ssd130x.c
++++ b/drivers/gpu/drm/solomon/ssd130x.c
+@@ -873,7 +873,6 @@ static int ssd130x_primary_plane_atomic_check(struct drm_plane *plane,
+ 	struct ssd130x_device *ssd130x = drm_to_ssd130x(drm);
+ 	struct drm_plane_state *plane_state = drm_atomic_get_new_plane_state(state, plane);
+ 	struct ssd130x_plane_state *ssd130x_state = to_ssd130x_plane_state(plane_state);
+-	struct drm_shadow_plane_state *shadow_plane_state = &ssd130x_state->base;
+ 	struct drm_crtc *crtc = plane_state->crtc;
+ 	struct drm_crtc_state *crtc_state = NULL;
+ 	const struct drm_format_info *fi;
+@@ -898,16 +897,6 @@ static int ssd130x_primary_plane_atomic_check(struct drm_plane *plane,
+ 
+ 	pitch = drm_format_info_min_pitch(fi, 0, ssd130x->width);
+ 
+-	if (plane_state->fb->format != fi) {
+-		void *buf;
+-
+-		/* format conversion necessary; reserve buffer */
+-		buf = drm_format_conv_state_reserve(&shadow_plane_state->fmtcnv_state,
+-						    pitch, GFP_KERNEL);
+-		if (!buf)
+-			return -ENOMEM;
+-	}
+-
+ 	ssd130x_state->buffer = kcalloc(pitch, ssd130x->height, GFP_KERNEL);
+ 	if (!ssd130x_state->buffer)
+ 		return -ENOMEM;
+@@ -922,7 +911,6 @@ static int ssd132x_primary_plane_atomic_check(struct drm_plane *plane,
+ 	struct ssd130x_device *ssd130x = drm_to_ssd130x(drm);
+ 	struct drm_plane_state *plane_state = drm_atomic_get_new_plane_state(state, plane);
+ 	struct ssd130x_plane_state *ssd130x_state = to_ssd130x_plane_state(plane_state);
+-	struct drm_shadow_plane_state *shadow_plane_state = &ssd130x_state->base;
+ 	struct drm_crtc *crtc = plane_state->crtc;
+ 	struct drm_crtc_state *crtc_state = NULL;
+ 	const struct drm_format_info *fi;
+@@ -947,16 +935,6 @@ static int ssd132x_primary_plane_atomic_check(struct drm_plane *plane,
+ 
+ 	pitch = drm_format_info_min_pitch(fi, 0, ssd130x->width);
+ 
+-	if (plane_state->fb->format != fi) {
+-		void *buf;
+-
+-		/* format conversion necessary; reserve buffer */
+-		buf = drm_format_conv_state_reserve(&shadow_plane_state->fmtcnv_state,
+-						    pitch, GFP_KERNEL);
+-		if (!buf)
+-			return -ENOMEM;
+-	}
+-
+ 	ssd130x_state->buffer = kcalloc(pitch, ssd130x->height, GFP_KERNEL);
+ 	if (!ssd130x_state->buffer)
+ 		return -ENOMEM;

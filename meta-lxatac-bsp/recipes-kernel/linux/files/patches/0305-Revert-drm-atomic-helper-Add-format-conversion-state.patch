@@ -1,0 +1,74 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Thu, 28 Mar 2024 10:33:16 +0100
+Subject: [PATCH] Revert "drm/atomic-helper: Add format-conversion state to
+ shadow-plane state"
+
+This reverts commit 903674588a48df25bb79b1bedbfc48450f1d5d8f.
+---
+ drivers/gpu/drm/drm_gem_atomic_helper.c |  9 ---------
+ include/drm/drm_gem_atomic_helper.h     | 10 ----------
+ 2 files changed, 19 deletions(-)
+
+diff --git a/drivers/gpu/drm/drm_gem_atomic_helper.c b/drivers/gpu/drm/drm_gem_atomic_helper.c
+index e440f458b663..5d4b9cd077f7 100644
+--- a/drivers/gpu/drm/drm_gem_atomic_helper.c
++++ b/drivers/gpu/drm/drm_gem_atomic_helper.c
+@@ -218,14 +218,7 @@ void
+ __drm_gem_duplicate_shadow_plane_state(struct drm_plane *plane,
+ 				       struct drm_shadow_plane_state *new_shadow_plane_state)
+ {
+-	struct drm_plane_state *plane_state = plane->state;
+-	struct drm_shadow_plane_state *shadow_plane_state =
+-		to_drm_shadow_plane_state(plane_state);
+-
+ 	__drm_atomic_helper_plane_duplicate_state(plane, &new_shadow_plane_state->base);
+-
+-	drm_format_conv_state_copy(&shadow_plane_state->fmtcnv_state,
+-				   &new_shadow_plane_state->fmtcnv_state);
+ }
+ EXPORT_SYMBOL(__drm_gem_duplicate_shadow_plane_state);
+ 
+@@ -273,7 +266,6 @@ EXPORT_SYMBOL(drm_gem_duplicate_shadow_plane_state);
+  */
+ void __drm_gem_destroy_shadow_plane_state(struct drm_shadow_plane_state *shadow_plane_state)
+ {
+-	drm_format_conv_state_release(&shadow_plane_state->fmtcnv_state);
+ 	__drm_atomic_helper_plane_destroy_state(&shadow_plane_state->base);
+ }
+ EXPORT_SYMBOL(__drm_gem_destroy_shadow_plane_state);
+@@ -310,7 +302,6 @@ void __drm_gem_reset_shadow_plane(struct drm_plane *plane,
+ 				  struct drm_shadow_plane_state *shadow_plane_state)
+ {
+ 	__drm_atomic_helper_plane_reset(plane, &shadow_plane_state->base);
+-	drm_format_conv_state_init(&shadow_plane_state->fmtcnv_state);
+ }
+ EXPORT_SYMBOL(__drm_gem_reset_shadow_plane);
+ 
+diff --git a/include/drm/drm_gem_atomic_helper.h b/include/drm/drm_gem_atomic_helper.h
+index 3e01c619a25e..40b8b039518e 100644
+--- a/include/drm/drm_gem_atomic_helper.h
++++ b/include/drm/drm_gem_atomic_helper.h
+@@ -5,7 +5,6 @@
+ 
+ #include <linux/iosys-map.h>
+ 
+-#include <drm/drm_format_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_plane.h>
+ 
+@@ -50,15 +49,6 @@ struct drm_shadow_plane_state {
+ 	/** @base: plane state */
+ 	struct drm_plane_state base;
+ 
+-	/**
+-	 * @fmtcnv_state: Format-conversion state
+-	 *
+-	 * Per-plane state for format conversion.
+-	 * Flags for copying shadow buffers into backend storage. Also holds
+-	 * temporary storage for format conversion.
+-	 */
+-	struct drm_format_conv_state fmtcnv_state;
+-
+ 	/* Transitional state - do not export or duplicate */
+ 
+ 	/**
