@@ -72,6 +72,7 @@ IMAGE_INSTALL:append = "\
     linux-serial-test \
     lldpd \
     lmsensors \
+    lrzsz\
     lxatac-factory-data \
     lxatac-led-setup \
     lxatac-lldpd-config \
