@@ -1,0 +1,36 @@
+From: Mikko Rapeli <mikko.rapeli@linaro.org>
+Date: Wed, 13 Mar 2024 15:37:44 +0200
+Subject: [PATCH] mmc core block.c: avoid negative index with array access
+
+Commit "mmc: core: Use mrq.sbc in close-ended ffu" assigns
+prev_idata = idatas[i - 1] but doesn't check that int iterator
+i is greater than zero. Add the check.
+
+Fixes: 4d0c8d0aef63 ("mmc: core: Use mrq.sbc in close-ended ffu")
+
+Link: https://lore.kernel.org/all/20231129092535.3278-1-avri.altman@wdc.com/
+
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: linux-mmc@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikko Rapeli <mikko.rapeli@linaro.org>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+---
+ drivers/mmc/core/block.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 0df627de9cee..7f275b4ca9fa 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -488,7 +488,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 	if (idata->flags & MMC_BLK_IOC_DROP)
+ 		return 0;
+ 
+-	if (idata->flags & MMC_BLK_IOC_SBC)
++	if (idata->flags & MMC_BLK_IOC_SBC && i > 0)
+ 		prev_idata = idatas[i - 1];
+ 
+ 	/*
