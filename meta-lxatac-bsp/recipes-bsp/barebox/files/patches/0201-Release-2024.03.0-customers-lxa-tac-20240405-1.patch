@@ -1,21 +1,21 @@
 From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
-Date: Fri, 21 Apr 2023 07:50:33 +0200
-Subject: [PATCH] Release 2023.03.0/customers/lxa/tac/20230421-1
+Date: Fri, 5 Apr 2024 07:25:48 +0200
+Subject: [PATCH] Release 2024.03.0/customers/lxa/tac/20240405-1
 
 ---
  Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index ae44cbe003d0..78c865dda6c8 100644
+index 36145fc89eac..e4c9bec8e9bf 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@
- VERSION = 2023
+ VERSION = 2024
  PATCHLEVEL = 03
  SUBLEVEL = 0
 -EXTRAVERSION =
-+EXTRAVERSION =-20230421-1
++EXTRAVERSION =-20240405-1
  NAME = None
  
  # *DOCUMENTATION*

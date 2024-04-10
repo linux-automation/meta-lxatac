@@ -1,4 +1,10 @@
-require recipes-bsp/barebox/barebox.inc
+# Use a local barebox.inc (instead of the one from meta-ptx that we have
+# used before) that matches closely what will likely be included in oe-core
+# soon. The file was taken from
+# https://lore.kernel.org/all/20230425184720.456896-2-ejo@pengutronix.de/
+# This should be changed to use the barebox.inc from oe-core once it is
+# included.
+require barebox.inc
 
 SRC_URI += " \
     file://defconfig \
@@ -6,7 +12,7 @@ SRC_URI += " \
 "
 require files/patches/series.inc
 
-SRC_URI[sha256sum] = "d0f78a69ba240327247c8fd0e1d45287e4a0dff99ed847e9a696cc2da0cf388c"
+SRC_URI[sha256sum] = "7dda8cc4e989d38162dc04d287a882edc828093f75baace9e40b2ab7902958ea"
 
 COMPATIBLE_MACHINE = "lxatac"
 
@@ -17,8 +23,7 @@ do_deploy:append () {
 	for DTB in ${BAREBOX_DTBS_TO_DEPLOY}; do
 		if [ -e ${DTB} ]; then
 			BAREBOX_DTB_BASENAME=barebox-$(basename ${DTB} .dtb)${BAREBOX_IMAGE_SUFFIX}
-			install -m 644 -T ${DTB} ${DEPLOYDIR}/${BAREBOX_DTB_BASENAME}-${DATETIME}.dtb
-			ln -sf ${BAREBOX_DTB_BASENAME}-${DATETIME}.dtb ${DEPLOYDIR}/${BAREBOX_DTB_BASENAME}.dtb
+			install -m 644 -T ${DTB} ${DEPLOYDIR}/${BAREBOX_DTB_BASENAME}.dtb
 		fi
 	done
 }
