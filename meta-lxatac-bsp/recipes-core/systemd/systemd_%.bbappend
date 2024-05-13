@@ -3,6 +3,11 @@ RRECOMMENDS:${PN}:append = "less"
 PACKAGECONFIG:append = "lz4 coredump elfutils"
 PACKAGECONFIG:remove = "networkd"
 
+# Re-enable LLMNR (but not mDNS, which is handled by avahi),
+# which is disabled by the upstream recipe when the zeroconf DISTRO_FEATURE
+# is set.
+EXTRA_OEMESON:remove = "-Ddefault-llmnr=no"
+
 do_install:append() {
     # We use system-update.target to re-partition the disk on first boot,
     # meaning we do not have all partitions available on the very first boot
