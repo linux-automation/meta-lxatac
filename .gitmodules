@@ -1,15 +1,15 @@
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
-	branch = master
+	branch = scarthgap
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
-	branch = nanbield
+	branch = scarthgap
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
-	branch = nanbield
+	branch = scarthgap
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
@@ -17,12 +17,12 @@
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://github.com/lgirdk/meta-virtualization.git
-	branch = nanbield
+	branch = scarthgap
 [submodule "poky"]
 	path = poky
 	url = https://git.yoctoproject.org/poky
-	branch = nanbield
+	branch = scarthgap
 [submodule "meta-selinux"]
 	path = meta-selinux
 	url = https://git.yoctoproject.org/meta-selinux
-	branch = nanbield
+	branch = scarthgap
