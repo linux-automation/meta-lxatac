@@ -28,6 +28,7 @@ IMAGE_INSTALL:append = "\
     blktrace \
     bmaptool \
     bonnie++ \
+    bottom \
     can-utils \
     chrony \
     chronyc \
