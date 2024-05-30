@@ -26,9 +26,8 @@ IMAGE_INSTALL:append = "\
     barebox-tools \
     bcu \
     blktrace \
-    bmap-tools \
+    bmaptool \
     bonnie++ \
-    bottom \
     can-utils \
     chrony \
     chronyc \
