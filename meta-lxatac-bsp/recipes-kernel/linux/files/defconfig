@@ -2350,7 +2350,7 @@ CONFIG_I2C_STM32F7=y
 # CONFIG_I2C_CP2615 is not set
 # CONFIG_I2C_ROBOTFUZZ_OSIF is not set
 # CONFIG_I2C_TAOS_EVM is not set
-# CONFIG_I2C_TINY_USB is not set
+CONFIG_I2C_TINY_USB=m
 
 #
 # Other I2C/SMBus bus drivers
