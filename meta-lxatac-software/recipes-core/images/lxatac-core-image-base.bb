@@ -28,6 +28,7 @@ IMAGE_INSTALL:append = "\
     blktrace \
     bmaptool \
     bonnie++ \
+    bottom \
     can-utils \
     chrony \
     chronyc \
@@ -99,7 +100,6 @@ IMAGE_INSTALL:append = "\
     podman \
     pps-tools \
     pv \
-    py-spy \
     python3-labgrid \
     python3-lxa-iobus \
     python3-pygobject \
