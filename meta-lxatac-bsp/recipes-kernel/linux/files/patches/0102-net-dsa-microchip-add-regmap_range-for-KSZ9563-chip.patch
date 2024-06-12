@@ -10,7 +10,7 @@ Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
  1 file changed, 121 insertions(+)
 
 diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
-index 25a49708f484..dae468b849d6 100644
+index 2b510f150dd8..7d25d85fdf11 100644
 --- a/drivers/net/dsa/microchip/ksz_common.c
 +++ b/drivers/net/dsa/microchip/ksz_common.c
 @@ -665,6 +665,125 @@ static const struct regmap_access_table ksz8563_register_set = {
@@ -147,4 +147,4 @@ index 25a49708f484..dae468b849d6 100644
 +		.rd_table = &ksz9563_register_set,
  	},
  
- 	[KSZ9567] = {
+ 	[KSZ8567] = {
