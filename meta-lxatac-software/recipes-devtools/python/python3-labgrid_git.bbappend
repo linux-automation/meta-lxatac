@@ -4,7 +4,14 @@ SRC_URI += "file://userconfig.yaml \
             file://labgrid.conf \
             "
 
-SRCREV = "e5ace1a36c4e552b950cf356ce0e34586f776432"
+SRCREV = "6b541210c6063e97d81e257d2d6bda1444d9ec78"
+
+RDEPENDS:${PN} += " \
+    python3-grpcio \
+    python3-grpcio-reflection \
+    python3-grpcio-channelz \
+"
+RDEPENDS:${PN}:remove = "python3-autobahn"
 
 do_install:append() {
     # The userconfig.yaml is migrated via rauc hook between installs.
