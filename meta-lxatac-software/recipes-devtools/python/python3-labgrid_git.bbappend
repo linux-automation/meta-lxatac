@@ -1,14 +1,10 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/python3-labgrid:" 
 
-SRC_URI:remove = "git://github.com/labgrid-project/labgrid.git;protocol=https;branch=stable-23.0"
-
-SRC_URI += "git://github.com/labgrid-project/labgrid.git;protocol=https;branch=master \
-            file://userconfig.yaml \
+SRC_URI += "file://userconfig.yaml \
             file://labgrid.conf \
-            file://0001-resource-udev-add-new-USB-ID-for-IMXUSBLoader.patch \
             "
 
-SRCREV = "3e1c0df0a3503d6f22e63a50ae45945ed12b69f8"
+SRCREV = "e5ace1a36c4e552b950cf356ce0e34586f776432"
 
 do_install:append() {
     # The userconfig.yaml is migrated via rauc hook between installs.
