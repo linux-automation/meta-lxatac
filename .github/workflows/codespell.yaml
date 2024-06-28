@@ -1,0 +1,16 @@
+name: codespell
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '10 21 * * 4'
+
+jobs:
+  codespell:
+    name: codespell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install codespell
+      - run: codespell meta-lxatac-bsp meta-lxatac-software .github oe-init-build-env README.md

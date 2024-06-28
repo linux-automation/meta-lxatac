@@ -1,0 +1,3 @@
+[codespell]
+skip = npm-shrinkwrap.json,*.pem,*.patch
+ignore-words-list = crate,ratatui
