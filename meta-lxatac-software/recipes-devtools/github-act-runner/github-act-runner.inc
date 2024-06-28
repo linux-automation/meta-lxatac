@@ -19,7 +19,7 @@ RDEPENDS:github-act-runner-dev:append = "make bash"
 
 SYSTEMD_SERVICE:${PN} = "github-act-runner.service"
 
-# This is required because the go build system fetches dependecies in the
+# This is required because the go build system fetches dependencies in the
 # compile stage.
 do_compile[network] = "1"
 

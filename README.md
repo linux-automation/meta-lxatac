@@ -220,7 +220,7 @@ Add `meta-lxatac` as git submodule and initialize _its_ submodules:
     $ git add .
     $ git commit -m "Initial commit"
 
-Re-use the sstate (build artifacts) from the previous build directory so we do
+Reuse the sstate (build artifacts) from the previous build directory so we do
 not have to re-build everything, and the download directory so we do not have
 to re-download when patching an already built package:
 
@@ -289,7 +289,7 @@ First we are going to generate new keys to sign bundles with:
     Country Name (2 letter code) [AU]:DE
     State or Province Name (full name) [Some-State]:
     Locality Name (eg, city) []:
-    Organization Name (eg, company) [Internet Widgits Pty Ltd]:Example Project
+    Organization Name (eg, company) [Internet Widgets Pty Ltd]:Example Project
     Organizational Unit Name (eg, section) []:
     Common Name (e.g. server FQDN or YOUR name) []:
     Email Address []:

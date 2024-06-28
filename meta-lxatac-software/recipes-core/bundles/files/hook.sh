@@ -8,7 +8,7 @@ CERT_ENABLED_DIR="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-enabled"
 BUNDLE_SPKI_HASHES="${RAUC_BUNDLE_SPKI_HASHES:?}"
 
 function enable_certificates () {
-	# Ignore the enabled certifcates from the bundle
+	# Ignore the enabled certificates from the bundle
 	rm "${CERT_ENABLED_DIR}"/*
 
 	for cert in "${CERT_AVAILABLE_DIR}"/*; do

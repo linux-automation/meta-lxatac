@@ -16,7 +16,7 @@ inherit systemd
 
 SYSTEMD_SERVICE:${PN} = "gitlab-runner.service"
 
-# This is required because the go build system fetches dependecies in the
+# This is required because the go build system fetches dependencies in the
 # compile stage.
 do_compile[network] = "1"
 
