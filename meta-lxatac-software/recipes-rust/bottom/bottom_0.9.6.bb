@@ -13,7 +13,7 @@ CARGO_SRC_DIR = ""
 # The bottom Cargo.toml strips release builds, why makes it hard to debug.
 # Yocto has its own stripping feature, that preserves the debug symbols but
 # only installs the stripped version.
-# Pre-stripped binaries trgger a yocto QA error.
+# Pre-stripped binaries trigger a yocto QA error.
 CARGO_BUILD_FLAGS += "--config profile.release.strip=false"
 
 SRC_URI += " \

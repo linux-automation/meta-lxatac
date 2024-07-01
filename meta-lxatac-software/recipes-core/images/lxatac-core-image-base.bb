@@ -136,7 +136,7 @@ IMAGE_INSTALL:append = "\
     zstd \
 "
 
-# is crun needed when using systemd unified hierarcy?
+# is crun needed when using systemd unified hierarchy?
 
 LICENSE = "MIT"
 
