@@ -13,7 +13,7 @@
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
-	branch = master
+	branch = scarthgap
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://github.com/lgirdk/meta-virtualization.git
