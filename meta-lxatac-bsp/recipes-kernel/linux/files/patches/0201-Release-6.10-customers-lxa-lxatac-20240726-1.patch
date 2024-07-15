@@ -1,21 +1,21 @@
 From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
-Date: Tue, 14 May 2024 11:48:27 +0200
-Subject: [PATCH] Release 6.9/customers/lxa/lxatac/20240514-1
+Date: Fri, 26 Jul 2024 11:58:10 +0200
+Subject: [PATCH] Release 6.10/customers/lxa/lxatac/20240726-1
 
 ---
  Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index 967e97878ecd..efe4f9a546fb 100644
+index 3d10e3aadeda..8136f5b03d5b 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@
  VERSION = 6
- PATCHLEVEL = 9
+ PATCHLEVEL = 10
  SUBLEVEL = 0
 -EXTRAVERSION =
-+EXTRAVERSION =-20240514-1
- NAME = Hurr durr I'ma ninja sloth
++EXTRAVERSION =-20240726-1
+ NAME = Baby Opossum Posse
  
  # *DOCUMENTATION*
