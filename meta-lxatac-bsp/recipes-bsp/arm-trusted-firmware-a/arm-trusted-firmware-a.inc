@@ -22,9 +22,9 @@ LIC_FILES_CHKSUM = "file://docs/license.rst;md5=713afe122abbe07f067f939ca3c480c5
 DEPENDS = "dtc-native"
 PROVIDES = "virtual/ARM-tf-a"
 
-SRC_URI = "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/${PV}.tar.gz"
+SRC_URI = "git://review.trustedfirmware.org/TF-A/trusted-firmware-a.git;protocol=https;branch=master"
 
-S = "${WORKDIR}/${PV}"
+S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 
 inherit deploy
