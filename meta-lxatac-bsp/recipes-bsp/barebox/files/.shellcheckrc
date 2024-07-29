@@ -1,0 +1,3 @@
+# Barebox scripts use variables defined outside of the script and they
+# assign values to variables with dots in their name.
+disable=SC2154,SC2276
