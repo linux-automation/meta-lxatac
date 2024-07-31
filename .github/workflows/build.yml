@@ -1,0 +1,63 @@
+name: build
+
+on:
+  pull_request:
+    branches:
+      - scarthgap
+  push:
+    branches:
+      - scarthgap
+  schedule:
+    - cron: '10 21 * * 4'
+
+jobs:
+  build:
+    name: build
+    runs-on: [self-hosted, forrest, build]
+    if: ${{ vars.HAS_BUILD_RUNNER || github.repository == 'linux-automation/meta-lxatac' }}
+    steps:
+      - name: Set up runner machine
+        run: |
+          sudo localectl set-locale en_US.UTF-8
+          export DEBIAN_FRONTEND=noninteractive
+          export DPKG_FORCE=confnew
+          sudo -E apt-get update
+          sudo -E apt-get --assume-yes dist-upgrade
+          sudo -E apt-get --assume-yes install build-essential chrpath diffstat gawk git lz4
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          path: source
+      - name: Build bundle and images
+        run: |
+          # We clone meta-lxatac and its submodules into a sub-directory to
+          # prevent the checkout action from deleting our build directory.
+          # Keeping the build directory gives us incremental builds,
+          # with all its benefits (speed) and drawbacks (reproducibility).
+
+          # Make sure we start with a fresh config.
+          rm -rf build/conf
+
+          # oe-init-build-env implicitly cd-s into the build directory.
+          cd source
+          source oe-init-build-env ../build
+
+          # Save disk space by deleting a packages build directory once built.
+          echo 'INHERIT += "rm_work"' >> conf/local.conf
+
+          # Build all images that are relevant to us.
+          bitbake \
+            lxatac-core-image-base \
+            lxatac-core-bundle-base \
+            lxatac-debug-image \
+            emmc-image \
+            emmc-boot-image \
+            tf-a-stm32mp
+      - name: Persist the disk image
+        env:
+          PERSISTENCE_TOKEN: ${{ secrets.PERSISTENCE_TOKEN }}
+        if: ${{ env.PERSISTENCE_TOKEN != ''  }}
+        run: |
+          sudo fstrim /
+          echo "$PERSISTENCE_TOKEN" > ~/config/persist
