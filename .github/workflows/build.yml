@@ -36,8 +36,9 @@ jobs:
           # Keeping the build directory gives us incremental builds,
           # with all its benefits (speed) and drawbacks (reproducibility).
 
-          # Make sure we start with a fresh config.
-          rm -rf build/conf
+          # Make sure we start with a fresh config and and without build
+          # artifacts other than the sstate.
+          rm -rf build/conf build/tmp
 
           # oe-init-build-env implicitly cd-s into the build directory.
           cd source
@@ -54,6 +55,10 @@ jobs:
             emmc-image \
             emmc-boot-image \
             tf-a-stm32mp
+
+          # Clean up before persisting the disk image,
+          # keeping only the downloads and sstate.
+          rm -rf build/conf build/tmp
       - name: Persist the disk image
         env:
           PERSISTENCE_TOKEN: ${{ secrets.PERSISTENCE_TOKEN }}
