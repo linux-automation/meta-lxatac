@@ -31,7 +31,7 @@ If that does not work you may want to [re-install via USB](#installing-images-vi
 If you've made changes to your TACs configuration that you want to preserve,
 which are not covered by the default update migration logic,
 you can add a list of additional files to migrate to the
-`/etc/rauc/migrate.d`:
+`/etc/rauc/migrate.d` directory:
 
     root@lxatac-00010:~ cat /etc/rauc/migrate.d/git_config.conf
     /etc/gitconfig
