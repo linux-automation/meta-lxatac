@@ -28,6 +28,15 @@ bundle on your TAC:
 
 If that does not work you may want to [re-install via USB](#installing-images-via-usb).
 
+There is also a testing channel with more recent (but less tested) software,
+that can be enabled using:
+
+    $ rauc-enable-cert testing.cert.pem
+    $ rauc install https://downloads.linux-automation.com/lxatac/software/testing/latest/lxatac-core-bundle-base-lxatac.raucb
+
+To switch back to the stable channel just follow the stable channel's
+update instructions mentioned above.
+
 If you've made changes to your TACs configuration that you want to preserve,
 which are not covered by the default update migration logic,
 you can add a list of additional files to migrate to the
