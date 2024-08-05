@@ -2,7 +2,7 @@ SUMMARY = "LXA TAC image containing a selection of useful development tools"
 
 BAD_RECOMMENDATIONS = "rng-tools"
 
-IMAGE_FEATURES = "ssh-server-openssh empty-root-password tools-debug"
+IMAGE_FEATURES = "ssh-server-openssh empty-root-password tools-debug lic-pkgs"
 
 IMAGE_FSTYPES += "ext4"
 
