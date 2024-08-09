@@ -8,7 +8,7 @@ jobs:
   check:
     name: consistency check
     runs-on: ubuntu-latest
-    if: github.repository == 'linux-automation/meta-lxatac' && !startsWith(github.ref, 'dependabot/')
+    if: github.repository == 'linux-automation/meta-lxatac' && !startsWith(github.ref_name, 'dependabot/')
     steps:
       - name: Install required packages
         run: |
