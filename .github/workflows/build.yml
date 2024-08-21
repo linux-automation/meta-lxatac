@@ -54,6 +54,24 @@ jobs:
             emmc-image \
             emmc-boot-image \
             tf-a-stm32mp
+      - name: Print logs of failed jobs
+        if: ${{ failure() }}
+        shell: python3 {0}
+        run: |
+          import os
+
+          PREFIX = 'ERROR: Logfile of failure stored in:'
+
+          for ln in open('build/tmp/log/cooker/lxatac/console-latest.log'):
+              if not ln.startswith(PREFIX):
+                continue
+
+              path = ln.removeprefix(PREFIX).strip()
+              shorter_path = path.removeprefix(os.getcwd()).strip('/')
+
+              print(f'::group::Contents of "{shorter_path}"')
+              print(open(path).read())
+              print('::endgroup::')
       - name: Persist the disk image
         env:
           PERSISTENCE_TOKEN: ${{ secrets.PERSISTENCE_TOKEN }}
