@@ -75,7 +75,7 @@ jobs:
       - name: Persist the disk image
         env:
           PERSISTENCE_TOKEN: ${{ secrets.PERSISTENCE_TOKEN }}
-        if: ${{ env.PERSISTENCE_TOKEN != ''  }}
+        if: ${{ github.ref_protected && env.PERSISTENCE_TOKEN != '' }}
         run: |
           sudo fstrim /
           echo "$PERSISTENCE_TOKEN" > ~/config/persist
