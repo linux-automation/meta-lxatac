@@ -16,35 +16,18 @@ jobs:
     runs-on: [self-hosted, forrest, build]
     if: ${{ vars.HAS_BUILD_RUNNER || github.repository == 'linux-automation/meta-lxatac' }}
     steps:
-      - name: Set up runner machine
-        run: |
-          sudo localectl set-locale en_US.UTF-8
-          export DEBIAN_FRONTEND=noninteractive
-          export DPKG_FORCE=confnew
-          sudo -E apt-get update
-          sudo -E apt-get --assume-yes dist-upgrade
-          sudo -E apt-get --assume-yes install build-essential chrpath diffstat gawk git lz4
       - name: Check out the repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          path: source
+
       - name: Build bundle and images
         run: |
-          # We clone meta-lxatac and its submodules into a sub-directory to
-          # prevent the checkout action from deleting our build directory.
-          # Keeping the build directory gives us incremental builds,
-          # with all its benefits (speed) and drawbacks (reproducibility).
-
-          # Make sure we start with a fresh config.
-          rm -rf build/conf
-
           # oe-init-build-env implicitly cd-s into the build directory.
-          cd source
-          source oe-init-build-env ../build
+          source oe-init-build-env build
 
-          # Save disk space by deleting a packages build directory once built.
-          echo 'INHERIT += "rm_work"' >> conf/local.conf
+          # Apply default config provided by our custom runner images
+          cp ~/.yocto/auto.conf conf/
 
           # Build all images that are relevant to us.
           bitbake \
@@ -54,6 +37,7 @@ jobs:
             emmc-image \
             emmc-boot-image \
             tf-a-stm32mp
+
       - name: Print logs of failed jobs
         if: ${{ failure() }}
         shell: python3 {0}
@@ -72,10 +56,14 @@ jobs:
               print(f'::group::Contents of "{shorter_path}"')
               print(open(path).read())
               print('::endgroup::')
-      - name: Persist the disk image
+
+      - name: Cache Data
         env:
-          PERSISTENCE_TOKEN: ${{ secrets.PERSISTENCE_TOKEN }}
-        if: ${{ github.ref_protected && env.PERSISTENCE_TOKEN != '' }}
+          CACHE_KEY: ${{ secrets.YOCTO_CACHE_KEY }}
+        if: ${{ github.ref_protected && env.CACHE_KEY }}
         run: |
-          sudo fstrim /
-          echo "$PERSISTENCE_TOKEN" > ~/config/persist
+          mkdir -p ~/.ssh
+          echo "$CACHE_KEY" >> ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          rsync -rvx --ignore-existing build/downloads yocto-cache: || true
+          rsync -rvx --ignore-existing build/sstate-cache yocto-cache: || true
