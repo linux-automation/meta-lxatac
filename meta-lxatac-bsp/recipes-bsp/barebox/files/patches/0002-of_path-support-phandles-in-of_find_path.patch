@@ -21,7 +21,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 34 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/of/of_path.c b/drivers/of/of_path.c
-index 12a2dfce553e..522109c17b55 100644
+index 42efb1ad1dbf..a1a47cad0c20 100644
 --- a/drivers/of/of_path.c
 +++ b/drivers/of/of_path.c
 @@ -254,7 +254,11 @@ struct device_node *of_find_node_by_devpath(struct device_node *root, const char
@@ -95,10 +95,10 @@ index 12a2dfce553e..522109c17b55 100644
  	}
  
 diff --git a/include/of.h b/include/of.h
-index 19b8e7c038a4..51ad5773007b 100644
+index 55f2c0cbdedf..187a55439a8a 100644
 --- a/include/of.h
 +++ b/include/of.h
-@@ -336,7 +336,8 @@ int of_add_memory(struct device_node *node, bool dump);
+@@ -350,7 +350,8 @@ int of_add_memory(struct device_node *node, bool dump);
  int of_add_memory_bank(struct device_node *node, bool dump, int r,
  		u64 base, u64 size);
  struct device *of_find_device_by_node_path(const char *path);

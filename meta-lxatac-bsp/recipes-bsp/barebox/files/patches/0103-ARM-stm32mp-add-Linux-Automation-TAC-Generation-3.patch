@@ -18,9 +18,9 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  dts/src/arm/st/stm32mp15-pinctrl.dtsi       |  14 ++
  dts/src/arm/st/stm32mp153c-lxa-tac-gen3.dts | 245 ++++++++++++++++++++++++++++
  dts/src/arm/st/stm32mp157c-lxa-tac-gen1.dts |  78 +++++++++
- dts/src/arm/st/stm32mp157c-lxa-tac-gen2.dts |  79 ++++++++-
- dts/src/arm/st/stm32mp15xc-lxa-tac.dtsi     |  86 +---------
- 10 files changed, 472 insertions(+), 79 deletions(-)
+ dts/src/arm/st/stm32mp157c-lxa-tac-gen2.dts |  77 +++++++++
+ dts/src/arm/st/stm32mp15xc-lxa-tac.dtsi     |  80 +--------
+ 10 files changed, 466 insertions(+), 77 deletions(-)
  create mode 100644 arch/arm/dts/stm32mp153c-lxa-tac-gen3.dts
  create mode 100644 dts/src/arm/st/stm32mp153c-lxa-tac-gen3.dts
 
@@ -68,10 +68,10 @@ index bb0600b4d66c..bfb7aca29917 100644
  
  	stm32mp1_barebox_entry(fdt);
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index d39924c1d252..76f0c8244de7 100644
+index 9c9e211728e6..a260eb2ef34b 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -146,7 +146,8 @@ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.
+@@ -149,7 +149,8 @@ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.
  					stm32mp157c-dk2-scmi.dtb.o stm32mp157a-dk1-scmi.dtb.o
  lwl-$(CONFIG_MACH_STM32MP13XX_DK) += stm32mp135f-dk.dtb.o
  lwl-$(CONFIG_MACH_LXA_MC1) += stm32mp157c-lxa-mc1.dtb.o stm32mp157c-lxa-mc1-scmi.dtb.o
@@ -126,10 +126,10 @@ index 000000000000..ab46e11d396d
 +	};
 +};
 diff --git a/dts/Bindings/arm/stm32/stm32.yaml b/dts/Bindings/arm/stm32/stm32.yaml
-index bc2f43330ae4..72fea0ef8f34 100644
+index 58099949e8f3..499ed9b5250c 100644
 --- a/dts/Bindings/arm/stm32/stm32.yaml
 +++ b/dts/Bindings/arm/stm32/stm32.yaml
-@@ -136,6 +136,7 @@ properties:
+@@ -142,6 +142,7 @@ properties:
                - lxa,stm32mp157c-mc1      # Linux Automation MC-1
                - lxa,stm32mp157c-tac-gen1 # Linux Automation TAC (Generation 1)
                - lxa,stm32mp157c-tac-gen2 # Linux Automation TAC (Generation 2)
@@ -510,7 +510,7 @@ index 81f254fb88b0..2dd158841c85 100644
  	status = "disabled";
  };
 diff --git a/dts/src/arm/st/stm32mp157c-lxa-tac-gen2.dts b/dts/src/arm/st/stm32mp157c-lxa-tac-gen2.dts
-index 8a34d15e9005..1fac9bb60cfb 100644
+index 4cc177031661..1fac9bb60cfb 100644
 --- a/dts/src/arm/st/stm32mp157c-lxa-tac-gen2.dts
 +++ b/dts/src/arm/st/stm32mp157c-lxa-tac-gen2.dts
 @@ -121,6 +121,76 @@ led-15 {
@@ -604,17 +604,8 @@ index 8a34d15e9005..1fac9bb60cfb 100644
  &gpu {
  	status = "disabled";
  };
-@@ -148,7 +225,7 @@ adc@0 {
- 		compatible = "ti,lmp92064";
- 		reg = <0>;
- 
--		reset-gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpioa 4 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
- 		shunt-resistor-micro-ohms = <15000>;
- 		spi-max-frequency = <5000000>;
- 		vdd-supply = <&reg_pb_3v3>;
 diff --git a/dts/src/arm/st/stm32mp15xc-lxa-tac.dtsi b/dts/src/arm/st/stm32mp15xc-lxa-tac.dtsi
-index fc3a2386dbb9..0afbb1a1fa4f 100644
+index c87fd96cbd91..ca94a1e0ff66 100644
 --- a/dts/src/arm/st/stm32mp15xc-lxa-tac.dtsi
 +++ b/dts/src/arm/st/stm32mp15xc-lxa-tac.dtsi
 @@ -142,75 +142,6 @@ output-vuart {
@@ -707,27 +698,7 @@ index fc3a2386dbb9..0afbb1a1fa4f 100644
  &gpiof {
  	gpio-line-names = "TP36", "TP37", "", "", "OLED_CS", /*  0 */
  	"", "", "", "", "",                                  /*  5 */
-@@ -409,7 +333,7 @@ &sdmmc2 {
- &spi2 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&spi2_pins_c>;
--	cs-gpios = <&gpiof 12 GPIO_ACTIVE_LOW>;
-+	cs-gpios = <&gpiof 12 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
- 	status = "okay";
- };
- 
-@@ -471,6 +395,10 @@ switch: switch@0 {
- 		interrupt-parent = <&gpioa>;
- 		interrupts = <6 IRQ_TYPE_EDGE_RISING>;
- 
-+		/* Reduce RGMII EMI emissions by reducing drive strength */
-+		microchip,hi-drive-strength-microamp = <2000>;
-+		microchip,lo-drive-strength-microamp = <8000>;
-+
- 		ports {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -577,6 +505,10 @@ &usbotg_hs {
+@@ -576,6 +500,10 @@ &usbotg_hs {
  	vusb_d-supply = <&vdd_usb>;
  	vusb_a-supply = <&reg18>;
  

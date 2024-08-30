@@ -24,12 +24,12 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 11 insertions(+), 9 deletions(-)
 
 diff --git a/include/net.h b/include/net.h
-index d11b7b8f1e0d..0ec2519e2eff 100644
+index 5171c6485d26..cbb26169f288 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -627,6 +627,15 @@ void ifdown_all(void);
+@@ -633,4 +633,13 @@ void ifdown_all(void);
  
- extern struct list_head netdev_list;
+ extern struct class eth_class;
  
 +struct eth_ethaddr {
 +	struct list_head list;
@@ -40,16 +40,14 @@ index d11b7b8f1e0d..0ec2519e2eff 100644
 +
 +extern struct list_head ethaddr_list;
 +
- #define for_each_netdev(netdev) list_for_each_entry(netdev, &netdev_list, list)
- 
  #endif /* __NET_H__ */
 diff --git a/net/eth.c b/net/eth.c
-index 8097fb949412..ebeeb620d567 100644
+index a1d6860be830..3714dde44026 100644
 --- a/net/eth.c
 +++ b/net/eth.c
 @@ -23,14 +23,7 @@
  
- LIST_HEAD(netdev_list);
+ DEFINE_DEV_CLASS(eth_class, "eth");
  
 -struct eth_ethaddr {
 -	struct list_head list;

@@ -13,10 +13,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 24 insertions(+)
 
 diff --git a/common/Kconfig b/common/Kconfig
-index d16c8696dad4..e25131b74198 100644
+index 4500feb66c92..06ff53e9dd95 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1089,6 +1089,14 @@ config MACHINE_ID
+@@ -1169,6 +1169,14 @@ config MACHINE_ID
  	  Note: if no hashable information is available no machine id will be passed
  	  to the kernel.
  
@@ -32,12 +32,12 @@ index d16c8696dad4..e25131b74198 100644
  	bool "inform devicetree-enabled kernel of used watchdog"
  	depends on WATCHDOG && OFTREE && FLEXIBLE_BOOTARGS
 diff --git a/common/misc.c b/common/misc.c
-index e266f0951ee9..36dfd6f34873 100644
+index 7e19797c2f99..1154ae9e21cd 100644
 --- a/common/misc.c
 +++ b/common/misc.c
-@@ -146,6 +146,18 @@ static char *hostname;
- static char *serial_number;
- static char *of_machine_compatible;
+@@ -210,6 +210,18 @@ bool barebox_hostname_is_valid(const char *s)
+ 	return true;
+ }
  
 +static void linux_bootargs_set_hostname(void)
 +{
@@ -54,16 +54,16 @@ index e266f0951ee9..36dfd6f34873 100644
  /*
   * The hostname is supposed to be the shortname of a board. It should
   * contain only lowercase letters, numbers, '-', '_'. No whitespaces
-@@ -157,6 +169,8 @@ void barebox_set_hostname(const char *__hostname)
+@@ -225,6 +237,8 @@ void barebox_set_hostname(const char *__hostname)
+ 		pr_warn("Hostname is not valid, please fix it\n");
  
- 	free(hostname);
  	hostname = xstrdup(__hostname);
 +
 +	linux_bootargs_set_hostname();
  }
  
  const char *barebox_get_hostname(void)
-@@ -181,6 +195,8 @@ void barebox_set_serial_number(const char *__serial_number)
+@@ -249,6 +263,8 @@ void barebox_set_serial_number(const char *__serial_number)
  
  	free(serial_number);
  	serial_number = xstrdup(__serial_number);
