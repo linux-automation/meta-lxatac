@@ -38,6 +38,13 @@ jobs:
             emmc-boot-image \
             tf-a-stm32mp
 
+          # Make the generates images available at a less deeply nested
+          # location for the artifact upload (the directory structure is
+          # preserved in the archive).
+          # Keep in mind that we are in the `build` directory because
+          # `oe-init-build-env` implicitly `cd`s there.
+          mv tmp/deploy/images/lxatac ../images
+
       - name: Print logs of failed jobs
         if: ${{ failure() }}
         shell: python3 {0}
@@ -67,3 +74,11 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           rsync -rvx --ignore-existing build/downloads yocto-cache: || true
           rsync -rvx --ignore-existing build/sstate-cache yocto-cache: || true
+
+      - name: Upload RAUC Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: rauc-bundle
+          path: images/lxatac-core-bundle-base-lxatac-*.raucb
+          compression-level: 0
+          retention-days: 30
