@@ -15,10 +15,10 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  1 file changed, 4 insertions(+)
 
 diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
-index cfaf8adde319..236ecfca893a 100644
+index c87fd96cbd91..0c1ee3b33c30 100644
 --- a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 +++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
-@@ -581,6 +581,10 @@ &usbotg_hs {
+@@ -576,6 +576,10 @@ &usbotg_hs {
  	vusb_d-supply = <&vdd_usb>;
  	vusb_a-supply = <&reg18>;
  

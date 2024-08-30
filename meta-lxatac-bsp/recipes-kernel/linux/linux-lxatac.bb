@@ -9,7 +9,7 @@ SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_VERSION}.t
            file://defconfig \
            "
 
-SRC_URI[sha256sum] = "774698422ee54c5f1e704456f37c65c06b51b4e9a8b0866f34580d86fef8e226"
+SRC_URI[sha256sum] = "55d2c6c025ebc27810c748d66325dd5bc601e8d32f8581d9e77673529bdacb2e"
 
 require files/patches/series.inc
 
@@ -20,7 +20,10 @@ COMPATIBLE_MACHINE = "lxatac"
 
 RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""
 
-DEPENDS:append = " panel-shineworld-lh133k"
+# The coreutils-native dependency is required since kernel 6.11,
+# which uses the `truncate` tool in a script.
+# It can likely be removed again once the kernel.bbclass is updated.
+DEPENDS:append = " panel-shineworld-lh133k coreutils-native"
 
 # Some options depend on CONFIG_PAHOLE_VERSION, so need to make pahole-native available before do_kernel_configme
 do_kernel_configme[depends] += "pahole-native:do_populate_sysroot"
