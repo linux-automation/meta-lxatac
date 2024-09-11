@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = " \
 "
 
 PV = "0.1.0+git${SRCPV}"
-SRCREV = "a519eb3181516ac73fa7cc7cb7aa9cccd2b2f9c0"
+SRCREV = "e79b017da65f4a084a8b24f1118e15b0c3f25ae8"
 
 S = "${WORKDIR}/git/web"
 
