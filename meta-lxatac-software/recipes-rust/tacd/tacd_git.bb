@@ -3,7 +3,7 @@ inherit cargo
 DEFAULT_PREFERENCE = "-1"
 
 SRC_URI += "git://github.com/linux-automation/tacd.git;protocol=https;branch=main"
-SRCREV = "a519eb3181516ac73fa7cc7cb7aa9cccd2b2f9c0"
+SRCREV = "e79b017da65f4a084a8b24f1118e15b0c3f25ae8"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
 PV = "0.1.0+git${SRCPV}"
