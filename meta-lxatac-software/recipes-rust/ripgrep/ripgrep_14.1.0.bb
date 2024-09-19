@@ -4,7 +4,6 @@ SRC_URI += "git://github.com/BurntSushi/ripgrep.git;protocol=https;branch=master
 SRCREV = "e50df40a1967708b9781486b1c017e48040bceb0"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
-PV:append = ".AUTOINC+9c8d873a75"
 
 SRC_URI += " \
     crate://crates.io/aho-corasick/1.1.2 \
