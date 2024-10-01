@@ -5,11 +5,11 @@ SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_VERSION}.tar.xz \
+SRC_URI = "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/linux-${LINUX_VERSION}.tar.gz \
            file://defconfig \
            "
 
-SRC_URI[sha256sum] = "55d2c6c025ebc27810c748d66325dd5bc601e8d32f8581d9e77673529bdacb2e"
+SRC_URI[sha256sum] = "248f22796171a3d5809d76b019763cd4bb2a69f9a95d243ee614cea7eb3e578e"
 
 require files/patches/series.inc
 
