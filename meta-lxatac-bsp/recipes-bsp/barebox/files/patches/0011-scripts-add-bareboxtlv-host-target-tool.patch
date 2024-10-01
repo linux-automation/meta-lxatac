@@ -31,7 +31,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 scripts/include/linux/stringify.h
 
 diff --git a/scripts/.gitignore b/scripts/.gitignore
-index 8c653d184f5f..e34ff994874b 100644
+index 6ee81e899800..c098af42fe30 100644
 --- a/scripts/.gitignore
 +++ b/scripts/.gitignore
 @@ -20,6 +20,8 @@ bareboxenv-target
@@ -44,7 +44,7 @@ index 8c653d184f5f..e34ff994874b 100644
  mxsimage
  mxsboot
 diff --git a/scripts/Makefile b/scripts/Makefile
-index cb1d916439b7..2c6ed9254a36 100644
+index a780f05bd90f..662066808ece 100644
 --- a/scripts/Makefile
 +++ b/scripts/Makefile
 @@ -10,6 +10,7 @@ hostprogs-always-y					+= bareboxenv
@@ -52,10 +52,10 @@ index cb1d916439b7..2c6ed9254a36 100644
  hostprogs-always-y					+= kernel-install
  hostprogs-always-$(CONFIG_QOICONV)			+= qoiconv
 +hostprogs-always-$(CONFIG_TLV)				+= bareboxtlv
- hostprogs-always-$(CONFIG_RSATOC)			+= rsatoc
- HOSTCFLAGS_rsatoc.o = `$(PKG_CONFIG) --cflags openssl`
- HOSTLDLIBS_rsatoc = `$(PKG_CONFIG) --libs openssl`
-@@ -44,6 +45,7 @@ HOSTLDLIBS_rk-usb-loader  = `$(PKG_CONFIG) --libs libusb-1.0`
+ hostprogs-always-$(CONFIG_KEYTOC)			+= keytoc
+ HOSTCFLAGS_keytoc.o = `$(PKG_CONFIG) --cflags openssl`
+ HOSTLDLIBS_keytoc = `$(PKG_CONFIG) --libs openssl`
+@@ -43,6 +44,7 @@ HOSTLDLIBS_rk-usb-loader  = `$(PKG_CONFIG) --libs libusb-1.0`
  hostprogs-always-$(CONFIG_RK_USB_LOADER)		+= rk-usb-loader
  
  userprogs-always-$(CONFIG_BAREBOXENV_TARGET)		+= bareboxenv-target

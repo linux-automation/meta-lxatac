@@ -31,10 +31,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 include/tlv/tlv.h
 
 diff --git a/common/Kconfig b/common/Kconfig
-index e25131b74198..c3d8eeabf63d 100644
+index 06ff53e9dd95..237109d57be0 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1014,6 +1014,30 @@ config BTHREAD
+@@ -1094,6 +1094,30 @@ config BTHREAD
  	  scheduled within delay loops and the console idle to asynchronously
  	  execute actions, like checking for link up or feeding a watchdog.
  
@@ -66,10 +66,10 @@ index e25131b74198..c3d8eeabf63d 100644
  	bool "generic state infrastructure"
  	select CRC32
 diff --git a/common/Makefile b/common/Makefile
-index 74ef8b7d8af2..08c38eaff358 100644
+index e88f60b6d762..0e7c98ae9d3c 100644
 --- a/common/Makefile
 +++ b/common/Makefile
-@@ -65,6 +65,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
+@@ -67,6 +67,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
  obj-$(CONFIG_SHELL_HUSH)	+= hush.o
  obj-$(CONFIG_SHELL_SIMPLE)	+= parser.o
  obj-$(CONFIG_STATE)		+= state/
@@ -753,12 +753,12 @@ index 000000000000..54ebce2b4dd3
 +	return platform_driver_register(&decoder->_platform_driver);
 +}
 diff --git a/include/string.h b/include/string.h
-index 43911b75762f..13eebc811aae 100644
+index cbe6eddf7f88..e56f4c77cfcb 100644
 --- a/include/string.h
 +++ b/include/string.h
-@@ -20,4 +20,9 @@ char *parse_assignment(char *str);
- 
- int strverscmp(const char *a, const char *b);
+@@ -43,4 +43,9 @@ static inline const char *nonempty(const char *s)
+ 	return isempty(s) ? NULL : s;
+ }
  
 +static inline bool is_nul_terminated(const char *val, size_t len)
 +{

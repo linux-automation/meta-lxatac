@@ -31,10 +31,10 @@ Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
  create mode 100644 arch/arm/dts/stm32mp15xc-lxa-tac.dtsi
 
 diff --git a/arch/arm/boards/Makefile b/arch/arm/boards/Makefile
-index e597b02be6c9..cfc35bdb158f 100644
+index e0dc27cb3d21..e36fd78aa3f1 100644
 --- a/arch/arm/boards/Makefile
 +++ b/arch/arm/boards/Makefile
-@@ -143,6 +143,7 @@ obj-$(CONFIG_MACH_SOLIDRUN_MICROSOM)		+= solidrun-microsom/
+@@ -122,6 +122,7 @@ obj-$(CONFIG_MACH_SOLIDRUN_MICROSOM)		+= solidrun-microsom/
  obj-$(CONFIG_MACH_STM32MP15XX_DKX)		+= stm32mp15xx-dkx/
  obj-$(CONFIG_MACH_STM32MP13XX_DK)		+= stm32mp13xx-dk/
  obj-$(CONFIG_MACH_LXA_MC1)			+= lxa-mc1/
@@ -179,10 +179,10 @@ index 000000000000..bb0600b4d66c
 +	select_fdt_and_start((void *)r2);
 +}
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 7800231570cd..d39924c1d252 100644
+index 68585e1e4b1d..9c9e211728e6 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -146,6 +146,7 @@ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.
+@@ -149,6 +149,7 @@ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.
  					stm32mp157c-dk2-scmi.dtb.o stm32mp157a-dk1-scmi.dtb.o
  lwl-$(CONFIG_MACH_STM32MP13XX_DK) += stm32mp135f-dk.dtb.o
  lwl-$(CONFIG_MACH_LXA_MC1) += stm32mp157c-lxa-mc1.dtb.o stm32mp157c-lxa-mc1-scmi.dtb.o
@@ -429,7 +429,7 @@ index 000000000000..5a07ad7996e6
 +	status = "okay";
 +};
 diff --git a/arch/arm/mach-stm32mp/Kconfig b/arch/arm/mach-stm32mp/Kconfig
-index 524d282a1db8..220d5b2c15e5 100644
+index 5d60c7996786..ddf2451a49c5 100644
 --- a/arch/arm/mach-stm32mp/Kconfig
 +++ b/arch/arm/mach-stm32mp/Kconfig
 @@ -29,6 +29,11 @@ config MACH_LXA_MC1
@@ -445,7 +445,7 @@ index 524d282a1db8..220d5b2c15e5 100644
  	select ARCH_STM32MP157
  	bool "Seeed Studio Odyssey"
 diff --git a/images/Makefile.stm32mp b/images/Makefile.stm32mp
-index cc70aee92388..80f6b9dfc8f5 100644
+index cb01eb2555e8..9be7a14d0f14 100644
 --- a/images/Makefile.stm32mp
 +++ b/images/Makefile.stm32mp
 @@ -35,6 +35,10 @@ $(call build_stm32mp_image, CONFIG_MACH_STM32MP15X_EV1, start_stm32mp15x_ev1, st

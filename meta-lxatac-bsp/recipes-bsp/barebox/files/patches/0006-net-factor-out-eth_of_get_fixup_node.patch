@@ -14,10 +14,10 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 31 insertions(+), 10 deletions(-)
 
 diff --git a/include/net.h b/include/net.h
-index a569fdcf470f..d11b7b8f1e0d 100644
+index 8a943e1bb1b2..5171c6485d26 100644
 --- a/include/net.h
 +++ b/include/net.h
-@@ -130,6 +130,18 @@ static inline void of_eth_register_ethaddr(struct device_node *node,
+@@ -128,6 +128,18 @@ static inline void of_eth_register_ethaddr(struct device_node *node,
  void eth_register_ethaddr(int ethid, const char *ethaddr);
  void of_eth_register_ethaddr(struct device_node *node, const char *ethaddr);
  #endif
@@ -37,7 +37,7 @@ index a569fdcf470f..d11b7b8f1e0d 100644
   *	Ethernet header
   */
 diff --git a/net/eth.c b/net/eth.c
-index 28961e868b7a..8097fb949412 100644
+index 7229530c055b..a1d6860be830 100644
 --- a/net/eth.c
 +++ b/net/eth.c
 @@ -319,19 +319,11 @@ static int eth_param_set_ethaddr(struct param_d *param, void *priv)

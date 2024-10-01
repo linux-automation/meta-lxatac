@@ -21,26 +21,26 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 common/boards/lxa/factory-data.c
 
 diff --git a/common/boards/Kconfig b/common/boards/Kconfig
-index fe3a60d50879..7054a18007b8 100644
+index 586a54d7ca13..74947316954b 100644
 --- a/common/boards/Kconfig
 +++ b/common/boards/Kconfig
-@@ -13,3 +13,8 @@ config BOARD_PHYTEC_SOM_IMX8M_DETECTION
- 
- config BOARD_TQ
+@@ -19,3 +19,8 @@ config BOARD_WOLFVISION
  	bool
+ 	select AIODEV
+ 	select ROCKCHIP_SARADC
 +
 +config BOARD_LXA
 +	bool "LXA common board support" if COMPILE_TEST
 +	select TLV
 +	select TLV_BAREBOX
 diff --git a/common/boards/Makefile b/common/boards/Makefile
-index 147c36643d2b..4f30be78dce9 100644
+index 3f8ac57b2f82..058733522411 100644
 --- a/common/boards/Makefile
 +++ b/common/boards/Makefile
-@@ -3,3 +3,4 @@
- obj-$(CONFIG_BOARD_QEMU_VIRT)	+= qemu-virt/
+@@ -4,3 +4,4 @@ obj-$(CONFIG_BOARD_QEMU_VIRT)	+= qemu-virt/
  obj-$(CONFIG_BOARD_PHYTEC_SOM_DETECTION) += phytec/
  obj-$(CONFIG_BOARD_TQ) += tq/
+ obj-$(CONFIG_BOARD_WOLFVISION) += wolfvision/
 +obj-$(CONFIG_BOARD_LXA) += lxa/
 diff --git a/common/boards/include/boards/lxa/tlv.h b/common/boards/include/boards/lxa/tlv.h
 new file mode 100644
@@ -175,10 +175,10 @@ index 000000000000..70ddbc734613
 +	return tlv_register_decoder(&lxa_tlv_powerboard_v1);
 +}
 diff --git a/include/string.h b/include/string.h
-index 13eebc811aae..785437ee59a7 100644
+index e56f4c77cfcb..b3d543262731 100644
 --- a/include/string.h
 +++ b/include/string.h
-@@ -10,6 +10,8 @@ char *strsep_unescaped(char **, const char *);
+@@ -11,6 +11,8 @@ char *strsep_unescaped(char **, const char *);
  char *stpcpy(char *dest, const char *src);
  bool strends(const char *str, const char *postfix);
  
@@ -201,7 +201,7 @@ index a32ec917a434..33f5c30a4beb 100644
  #define TLV_IS_VENDOR_SPECIFIC(val)	((*(u8 *)&(val) & 0x80) == 0x80)
  #define TLV_IS_GENERIC(val)		((*(u8 *)&(val) & 0x80) != 0x80)
 diff --git a/lib/string.c b/lib/string.c
-index bf0f0455ab3f..bcfba154082f 100644
+index 374f326143a7..f2f81144dbdd 100644
 --- a/lib/string.c
 +++ b/lib/string.c
 @@ -791,6 +791,27 @@ void *memchr(const void *s, int c, size_t n)

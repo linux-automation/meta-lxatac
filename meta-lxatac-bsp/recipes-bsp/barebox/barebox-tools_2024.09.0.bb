@@ -8,7 +8,7 @@ DEPENDS = "libusb1 libusb1-native lzop-native bison-native flex-native pkgconfig
 BBCLASSEXTEND = "native"
 
 SRC_URI = "http://barebox.org/download/barebox-${PV}.tar.bz2"
-SRC_URI[sha256sum] = "7dda8cc4e989d38162dc04d287a882edc828093f75baace9e40b2ab7902958ea"
+SRC_URI[sha256sum] = "4d4ea7e232aeba2b3cb9ccf0dbf8cd8e01c65b6c615f64c3bd0c4f24f23a47da"
 
 S = "${WORKDIR}/barebox-${PV}"
 
