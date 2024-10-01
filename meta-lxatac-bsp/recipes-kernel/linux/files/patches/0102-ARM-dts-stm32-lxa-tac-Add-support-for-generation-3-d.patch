@@ -19,10 +19,10 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  create mode 100644 arch/arm/boot/dts/st/stm32mp153c-lxa-tac-gen3.dts
 
 diff --git a/Documentation/devicetree/bindings/arm/stm32/stm32.yaml b/Documentation/devicetree/bindings/arm/stm32/stm32.yaml
-index 58099949e8f3..499ed9b5250c 100644
+index 703d4b574398..12199809fc05 100644
 --- a/Documentation/devicetree/bindings/arm/stm32/stm32.yaml
 +++ b/Documentation/devicetree/bindings/arm/stm32/stm32.yaml
-@@ -142,6 +142,7 @@ properties:
+@@ -150,6 +150,7 @@ properties:
                - lxa,stm32mp157c-mc1      # Linux Automation MC-1
                - lxa,stm32mp157c-tac-gen1 # Linux Automation TAC (Generation 1)
                - lxa,stm32mp157c-tac-gen2 # Linux Automation TAC (Generation 2)
@@ -31,10 +31,10 @@ index 58099949e8f3..499ed9b5250c 100644
            - const: oct,stm32mp15xx-osd32
            - enum:
 diff --git a/arch/arm/boot/dts/st/Makefile b/arch/arm/boot/dts/st/Makefile
-index 015903d09323..3aa31a41167d 100644
+index eab3a9bd435f..6880b5895ef8 100644
 --- a/arch/arm/boot/dts/st/Makefile
 +++ b/arch/arm/boot/dts/st/Makefile
-@@ -60,6 +60,7 @@ dtb-$(CONFIG_ARCH_STM32) += \
+@@ -63,6 +63,7 @@ dtb-$(CONFIG_ARCH_STM32) += \
  	stm32mp157c-lxa-mc1.dtb \
  	stm32mp157c-lxa-tac-gen1.dtb \
  	stm32mp157c-lxa-tac-gen2.dtb \
@@ -43,7 +43,7 @@ index 015903d09323..3aa31a41167d 100644
  	stm32mp157c-osd32mp1-red.dtb \
  	stm32mp157c-phycore-stm32mp1-3.dtb
 diff --git a/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi
-index ae83e7b10232..54dbb58ba4c2 100644
+index 70e132dc6147..f4ec79ea5c70 100644
 --- a/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi
 +++ b/arch/arm/boot/dts/st/stm32mp15-pinctrl.dtsi
 @@ -18,6 +18,20 @@ pins {
