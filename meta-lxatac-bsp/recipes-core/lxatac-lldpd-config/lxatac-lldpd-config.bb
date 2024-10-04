@@ -7,8 +7,11 @@ SRC_URI = " \
     file://01-switch.conf \
 "
 
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
+
 do_install() {
-    install -D -m0644 ${WORKDIR}/01-switch.conf ${D}${sysconfdir}/lldpd.d/01-switch.conf
+    install -D -m0644 ${UNPACKDIR}/01-switch.conf ${D}${sysconfdir}/lldpd.d/01-switch.conf
 }
 
 FILES:${PN} = "${sysconfdir}/lldpd.d/"
