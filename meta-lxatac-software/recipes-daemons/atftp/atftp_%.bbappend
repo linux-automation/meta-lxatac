@@ -9,7 +9,7 @@ SRC_URI += "file://create-dir.conf"
 do_install:append() {
     rmdir ${D}/srv/tftp ${D}/srv
 
-    install -D -m 0644 ${S}/../create-dir.conf \
+    install -D -m 0644 ${UNPACKDIR}/create-dir.conf \
         ${D}${systemd_system_unitdir}/atftpd.service.d/create-dir.conf
 }
 
