@@ -7,7 +7,7 @@ SRC_URI += " \
     "
 
 do_install:append() {
-    install -D -m 0644 ${WORKDIR}/require-mount-srv.conf \
+    install -D -m 0644 ${UNPACKDIR}/require-mount-srv.conf \
         ${D}${systemd_system_unitdir}/rauc.service.d/require-mount-srv.conf
 }
 
