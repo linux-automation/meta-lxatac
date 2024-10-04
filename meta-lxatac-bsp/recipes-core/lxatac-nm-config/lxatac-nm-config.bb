@@ -14,18 +14,21 @@ SRC_URI += " \
     file://52-switch.link \
     "
 
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
+
 N = "${libdir}/NetworkManager/system-connections"
 
 do_install() {
-    install -D -m0600 ${WORKDIR}/tac-bridge.nmconnection ${D}${N}/tac-bridge.nmconnection
-    install -D -m0600 ${WORKDIR}/port-dut.nmconnection ${D}${N}/port-dut.nmconnection
-    install -D -m0600 ${WORKDIR}/port-uplink.nmconnection ${D}${N}/port-uplink.nmconnection
-    install -D -m0600 ${WORKDIR}/switch.conf ${D}${libdir}/NetworkManager/conf.d/switch.conf
-    install -D -m0600 ${WORKDIR}/hostname.conf ${D}${libdir}/NetworkManager/conf.d/hostname.conf
+    install -D -m0600 ${UNPACKDIR}/tac-bridge.nmconnection ${D}${N}/tac-bridge.nmconnection
+    install -D -m0600 ${UNPACKDIR}/port-dut.nmconnection ${D}${N}/port-dut.nmconnection
+    install -D -m0600 ${UNPACKDIR}/port-uplink.nmconnection ${D}${N}/port-uplink.nmconnection
+    install -D -m0600 ${UNPACKDIR}/switch.conf ${D}${libdir}/NetworkManager/conf.d/switch.conf
+    install -D -m0600 ${UNPACKDIR}/hostname.conf ${D}${libdir}/NetworkManager/conf.d/hostname.conf
 
-    install -D -m0600 ${WORKDIR}/50-g-usb.link ${D}${libdir}/systemd/network/50-g-usb.link
-    install -D -m0600 ${WORKDIR}/52-switch.link ${D}${libdir}/systemd/network/52-switch.link
-    install -D -m0600 ${WORKDIR}/01-disable_switch_ipv6.conf ${D}${libdir}/sysctl.d/01-disable_switch_ipv6.conf
+    install -D -m0600 ${UNPACKDIR}/50-g-usb.link ${D}${libdir}/systemd/network/50-g-usb.link
+    install -D -m0600 ${UNPACKDIR}/52-switch.link ${D}${libdir}/systemd/network/52-switch.link
+    install -D -m0600 ${UNPACKDIR}/01-disable_switch_ipv6.conf ${D}${libdir}/sysctl.d/01-disable_switch_ipv6.conf
 }
 
 FILES:${PN} += "${libdir}/sysctl.d/"

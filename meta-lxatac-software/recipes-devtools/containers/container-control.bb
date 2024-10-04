@@ -13,7 +13,10 @@ SRC_URI = " \
     file://container-update.sh \
 "
 
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
+
 do_install() {
-    install -D -m0755 ${WORKDIR}/container-start.sh ${D}${bindir}/container-start
-    install -D -m0755 ${WORKDIR}/container-update.sh ${D}${bindir}/container-update
+    install -D -m0755 ${UNPACKDIR}/container-start.sh ${D}${bindir}/container-start
+    install -D -m0755 ${UNPACKDIR}/container-update.sh ${D}${bindir}/container-update
 }

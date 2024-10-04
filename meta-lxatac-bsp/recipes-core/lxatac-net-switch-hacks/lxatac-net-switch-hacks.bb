@@ -9,26 +9,29 @@ SRC_URI += " \
     file://spi-irq-prio-44009000.service \
 "
 
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
+
 do_install() {
     # Increase the kernel atomic memory pool size.
     # This pool is used for allocations in the hot path.
     # It seems like the kernel sometimes runs out of memory in this pool when
     # under high load.
-    install -D -m0644 ${WORKDIR}/01-increase-atomic-mem-pool-size.conf \
+    install -D -m0644 ${UNPACKDIR}/01-increase-atomic-mem-pool-size.conf \
         ${D}${libdir}/sysctl.d/01-increase-atomic-mem-pool-size.conf
 
     # Tag the SPI bus controllers with the `systemd` udev tag.
     # This makes systemd create units like
     #   sys-devices-platform-soc-5c007000.bus-44009000.spi.device
     # that we can use as `Requires=` and `After=` in other units.
-    install -D -m0644 ${WORKDIR}/60-spi-device.rules \
+    install -D -m0644 ${UNPACKDIR}/60-spi-device.rules \
         ${D}${sysconfdir}/udev/rules.d/60-spi-device.rules
 
     # Increase the priority of the kernel thread that handles the
     # interrupts for the SPI controller the ethernet switch is connected to.
     # This prevents timeouts when communicating with the switch while the
     # system is under high load.
-    install -D -m0644 ${WORKDIR}/spi-irq-prio-44009000.service \
+    install -D -m0644 ${UNPACKDIR}/spi-irq-prio-44009000.service \
         ${D}${systemd_system_unitdir}/spi-irq-prio-44009000.service
 }
 

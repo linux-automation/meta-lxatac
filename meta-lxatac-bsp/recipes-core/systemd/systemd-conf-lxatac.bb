@@ -7,8 +7,11 @@ SRC_URI += " \
     file://01-watchdog.conf \
 "
 
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
+
 do_install () {
-    install -D -m0644 ${WORKDIR}/01-watchdog.conf ${D}${systemd_unitdir}/system.conf.d/01-watchdog.conf
+    install -D -m0644 ${UNPACKDIR}/01-watchdog.conf ${D}${systemd_unitdir}/system.conf.d/01-watchdog.conf
 }
 
 FILES:${PN} = "${systemd_unitdir}/system.conf.d/"

@@ -7,13 +7,16 @@ SRC_URI += " \
     file://lxatac-led-setup.sh \
 "
 
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
+
 SYSTEMD_SERVICE:${PN} = "lxatac-led-setup.service"
 
 inherit allarch systemd
 
 do_install() {
-    install -m 0644 -D ${WORKDIR}/lxatac-led-setup.service ${D}${systemd_system_unitdir}/lxatac-led-setup.service
-    install -m 0755 -D ${WORKDIR}/lxatac-led-setup.sh ${D}${sbindir}/lxatac-led-setup
+    install -m 0644 -D ${UNPACKDIR}/lxatac-led-setup.service ${D}${systemd_system_unitdir}/lxatac-led-setup.service
+    install -m 0755 -D ${UNPACKDIR}/lxatac-led-setup.sh ${D}${sbindir}/lxatac-led-setup
 }
 
 RDEPENDS:${PN} = "bash"

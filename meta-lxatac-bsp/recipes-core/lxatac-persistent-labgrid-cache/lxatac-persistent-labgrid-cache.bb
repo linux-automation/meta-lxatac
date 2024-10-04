@@ -6,14 +6,15 @@ SRC_URI = " \
     file://var-cache-labgrid.mount \
 "
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
 
 do_install () {
     install -d ${D}${systemd_system_unitdir}/
-    install -m 0644 -t ${D}${systemd_system_unitdir}/ ${S}/var-cache-labgrid.mount
+    install -m 0644 -t ${D}${systemd_system_unitdir}/ ${UNPACKDIR}/var-cache-labgrid.mount
     install -d ${D}${systemd_system_unitdir}/labgrid-exporter.service.d/
     install -m 0644 -t ${D}${systemd_system_unitdir}/labgrid-exporter.service.d/ \
-        ${S}/use-var-cache-labgrid.conf
+        ${UNPACKDIR}/use-var-cache-labgrid.conf
 }
 
 FILES:${PN} = "${systemd_system_unitdir}"
