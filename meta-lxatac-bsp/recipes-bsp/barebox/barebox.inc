@@ -60,8 +60,8 @@ python () {
 }
 
 do_configure() {
-        if [ -e ${WORKDIR}/defconfig ]; then
-                cp ${WORKDIR}/defconfig ${B}/.config
+        if [ -e ${UNPACKDIR}/defconfig ]; then
+                cp ${UNPACKDIR}/defconfig ${B}/.config
         else
                 if [ -n "${BAREBOX_CONFIG}" ]; then
                         oe_runmake ${BAREBOX_CONFIG}
@@ -75,7 +75,7 @@ do_configure() {
 }
 
 BAREBOX_ENV_DIR[doc] = "Overlay the barebox built-in environment with the environment provided by the BSP if specified."
-BAREBOX_ENV_DIR ??= "${WORKDIR}/env/"
+BAREBOX_ENV_DIR ??= "${UNPACKDIR}/env/"
 
 do_compile () {
         export userccflags="${TARGET_LDFLAGS}${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS}"
