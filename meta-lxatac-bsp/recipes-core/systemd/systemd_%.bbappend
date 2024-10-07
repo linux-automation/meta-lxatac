@@ -1,6 +1,6 @@
 RRECOMMENDS:${PN}:append = "less"
 # Enable lz4 and seccomp for systemd
-PACKAGECONFIG:append = "lz4 coredump elfutils"
+PACKAGECONFIG:append = "lz4"
 PACKAGECONFIG:remove = "networkd"
 
 # Re-enable LLMNR (but not mDNS, which is handled by avahi),
