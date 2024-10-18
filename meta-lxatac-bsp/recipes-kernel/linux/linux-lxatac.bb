@@ -18,8 +18,6 @@ S = "${WORKDIR}/linux-${LINUX_VERSION}"
 
 COMPATIBLE_MACHINE = "lxatac"
 
-RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""
-
 # The coreutils-native dependency is required since kernel 6.11,
 # which uses the `truncate` tool in a script.
 # It can likely be removed again once the kernel.bbclass is updated.
