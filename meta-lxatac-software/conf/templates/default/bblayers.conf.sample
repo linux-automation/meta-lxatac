@@ -11,7 +11,6 @@ BBLAYERS ?= " \
   ##OEROOT##/../meta-ptx \
   ##OEROOT##/../meta-oe/meta-oe \
   ##OEROOT##/../meta-oe/meta-python \
-  ##OEROOT##/../meta-oe/meta-perl \
   ##OEROOT##/../meta-oe/meta-filesystems \
   ##OEROOT##/../meta-oe/meta-networking \
   ##OEROOT##/../meta-lxatac-bsp \
