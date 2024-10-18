@@ -31,7 +31,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  create mode 100644 include/tlv/tlv.h
 
 diff --git a/common/Kconfig b/common/Kconfig
-index 06ff53e9dd95..237109d57be0 100644
+index dcc88707bad9..43e62f94b73e 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
 @@ -1094,6 +1094,30 @@ config BTHREAD
@@ -66,7 +66,7 @@ index 06ff53e9dd95..237109d57be0 100644
  	bool "generic state infrastructure"
  	select CRC32
 diff --git a/common/Makefile b/common/Makefile
-index e88f60b6d762..0e7c98ae9d3c 100644
+index e66dc04bd874..fc7ad83d95d7 100644
 --- a/common/Makefile
 +++ b/common/Makefile
 @@ -67,6 +67,7 @@ obj-$(CONFIG_RESET_SOURCE)	+= reset_source.o
@@ -76,7 +76,7 @@ index e88f60b6d762..0e7c98ae9d3c 100644
 +obj-$(CONFIG_TLV)		+= tlv/
  obj-$(CONFIG_RATP)		+= ratp/
  obj-$(CONFIG_BOOTCHOOSER)	+= bootchooser.o
- obj-$(CONFIG_UIMAGE)		+= image.o uimage.o
+ obj-$(CONFIG_UIMAGE)		+= uimage_types.o uimage.o
 diff --git a/common/tlv/Makefile b/common/tlv/Makefile
 new file mode 100644
 index 000000000000..ea982f229a08
