@@ -68,7 +68,7 @@ index bb0600b4d66c..bfb7aca29917 100644
  
  	stm32mp1_barebox_entry(fdt);
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 9c9e211728e6..a260eb2ef34b 100644
+index 1bac17112340..bcdc8d607c35 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -149,7 +149,8 @@ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.

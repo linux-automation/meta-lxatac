@@ -14,15 +14,15 @@ Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
 ---
  arch/arm/boards/Makefile                  |   1 +
  arch/arm/boards/lxa-tac/Makefile          |   2 +
- arch/arm/boards/lxa-tac/board.c           |  48 ++++++++
- arch/arm/boards/lxa-tac/lowlevel.c        |  68 ++++++++++++
+ arch/arm/boards/lxa-tac/board.c           |  48 +++++++++++
+ arch/arm/boards/lxa-tac/lowlevel.c        |  68 +++++++++++++++
  arch/arm/dts/Makefile                     |   1 +
  arch/arm/dts/stm32mp157c-lxa-tac-gen1.dts |   7 ++
- arch/arm/dts/stm32mp157c-lxa-tac-gen2.dts |  38 +++++++
- arch/arm/dts/stm32mp15xc-lxa-tac.dtsi     | 175 ++++++++++++++++++++++++++++++
- arch/arm/mach-stm32mp/Kconfig             |   5 +
+ arch/arm/dts/stm32mp157c-lxa-tac-gen2.dts |  38 ++++++++
+ arch/arm/dts/stm32mp15xc-lxa-tac.dtsi     | 138 ++++++++++++++++++++++++++++++
+ arch/arm/mach-stm32mp/Kconfig             |   5 ++
  images/Makefile.stm32mp                   |   4 +
- 10 files changed, 349 insertions(+)
+ 10 files changed, 312 insertions(+)
  create mode 100644 arch/arm/boards/lxa-tac/Makefile
  create mode 100644 arch/arm/boards/lxa-tac/board.c
  create mode 100644 arch/arm/boards/lxa-tac/lowlevel.c
@@ -179,7 +179,7 @@ index 000000000000..bb0600b4d66c
 +	select_fdt_and_start((void *)r2);
 +}
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 68585e1e4b1d..9c9e211728e6 100644
+index 3b3236b4165f..1bac17112340 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -149,6 +149,7 @@ lwl-$(CONFIG_MACH_STM32MP15XX_DKX) += stm32mp157c-dk2.dtb.o stm32mp157a-dk1.dtb.
@@ -249,10 +249,10 @@ index 000000000000..f5261203f8ef
 +};
 diff --git a/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi b/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi
 new file mode 100644
-index 000000000000..5a07ad7996e6
+index 000000000000..33f83e035457
 --- /dev/null
 +++ b/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi
-@@ -0,0 +1,175 @@
+@@ -0,0 +1,138 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 +/*
 + * Copyright (C) 2020 Ahmad Fatoum, Pengutronix
@@ -342,43 +342,6 @@ index 000000000000..5a07ad7996e6
 +				reg = <0x10 0x4>;
 +				type = "uint32";
 +			};
-+		};
-+	};
-+};
-+
-+/*
-+ * There are two bindings for pin bias:
-+
-+ * - The pinctrl binding, which differs from controller to controller,
-+ *   but is capable of representing controller specific attributes like
-+ *   pull ups of varying strength. This is used via
-+ *   pinctrl-names/pinctrl-[0-9]+ DT properties
-+ *
-+ * - Or-ing GPIO_PULL_UP or GPIO_PULL_DOWN into the GPIO flags after the
-+ *   phandle, e.g.  gpios = <&gpioe 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-+ *   Thix can expose a generic interface, but doesn't allow fine tuning.
-+ *
-+ * Not all Linux drivers support the second binding and barebox doesn't
-+ * support it all; It requires pinctrl drivers to expose to the core
-+ * a way to configure pull ups/pull downs, but we don't export this info.
-+ * Instead drivers are called with the device tree node in action and
-+ * instructed to apply it.
-+ *
-+ * We can add support for this binding for STM32 only as first step, but
-+ * till then, let's just use the first binding instead to configure the
-+ * GPIO pull-ups.
-+ */
-+&{/gpio-keys} {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&lxatac_gpio_key_pins>;
-+};
-+
-+&pinctrl {
-+	lxatac_gpio_key_pins: lxatac-gpio-key-pins {
-+		pins {
-+			pinmux = <STM32_PINMUX('E',  7, GPIO)>, /* USER_BTN2 */
-+				<STM32_PINMUX('I', 11, GPIO)>; /* USER_BTN */
-+			bias-pull-up;
 +		};
 +	};
 +};

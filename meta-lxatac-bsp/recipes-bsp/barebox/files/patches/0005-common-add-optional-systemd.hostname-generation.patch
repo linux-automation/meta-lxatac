@@ -13,7 +13,7 @@ Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
  2 files changed, 24 insertions(+)
 
 diff --git a/common/Kconfig b/common/Kconfig
-index 4500feb66c92..06ff53e9dd95 100644
+index e505032e14d1..dcc88707bad9 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
 @@ -1169,6 +1169,14 @@ config MACHINE_ID
