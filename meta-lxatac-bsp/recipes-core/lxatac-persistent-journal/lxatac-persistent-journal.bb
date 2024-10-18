@@ -5,13 +5,14 @@ SRC_URI = " \
     file://var-log-journal.mount \
 "
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
 
 inherit allarch
 
 do_install () {
     install -d ${D}${systemd_system_unitdir}/
-    install -m 0644 -t ${D}${systemd_system_unitdir}/ ${S}/var-log-journal.mount
+    install -m 0644 -t ${D}${systemd_system_unitdir}/ ${UNPACKDIR}/var-log-journal.mount
 }
 
 FILES:${PN} = "${systemd_system_unitdir}"

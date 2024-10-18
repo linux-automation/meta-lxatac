@@ -6,13 +6,13 @@ do_configure[noexec] = "1"
 
 do_compile () {
     mipi-dbi-cmd \
-        "${WORKDIR}/${PANEL_FIRMWARE_BIN}" \
-        "${WORKDIR}/${PANEL_FIRMWARE}"
+        "${UNPACKDIR}/${PANEL_FIRMWARE_BIN}" \
+        "${UNPACKDIR}/${PANEL_FIRMWARE}"
 }
 
 do_install () {
     install -m 0644 -D \
-        "${WORKDIR}/${PANEL_FIRMWARE_BIN}" \
+        "${UNPACKDIR}/${PANEL_FIRMWARE_BIN}" \
         "${D}${nonarch_base_libdir}/firmware/${PANEL_FIRMWARE_BIN}"
 }
 

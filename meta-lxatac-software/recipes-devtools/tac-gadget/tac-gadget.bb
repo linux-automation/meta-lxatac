@@ -26,20 +26,23 @@ SRC_URI = " \
     file://gadget-storage.sh \
 "
 
-do_install () {
-    install -D -m0644 ${WORKDIR}/gadget-common.sh ${D}${datadir}/gadget/gadget-common
-    install -D -m0644 ${WORKDIR}/gadget-reports.sh ${D}${datadir}/gadget/gadget-reports
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
 
-    install -D -m0755 ${WORKDIR}/gadget-audio.sh ${D}${bindir}/tac-gadget-audio
-    install -D -m0755 ${WORKDIR}/gadget-ethernet-serial.sh ${D}${bindir}/tac-gadget-ethernet-serial
-    install -D -m0755 ${WORKDIR}/gadget-ethernet-storage.sh ${D}${bindir}/tac-gadget-ethernet-storage
-    install -D -m0755 ${WORKDIR}/gadget-ethernet.sh ${D}${bindir}/tac-gadget-ethernet
-    install -D -m0755 ${WORKDIR}/gadget-hid-storage.sh ${D}${bindir}/tac-gadget-hid-storage
-    install -D -m0755 ${WORKDIR}/gadget-hid.sh ${D}${bindir}/tac-gadget-hid
-    install -D -m0755 ${WORKDIR}/gadget-remove.sh ${D}${bindir}/tac-gadget-remove
-    install -D -m0755 ${WORKDIR}/gadget-serial-storage.sh ${D}${bindir}/tac-gadget-serial-storage
-    install -D -m0755 ${WORKDIR}/gadget-serial.sh ${D}${bindir}/tac-gadget-serial
-    install -D -m0755 ${WORKDIR}/gadget-storage.sh ${D}${bindir}/tac-gadget-storage
+do_install () {
+    install -D -m0644 ${UNPACKDIR}/gadget-common.sh ${D}${datadir}/gadget/gadget-common
+    install -D -m0644 ${UNPACKDIR}/gadget-reports.sh ${D}${datadir}/gadget/gadget-reports
+
+    install -D -m0755 ${UNPACKDIR}/gadget-audio.sh ${D}${bindir}/tac-gadget-audio
+    install -D -m0755 ${UNPACKDIR}/gadget-ethernet-serial.sh ${D}${bindir}/tac-gadget-ethernet-serial
+    install -D -m0755 ${UNPACKDIR}/gadget-ethernet-storage.sh ${D}${bindir}/tac-gadget-ethernet-storage
+    install -D -m0755 ${UNPACKDIR}/gadget-ethernet.sh ${D}${bindir}/tac-gadget-ethernet
+    install -D -m0755 ${UNPACKDIR}/gadget-hid-storage.sh ${D}${bindir}/tac-gadget-hid-storage
+    install -D -m0755 ${UNPACKDIR}/gadget-hid.sh ${D}${bindir}/tac-gadget-hid
+    install -D -m0755 ${UNPACKDIR}/gadget-remove.sh ${D}${bindir}/tac-gadget-remove
+    install -D -m0755 ${UNPACKDIR}/gadget-serial-storage.sh ${D}${bindir}/tac-gadget-serial-storage
+    install -D -m0755 ${UNPACKDIR}/gadget-serial.sh ${D}${bindir}/tac-gadget-serial
+    install -D -m0755 ${UNPACKDIR}/gadget-storage.sh ${D}${bindir}/tac-gadget-storage
 }
 
 FILES:${PN} = "${bindir} ${datadir}"

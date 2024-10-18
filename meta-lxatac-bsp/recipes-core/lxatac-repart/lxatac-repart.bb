@@ -8,15 +8,16 @@ SRC_URI = " \
     file://repart-before-tmpfiles.conf \
     "
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
 
 RDEPENDS:${PN} = "systemd"
 
 do_install () {
     install -d ${D}${libdir}/systemd/system/systemd-repart.service.d/
-    install -m 0644 -t ${D}${libdir}/systemd/system/systemd-repart.service.d/ ${S}/*.conf
+    install -m 0644 -t ${D}${libdir}/systemd/system/systemd-repart.service.d/ ${UNPACKDIR}/*.conf
     install -d ${D}${libdir}/repart.d/
-    install -m 0644 -t ${D}${libdir}/repart.d/ ${S}/repart.d/*
+    install -m 0644 -t ${D}${libdir}/repart.d/ ${UNPACKDIR}/repart.d/*
 
     # The presence of a /system-update file/symlink is checked by
     # systemd-system-update-generator.

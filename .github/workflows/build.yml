@@ -3,10 +3,10 @@ name: build
 on:
   pull_request:
     branches:
-      - scarthgap
+      - styhead
   push:
     branches:
-      - scarthgap
+      - styhead
   schedule:
     - cron: '10 21 * * 4'
 

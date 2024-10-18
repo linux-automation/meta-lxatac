@@ -26,5 +26,5 @@ GO_LINKSHARED = ""
 
 do_install:append() {
     install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/gitlab-runner.service ${D}${systemd_system_unitdir}/
+    install -m 0644 ${UNPACKDIR}/gitlab-runner.service ${D}${systemd_system_unitdir}/
 }
