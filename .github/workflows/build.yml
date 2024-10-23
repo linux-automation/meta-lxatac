@@ -75,10 +75,18 @@ jobs:
           rsync -rvx --ignore-existing build/downloads yocto-cache: || true
           rsync -rvx --ignore-existing build/sstate-cache yocto-cache: || true
 
-      - name: Upload RAUC Bundle
+      - name: Upload Artifacts to the Forrest Runner
+        uses: forrest-runner/upload-artifact@main
+        with:
+          path: |
+            images/tf-a-stm32mp153c-lxa-tac.stm32
+            images/emmc-boot-image-lxatac.fip
+            images/emmc-boot-image-lxatac.img
+            images/emmc-image-lxatac.simg
+            images/lxatac-core-bundle-base-lxatac.raucb
+
+      - name: Upload Artifact links to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: rauc-bundle
-          path: images/lxatac-core-bundle-base-lxatac-*.raucb
-          compression-level: 0
-          retention-days: 30
+          name: images
+          path: images/*.desktop
