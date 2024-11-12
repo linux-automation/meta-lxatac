@@ -4,9 +4,8 @@ import re
 import bb.tinfoil
 import git
 
-# TODO: add minor version numbers once we have them
-RE_VERSION_TAG = "v(?P<year>[0-9][0-9])\.(?P<month>[0-9][0-9])"
-RE_VERSION_BB = "(?P<year>[0-9][0-9])\.(?P<month>[0-9][0-9])(?P<dev>$|\+dev)"
+RE_VERSION_TAG = r"v(?P<year>[0-9][0-9])\.(?P<month>[0-9][0-9])(?:\.(?P<minor>[0-9]+))?"
+RE_VERSION_BB = r"(?P<year>[0-9][0-9])\.(?P<month>[0-9][0-9])(?:(?P<dev>$|\+dev)|(?:\.(?P<minor>[0-9]+))?)"
 
 
 def bb_variables(names):
@@ -38,31 +37,39 @@ def git_prev_tag():
     return (tag, commit_is_tagged)
 
 
+def version_tuple(version):
+    year = int(version["year"])
+    month = int(version["month"])
+    minor = int(version["minor"] or "0")
+
+    return (year, month, minor)
+
+
 def check_version(distro_version):
     prev_tag, commit_is_tagged = git_prev_tag()
 
     print(f"Checking tag {prev_tag} against version {distro_version}")
 
     version_tag = re.fullmatch(RE_VERSION_TAG, prev_tag)
-    version_tag_numeric = int(version_tag["year"]) * 100 + int(version_tag["month"])
+    version_tag_tuple = version_tuple(version_tag)
 
     version_bb = re.fullmatch(RE_VERSION_BB, distro_version)
-    version_bb_numeric = int(version_bb["year"]) * 100 + int(version_bb["month"])
+    version_bb_tuple = version_tuple(version_bb)
 
     if commit_is_tagged:
         # The version in a tagged commit must match the version in the tag's name.
         assert version_bb["dev"] == ""
-        assert version_tag_numeric == version_bb_numeric
+        assert version_tag_tuple == version_bb_tuple
 
-    elif version_bb["dev"] == "":
-        # Release candidates already have the next release version set,
-        # but it must be newer than any tag in the current commit's history.
-        assert version_bb_numeric > version_tag_numeric
-
-    else:
+    elif version_bb["dev"]:
         # Non release candidate versions should have the previous tagged
         # version number plus the +dev suffix set.
-        assert version_bb_numeric == version_tag_numeric
+        assert version_bb_tuple == version_tag_tuple
+
+    else:
+        # Release candidates already have the next release version set,
+        # but it must be newer than any tag in the current commit's history.
+        assert version_bb_tuple > version_tag_tuple
 
 
 def check_codename(codename):
@@ -70,12 +77,13 @@ def check_codename(codename):
     ref = os.environ.get("GITHUB_REF_NAME")
     ref_type = os.environ.get("GITHUB_REF_TYPE")
 
-    if base_ref:
-        print(f"Checking codename {codename} against pull request into {base_ref}")
-        assert codename == f"tacos-{base_ref}"
-    elif ref and ref_type == "branch":
-        print(f"Checking codename {codename} against branch {ref}")
-        assert codename == f"tacos-{ref}"
+    branch = base_ref or (ref if ref_type == "branch" else None)
+
+    if branch and branch.startswith("stable-"):
+        print("Running for a stable branch. Skipping codename check")
+    elif branch:
+        print(f"Checking codename {codename} against branch {branch}")
+        assert codename == f"tacos-{branch}"
     elif ref_type == "tag":
         print("Running for a tag. Skipping codename check")
     else:

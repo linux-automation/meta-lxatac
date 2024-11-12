@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - scarthgap
+      - stable-*
   push:
     branches:
       - scarthgap
+      - stable-*
   schedule:
     - cron: '10 21 * * 4'
 
