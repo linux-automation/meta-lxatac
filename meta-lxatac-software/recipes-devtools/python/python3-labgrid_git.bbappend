@@ -4,7 +4,8 @@ SRC_URI += "file://userconfig.yaml \
             file://labgrid.conf \
             "
 
-SRCREV = "e5ace1a36c4e552b950cf356ce0e34586f776432"
+SRCREV = "08b1cfbfb1ee6afd8996ddeef4a9b1b6fd058ee7"
+SRCBRANCH = "stable-24.0"
 
 do_install:append() {
     # The userconfig.yaml is migrated via rauc hook between installs.
