@@ -40,7 +40,6 @@ IMAGE_INSTALL:append = "\
     evtest \
     fb-test \
     fio \
-    git \
     github-act-runner \
     gitlab-runner \
     gstreamer1.0 \

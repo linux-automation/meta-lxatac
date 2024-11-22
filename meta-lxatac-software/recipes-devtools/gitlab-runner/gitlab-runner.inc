@@ -9,6 +9,7 @@ SRC_URI:append = " file://gitlab-runner.service "
 GO_IMPORT = "gitlab.com/gitlab-org/gitlab-runner"
 GO_INSTALL = "${GO_IMPORT}"
 
+RDEPENDS:${PN}:append = "git"
 RDEPENDS:gitlab-runner-dev = "bash"
 
 inherit go-mod
