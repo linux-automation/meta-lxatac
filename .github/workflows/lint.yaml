@@ -1,0 +1,16 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '10 21 * * 4'
+
+jobs:
+  lint:
+    name: oelint-adv
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install oelint_adv
+      - run: oelint-adv --mode=all --quiet --color $(find meta-lxatac-bsp/ meta-lxatac-software/ -name "*bb")
