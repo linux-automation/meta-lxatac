@@ -18,6 +18,7 @@ SYSTEMD_SERVICE:${PN} = "gitlab-runner.service"
 
 # This is required because the go build system fetches dependencies in the
 # compile stage.
+# nooelint: oelint.task.network
 do_compile[network] = "1"
 
 # This is required to prevent build failures due to
