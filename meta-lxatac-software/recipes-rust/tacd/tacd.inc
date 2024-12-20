@@ -4,7 +4,7 @@ SRC_URI += " \
     file://de.pengutronix.tacd.conf \
     file://01_stable.yaml \
     file://05_testing.yaml \
-    "
+"
 
 inherit pkgconfig
 inherit systemd

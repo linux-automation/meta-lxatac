@@ -2,7 +2,7 @@ SUMMARY = "The LXA TAC System Daemon - Web Interface"
 SRC_URI = " \
     git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
     npmsw://${THISDIR}/${BPN}/npm-shrinkwrap.json \
-    "
+"
 LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = " \
     file://../LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \

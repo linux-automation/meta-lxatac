@@ -111,14 +111,14 @@ SRC_URI[windows_x86_64_gnu-0.52.6.sha256sum] = "147a5c80aabfbf0c7d901cb5895d1de3
 SRC_URI[windows_x86_64_gnullvm-0.52.6.sha256sum] = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
 SRC_URI[windows_x86_64_msvc-0.52.6.sha256sum] = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
-LIC_FILES_CHKSUM = " \
+LIC_FILES_CHKSUM = "\
     file://LICENSE-MIT;md5=8d0d0aa488af0ab9aafa3b85a7fc8e12 \
     file://UNLICENSE;md5=7246f848faa4e9c9fc0ea91122d6e680 \
 "
 
 SUMMARY = "ripgrep is a line-oriented search tool that recursively searches your current \
-directory for a regex pattern while respecting your gitignore rules. ripgrep \
-has first class support on Windows, macOS and Linux."
+           directory for a regex pattern while respecting your gitignore rules. ripgrep \
+           has first class support on Windows, macOS and Linux."
 HOMEPAGE = "https://github.com/BurntSushi/ripgrep"
 LICENSE = "Unlicense | MIT"
 

@@ -20,12 +20,12 @@ COMPATIBLE_MACHINE = "lxatac"
 BAREBOX_DTBS_TO_DEPLOY = "arch/arm/dts/*.dtb"
 
 do_deploy:append () {
-	for DTB in ${BAREBOX_DTBS_TO_DEPLOY}; do
-		if [ -e ${DTB} ]; then
-			BAREBOX_DTB_BASENAME=barebox-$(basename ${DTB} .dtb)${BAREBOX_IMAGE_SUFFIX}
-			install -m 644 -T ${DTB} ${DEPLOYDIR}/${BAREBOX_DTB_BASENAME}.dtb
-		fi
-	done
+    for DTB in ${BAREBOX_DTBS_TO_DEPLOY}; do
+        if [ -e ${DTB} ]; then
+            BAREBOX_DTB_BASENAME=barebox-$(basename ${DTB} .dtb)${BAREBOX_IMAGE_SUFFIX}
+            install -m 644 -T ${DTB} ${DEPLOYDIR}/${BAREBOX_DTB_BASENAME}.dtb
+        fi
+    done
 }
 
 DEPENDS:append = " panel-shineworld-lh133k"

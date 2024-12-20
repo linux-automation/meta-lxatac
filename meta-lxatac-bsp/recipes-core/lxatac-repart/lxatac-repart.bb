@@ -6,7 +6,7 @@ SRC_URI = " \
     file://repart.d \
     file://ordering.conf \
     file://repart-before-tmpfiles.conf \
-    "
+"
 
 S = "${WORKDIR}"
 
@@ -31,5 +31,5 @@ FILES:${PN} = " \
     /system-update \
     ${libdir}/repart.d \
     ${libdir}/systemd/system/systemd-repart.service.d \
-    "
+"
 

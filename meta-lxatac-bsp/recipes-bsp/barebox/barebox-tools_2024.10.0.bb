@@ -16,7 +16,7 @@ EXTRA_OEMAKE = " \
     ARCH=sandbox \
     CROSS_COMPILE=${TARGET_PREFIX} -C ${S} O=${B} \
     CROSS_PKG_CONFIG=pkg-config \
-    "
+"
 
 do_compile:class-target () {
     export userccflags="${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS}"

@@ -12,7 +12,7 @@ SRC_URI += " \
     file://01-disable_switch_ipv6.conf \
     file://50-g-usb.link \
     file://52-switch.link \
-    "
+"
 
 N = "${libdir}/NetworkManager/system-connections"
 
