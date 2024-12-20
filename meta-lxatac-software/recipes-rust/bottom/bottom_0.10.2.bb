@@ -454,9 +454,3 @@ LIC_FILES_CHKSUM = "\
 SUMMARY = "A customizable cross-platform graphical process/system monitor for the terminal."
 HOMEPAGE = "https://github.com/ClementTsang/bottom"
 LICENSE = "MIT"
-
-# includes this file if it exists but does not fail
-# this is useful for anything you may want to override from
-# what cargo-bitbake generates.
-include bottom-${PV}.inc
-include bottom.inc
