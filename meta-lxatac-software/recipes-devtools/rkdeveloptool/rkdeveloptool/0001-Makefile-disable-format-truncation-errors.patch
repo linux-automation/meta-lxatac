@@ -10,6 +10,7 @@ The build fails with current compilers due to format-truncation errors.
 Ignore them for now.
 
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Upstream-Status: Inappropriate
 ---
  Makefile.am | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
