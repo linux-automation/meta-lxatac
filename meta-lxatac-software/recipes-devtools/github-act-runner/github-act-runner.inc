@@ -21,6 +21,7 @@ SYSTEMD_SERVICE:${PN} = "github-act-runner.service"
 
 # This is required because the go build system fetches dependencies in the
 # compile stage.
+# nooelint: oelint.task.network
 do_compile[network] = "1"
 
 do_install:append() {
