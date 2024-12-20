@@ -28,6 +28,7 @@ DEPENDS:append = " panel-shineworld-lh133k coreutils-native"
 # Some options depend on CONFIG_PAHOLE_VERSION, so need to make pahole-native available before do_kernel_configme
 do_kernel_configme[depends] += "pahole-native:do_populate_sysroot"
 
+do_copy_fw[doc] = "Copy the LCD display firmware to the kernel source to be compiled in"
 do_copy_fw() {
     mkdir -p ${S}/firmware/
     cp ${RECIPE_SYSROOT}${nonarch_base_libdir}/firmware/shineworld,lh133k.bin ${S}/firmware/
