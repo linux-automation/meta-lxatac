@@ -17,7 +17,7 @@ SRC_URI = "git://github.com/notro/panel-mipi-dbi.git;protocol=https;branch=main"
 
 S = "${WORKDIR}/git"
 
-inherit native
+inherit_defer native
 
 do_configure[noexec] = "1"
 do_compile[noexec] = "1"
