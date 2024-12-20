@@ -17,7 +17,7 @@ inherit kernel-arch deploy cml1 pkgconfig
 # be enabled within the defconfig file so depend on it here to be more user
 # friendly (do not abort the build). The actual tools are provided by the
 # barebox-tools package.
-DEPENDS = "bison-native flex-native libusb1"
+DEPENDS:append = " bison-native flex-native libusb1"
 
 export KBUILD_BUILD_USER ?= "oe-user"
 export KBUILD_BUILD_HOST ?= "oe-host"
