@@ -1,4 +1,4 @@
-inherit panel-mipi-dbi
+inherit panel_mipi_dbi
 
 SUMMARY = "Shineworld Panel Configuration"
 LICENSE = "MIT"

@@ -20,7 +20,7 @@
 # the `panel-mipi-dbi` driver looks something like this:
 #
 #   $ cat panel-shineworld-lh133k.bb
-#   inherit panel-mipi-dbi
+#   inherit panel_mipi_dbi
 #
 #   SRC_URI = "file://${PANEL_FIRMWARE}"
 #
