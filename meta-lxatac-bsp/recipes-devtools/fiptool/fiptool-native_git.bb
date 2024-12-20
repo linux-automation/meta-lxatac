@@ -12,7 +12,7 @@ SRCREV = "a921da5ed29fa3bb295b18349bc5e03dcab3fa6d"
 
 DEPENDS += "openssl-native"
 
-inherit native
+inherit_defer native
 
 EXTRA_OEMAKE = "V=1 HOSTCC='${BUILD_CC}' OPENSSL_DIR=${STAGING_DIR_NATIVE}/${prefix_native}"
 
