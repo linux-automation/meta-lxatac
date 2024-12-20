@@ -121,9 +121,3 @@ LIC_FILES_CHKSUM = "\
 SUMMARY = "ripgrep is a line-oriented recursive search tool searching for regex patterns"
 HOMEPAGE = "https://github.com/BurntSushi/ripgrep"
 LICENSE = "Unlicense | MIT"
-
-# includes this file if it exists but does not fail
-# this is useful for anything you may want to override from
-# what cargo-bitbake generates.
-include ripgrep-${PV}.inc
-include ripgrep.inc
