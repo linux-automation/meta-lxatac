@@ -45,4 +45,4 @@ do_install () {
         "${D}${nonarch_base_libdir}/firmware/${PANEL_FIRMWARE_BIN}"
 }
 
-FILES:${PN} = "${nonarch_base_libdir}/firmware/"
+FILES:${PN} += "${nonarch_base_libdir}/firmware/"

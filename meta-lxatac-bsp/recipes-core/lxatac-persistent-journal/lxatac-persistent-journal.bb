@@ -16,4 +16,4 @@ do_install () {
     install -m 0644 -t ${D}${systemd_system_unitdir}/ ${S}/var-log-journal.mount
 }
 
-FILES:${PN} = "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"

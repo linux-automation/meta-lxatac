@@ -42,4 +42,4 @@ do_install () {
     install -D -m0755 ${WORKDIR}/gadget-storage.sh ${D}${bindir}/tac-gadget-storage
 }
 
-FILES:${PN} = "${bindir} ${datadir}"
+FILES:${PN} += "${bindir} ${datadir}"

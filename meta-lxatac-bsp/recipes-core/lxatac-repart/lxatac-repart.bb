@@ -27,7 +27,7 @@ do_install () {
     touch ${D}/system-update
 }
 
-FILES:${PN} = "\
+FILES:${PN} += "\
     /system-update \
     ${libdir}/repart.d \
     ${libdir}/systemd/system/systemd-repart.service.d \

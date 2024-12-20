@@ -20,4 +20,4 @@ do_install () {
         ${S}/use-var-log-sa.conf
 }
 
-FILES:${PN} = "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"

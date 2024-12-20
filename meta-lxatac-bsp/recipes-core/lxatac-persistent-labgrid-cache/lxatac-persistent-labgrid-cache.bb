@@ -18,4 +18,4 @@ do_install () {
         ${S}/use-var-cache-labgrid.conf
 }
 
-FILES:${PN} = "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"

@@ -40,4 +40,4 @@ do_install() {
     cp -r "${WEBUI_INSTALL_DIR}/build" "${D}${datadir}/tacd/webui"
 }
 
-FILES:${PN} = "${datadir}/tacd"
+FILES:${PN} += "${datadir}/tacd"

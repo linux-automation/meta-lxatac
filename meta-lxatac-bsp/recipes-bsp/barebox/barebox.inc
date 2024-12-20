@@ -123,7 +123,7 @@ do_install () {
                 done
         fi
 }
-FILES:${PN} = "${BAREBOX_INSTALL_PATH}"
+FILES:${PN} += "${BAREBOX_INSTALL_PATH}"
 
 do_deploy () {
         if [ -n "${BAREBOX_BINARY}" ]; then

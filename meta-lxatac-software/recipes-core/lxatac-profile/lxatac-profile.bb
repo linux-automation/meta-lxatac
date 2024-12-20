@@ -13,4 +13,4 @@ do_install () {
     install -m 0755 ${S}/01-labgrid.sh ${D}${sysconfdir}/profile.d/
 }
 
-FILES:${PN} = "${sysconfdir}/profile.d/01-labgrid.sh"
+FILES:${PN} += "${sysconfdir}/profile.d/01-labgrid.sh"

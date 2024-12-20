@@ -13,4 +13,4 @@ do_install () {
     install -D -m0644 ${WORKDIR}/01-watchdog.conf ${D}${systemd_unitdir}/system.conf.d/01-watchdog.conf
 }
 
-FILES:${PN} = "${systemd_unitdir}/system.conf.d/"
+FILES:${PN} += "${systemd_unitdir}/system.conf.d/"
