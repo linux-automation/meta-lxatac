@@ -4,7 +4,7 @@ HOMEPAGE = "https://barebox.org/"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f5125d13e000b9ca1f0d3364286c4192"
 
-DEPENDS = "libusb1 libusb1-native lzop-native bison-native flex-native pkgconfig-native"
+DEPENDS = "bison-native flex-native libusb1 libusb1-native lzop-native pkgconfig-native"
 BBCLASSEXTEND = "native"
 
 SRC_URI = "http://barebox.org/download/barebox-${PV}.tar.bz2"

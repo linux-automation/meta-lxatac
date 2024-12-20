@@ -16,7 +16,7 @@ SRCREV = "c34d89b29f3d0d12793cd78b194d2f1d11728baf"
 
 S = "${WORKDIR}/git"
 
-DEPENDS = "curl libyaml libusb1 openssl libftdi"
+DEPENDS = "curl libftdi libusb1 libyaml openssl"
 
 inherit cmake pkgconfig
 
