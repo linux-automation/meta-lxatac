@@ -449,7 +449,7 @@ LIC_FILES_CHKSUM = "\
     file://LICENSE;md5=5d45cffa3a75da17d285cc60c0c458cc \
 "
 
-SUMMARY = "A customizable cross-platform graphical process/system monitor for the terminal. Supports Linux, macOS, and Windows."
+SUMMARY = "A customizable cross-platform graphical process/system monitor for the terminal."
 HOMEPAGE = "https://github.com/ClementTsang/bottom"
 LICENSE = "MIT"
 

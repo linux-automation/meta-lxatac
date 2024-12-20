@@ -1,3 +1,5 @@
+SUMMARY = "The Linux Kernel with some modifications for the LXA TAC"
+
 inherit kernel
 
 SECTION = "kernel"

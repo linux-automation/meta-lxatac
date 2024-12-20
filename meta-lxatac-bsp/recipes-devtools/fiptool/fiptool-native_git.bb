@@ -2,7 +2,7 @@
 # It is a packaging format used by TF-A to package the
 # firmware images in a single binary.
 
-DESCRIPTION = "fiptool - Trusted Firmware tool for packaging"
+SUMMARY = "fiptool - Trusted Firmware tool for packaging"
 LICENSE = "BSD-3-Clause"
 
 SRC_URI = "git://git.trustedfirmware.org/TF-A/trusted-firmware-a.git;destsuffix=fiptool-${PV};protocol=https;branch=master"

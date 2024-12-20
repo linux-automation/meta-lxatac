@@ -1,4 +1,4 @@
-SUMMARY = "barebox is a bootloader designed for embedded systems. It runs on a variety of architectures including x86, ARM, MIPS, PowerPC and others."
+SUMMARY = "barebox is a bootloader designed for embedded systems."
 HOMEPAGE = "https://barebox.org/"
 SECTION = "bootloaders"
 PROVIDES = "virtual/bootloader"

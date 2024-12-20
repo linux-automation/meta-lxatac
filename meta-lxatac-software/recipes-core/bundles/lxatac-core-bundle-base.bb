@@ -1,3 +1,5 @@
+SUMMARY = "The LXA TAC RAUC update bundle"
+
 inherit bundle
 
 LICENSE = "MIT"

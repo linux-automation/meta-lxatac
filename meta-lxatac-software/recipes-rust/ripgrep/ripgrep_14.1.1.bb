@@ -116,9 +116,7 @@ LIC_FILES_CHKSUM = "\
     file://UNLICENSE;md5=7246f848faa4e9c9fc0ea91122d6e680 \
 "
 
-SUMMARY = "ripgrep is a line-oriented search tool that recursively searches your current \
-           directory for a regex pattern while respecting your gitignore rules. ripgrep \
-           has first class support on Windows, macOS and Linux."
+SUMMARY = "ripgrep is a line-oriented recursive search tool searching for regex patterns"
 HOMEPAGE = "https://github.com/BurntSushi/ripgrep"
 LICENSE = "Unlicense | MIT"
 
