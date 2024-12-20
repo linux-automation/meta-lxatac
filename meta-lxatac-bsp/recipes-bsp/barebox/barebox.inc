@@ -8,6 +8,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f5125d13e000b9ca1f0d3364286c4192"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
+# nooelint: oelint.file.requirenotfound
 require conf/image-uefi.conf
 
 inherit kernel-arch deploy cml1 pkgconfig
