@@ -30,6 +30,7 @@ do_deploy:append () {
 
 DEPENDS:append = " panel-shineworld-lh133k"
 
+do_copy_fw[doc] = "Copy the LCD display firmware to the barebox env"
 do_copy_fw() {
     mkdir -p ${WORKDIR}/env/firmware/
     cp ${RECIPE_SYSROOT}${nonarch_base_libdir}/firmware/shineworld,lh133k.bin ${WORKDIR}/env/firmware/
