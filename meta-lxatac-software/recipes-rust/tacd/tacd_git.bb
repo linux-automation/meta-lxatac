@@ -712,8 +712,4 @@ SUMMARY = "The LXA TAC System Daemon"
 HOMEPAGE = "https://github.com/linux-automation/tacd"
 LICENSE = "GPL-2.0-or-later"
 
-# includes this file if it exists but does not fail
-# this is useful for anything you may want to override from
-# what cargo-bitbake generates.
-include tacd-${PV}.inc
-include tacd.inc
+require tacd.inc
