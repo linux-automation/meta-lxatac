@@ -10,8 +10,6 @@ SRC_URI = "\
 
 S = "${WORKDIR}"
 
-RDEPENDS:${PN} = "systemd"
-
 do_install () {
     install -d ${D}${libdir}/systemd/system/systemd-repart.service.d/
     install -m 0644 -t ${D}${libdir}/systemd/system/systemd-repart.service.d/ ${S}/*.conf
@@ -33,3 +31,4 @@ FILES:${PN} += "\
     ${libdir}/systemd/system/systemd-repart.service.d \
 "
 
+RDEPENDS:${PN} = "systemd"

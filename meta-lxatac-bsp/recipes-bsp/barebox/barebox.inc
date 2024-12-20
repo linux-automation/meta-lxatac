@@ -1,10 +1,20 @@
 SUMMARY = "barebox is a bootloader designed for embedded systems."
 HOMEPAGE = "https://barebox.org/"
 SECTION = "bootloaders"
-PROVIDES = "virtual/bootloader"
-
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f5125d13e000b9ca1f0d3364286c4192"
+
+# libusb1 is only required for usb tools like imx-usb-loader. These tools may
+# be enabled within the defconfig file so depend on it here to be more user
+# friendly (do not abort the build). The actual tools are provided by the
+# barebox-tools package.
+DEPENDS:append = " bison-native flex-native libusb1"
+PROVIDES = "virtual/bootloader"
+
+SRC_URI = "https://barebox.org/download/barebox-${PV}.tar.bz2"
+
+S = "${WORKDIR}/barebox-${PV}"
+B = "${WORKDIR}/build"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -13,19 +23,8 @@ require conf/image-uefi.conf
 
 inherit kernel-arch deploy cml1 pkgconfig
 
-# libusb1 is only required for usb tools like imx-usb-loader. These tools may
-# be enabled within the defconfig file so depend on it here to be more user
-# friendly (do not abort the build). The actual tools are provided by the
-# barebox-tools package.
-DEPENDS:append = " bison-native flex-native libusb1"
-
 export KBUILD_BUILD_USER ?= "oe-user"
 export KBUILD_BUILD_HOST ?= "oe-host"
-
-SRC_URI = "https://barebox.org/download/barebox-${PV}.tar.bz2"
-
-S = "${WORKDIR}/barebox-${PV}"
-B = "${WORKDIR}/build"
 
 def get_layer_rev(path):
     try:

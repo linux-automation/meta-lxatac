@@ -11,9 +11,9 @@ HOMEPAGE = "https://github.com/notro/panel-mipi-dbi"
 SECTION = "graphics"
 LICENSE = "CC0-1.0"
 LIC_FILES_CHKSUM = "file://mipi-dbi-cmd;beginline=4;endline=13;md5=5e3d3f14cc87aa9e8976d728520cbcae"
-SRCREV = "1cbd40135a8c7f25d7b444a7fac77fd3c3ad471e"
 
 SRC_URI = "git://github.com/notro/panel-mipi-dbi.git;protocol=https;branch=main"
+SRCREV = "1cbd40135a8c7f25d7b444a7fac77fd3c3ad471e"
 
 S = "${WORKDIR}/git"
 

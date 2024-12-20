@@ -1,23 +1,18 @@
 SUMMARY = "The LXA TAC System Daemon - Web Interface"
+LICENSE = "GPL-2.0-or-later"
+LIC_FILES_CHKSUM = "file://../LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
+
+PV = "0.1.0+git${SRCPV}"
+
 SRC_URI = "\
     git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
     npmsw://${THISDIR}/${BPN}/npm-shrinkwrap.json \
 "
-LICENSE = "GPL-2.0-or-later"
-LIC_FILES_CHKSUM = "\
-    file://../LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
-"
-
-PV = "0.1.0+git${SRCPV}"
 SRCREV = "e79b017da65f4a084a8b24f1118e15b0c3f25ae8"
 
 S = "${WORKDIR}/git/web"
 
 inherit npm
-
-# Remove the runtime dependency on nodejs. We only use it during the
-# build process to generate static html, js and css files.
-RDEPENDS:${PN}:remove = "nodejs"
 
 WEBUI_INSTALL_DIR = "${NPM_BUILD}/lib/node_modules/tacd-web"
 
@@ -42,3 +37,7 @@ do_install() {
 }
 
 FILES:${PN} += "${datadir}/tacd"
+
+# Remove the runtime dependency on nodejs. We only use it during the
+# build process to generate static html, js and css files.
+RDEPENDS:${PN}:remove = "nodejs"

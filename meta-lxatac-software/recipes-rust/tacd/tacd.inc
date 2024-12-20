@@ -1,3 +1,5 @@
+DEPENDS:append = " libiio "
+
 SRC_URI:append = " \
     file://tacd.service \
     file://tacd-failsafe.sh \
@@ -8,8 +10,6 @@ SRC_URI:append = " \
 
 inherit pkgconfig
 inherit systemd
-
-DEPENDS:append = " libiio "
 
 SYSTEMD_SERVICE:${PN} = "tacd.service"
 

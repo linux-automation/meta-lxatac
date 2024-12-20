@@ -1,17 +1,20 @@
-inherit cargo
+SUMMARY = "A customizable cross-platform graphical process/system monitor for the terminal."
+HOMEPAGE = "https://github.com/ClementTsang/bottom"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=5d45cffa3a75da17d285cc60c0c458cc"
 
-SRC_URI:append = " \
-    git://github.com/ClementTsang/bottom.git;protocol=https;branch=main \
-"
-SRCREV = "2ec1fb56c9db0b37acc4eca3230adfb52720376b"
-S = "${WORKDIR}/git"
-CARGO_SRC_DIR = ""
+inherit cargo
 
 # The bottom Cargo.toml strips release builds, why makes it hard to debug.
 # Yocto has its own stripping feature, that preserves the debug symbols but
 # only installs the stripped version.
 # Pre-stripped binaries trigger a yocto QA error.
 CARGO_BUILD_FLAGS += "--config profile.release.strip=false"
+CARGO_SRC_DIR = ""
+
+SRC_URI:append = " \
+    git://github.com/ClementTsang/bottom.git;protocol=https;branch=main \
+"
 
 SRC_URI:append = " \
     crate://crates.io/addr2line/0.22.0 \
@@ -447,10 +450,6 @@ SRC_URI[wrapcenum-derive-0.4.1.sha256sum] = "a76ff259533532054cfbaefb115c613203c
 SRC_URI[zerocopy-derive-0.7.35.sha256sum] = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 SRC_URI[zerocopy-0.7.35.sha256sum] = "1b9b4fd18abc82b8136838da5d50bae7bdea537c574d8dc1a34ed098d6c166f0"
 
-LIC_FILES_CHKSUM = "\
-    file://LICENSE;md5=5d45cffa3a75da17d285cc60c0c458cc \
-"
+SRCREV = "2ec1fb56c9db0b37acc4eca3230adfb52720376b"
 
-SUMMARY = "A customizable cross-platform graphical process/system monitor for the terminal."
-HOMEPAGE = "https://github.com/ClementTsang/bottom"
-LICENSE = "MIT"
+S = "${WORKDIR}/git"

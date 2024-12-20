@@ -4,13 +4,12 @@
 
 SUMMARY = "fiptool - Trusted Firmware tool for packaging"
 LICENSE = "BSD-3-Clause"
-
-SRC_URI = "git://git.trustedfirmware.org/TF-A/trusted-firmware-a.git;destsuffix=fiptool-${PV};protocol=https;branch=master"
 LIC_FILES_CHKSUM = "file://docs/license.rst;md5=b2c740efedc159745b9b31f88ff03dde"
 
-SRCREV = "a921da5ed29fa3bb295b18349bc5e03dcab3fa6d"
-
 DEPENDS += "openssl-native"
+
+SRC_URI = "git://git.trustedfirmware.org/TF-A/trusted-firmware-a.git;destsuffix=fiptool-${PV};protocol=https;branch=master"
+SRCREV = "a921da5ed29fa3bb295b18349bc5e03dcab3fa6d"
 
 inherit_defer native
 

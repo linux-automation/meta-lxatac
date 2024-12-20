@@ -36,7 +36,7 @@ do_install() {
 
 SYSTEMD_SERVICE:${PN} = "spi-irq-prio-44009000.service"
 
+FILES:${PN} += "${libdir}/sysctl.d/"
+
 # For pgrep and chrt in spi-irq-prio-44009000.service
 RDEPENDS:${PN} += "busybox util-linux-chrt"
-
-FILES:${PN} += "${libdir}/sysctl.d/"

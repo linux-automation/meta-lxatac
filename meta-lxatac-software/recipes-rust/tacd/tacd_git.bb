@@ -1,14 +1,19 @@
+SUMMARY = "The LXA TAC system daemon"
+HOMEPAGE = "https://github.com/linux-automation/tacd"
+LICENSE = "GPL-2.0-or-later"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
+
 inherit cargo
 
 DEFAULT_PREFERENCE = "-1"
 
+PV = "0.1.0+git${SRCPV}"
+
 SRC_URI:append = " \
     git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
 "
-SRCREV = "e79b017da65f4a084a8b24f1118e15b0c3f25ae8"
-S = "${WORKDIR}/git"
+
 CARGO_SRC_DIR = ""
-PV = "0.1.0+git${SRCPV}"
 
 SRC_URI:append = " \
     crate://crates.io/addr2line/0.22.0 \
@@ -704,12 +709,8 @@ SRC_URI[zvariant-3.15.2.sha256sum] = "4eef2be88ba09b358d3b58aca6e41cd853631d4478
 SRC_URI[zvariant_derive-3.15.2.sha256sum] = "37c24dc0bed72f5f90d1f8bb5b07228cbf63b3c6e9f82d82559d4bae666e7ed9"
 SRC_URI[zvariant_utils-1.0.1.sha256sum] = "7234f0d811589db492d16893e3f21e8e2fd282e6d01b0cddee310322062cc200"
 
-LIC_FILES_CHKSUM = "\
-    file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
-"
+SRCREV = "e79b017da65f4a084a8b24f1118e15b0c3f25ae8"
 
-SUMMARY = "The LXA TAC System Daemon"
-HOMEPAGE = "https://github.com/linux-automation/tacd"
-LICENSE = "GPL-2.0-or-later"
+S = "${WORKDIR}/git"
 
 require tacd.inc

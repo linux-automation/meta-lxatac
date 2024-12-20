@@ -6,6 +6,8 @@
 # included.
 require barebox.inc
 
+DEPENDS:append = " panel-shineworld-lh133k"
+
 SRC_URI:append = " \
     file://defconfig \
     file://env \
@@ -27,8 +29,6 @@ do_deploy:append () {
         fi
     done
 }
-
-DEPENDS:append = " panel-shineworld-lh133k"
 
 do_copy_fw[doc] = "Copy the LCD display firmware to the barebox env"
 do_copy_fw() {
