@@ -7,11 +7,11 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 INHIBIT_DEFAULT_DEPS = "1"
 
-RDEPENDS:${PN} = " \
+RDEPENDS:${PN} = "\
     bash \
 "
 
-SRC_URI = " \
+SRC_URI = "\
     file://gadget-audio.sh \
     file://gadget-common.sh \
     file://gadget-ethernet-serial.sh \

@@ -1,5 +1,5 @@
 SUMMARY = "ARM Trusted Firmware-A"
-DESCRIPTION = " \
+DESCRIPTION = "\
     Trusted Firmware-A (TF-A) is a reference implementation of secure world \
     software for Arm A-Profile architectures (Armv8-A and Armv7-A), including \
     an Exception Level 3 (EL3) Secure Monitor. It provides a suitable starting \
@@ -9,7 +9,7 @@ DESCRIPTION = " \
 HOMEPAGE = "https://developer.trustedfirmware.org/dashboard/view/6/"
 SECTION = "bootloaders"
 
-LICENSE = " \
+LICENSE = "\
     BSD-3-Clause & \
     BSD-2-Clause & \
     (GPL-2.0-only | GPL-3.0-only | BSD-2-Clause) & \
@@ -32,7 +32,7 @@ inherit deploy
 COMPATIBLE_MACHINE = "none"
 PLATFORM = "none"
 
-EXTRA_OEMAKE = " \
+EXTRA_OEMAKE = "\
     BUILD_BASE=${B} \
     CROSS_COMPILE=${TARGET_PREFIX} \
     PLAT=${PLATFORM} \

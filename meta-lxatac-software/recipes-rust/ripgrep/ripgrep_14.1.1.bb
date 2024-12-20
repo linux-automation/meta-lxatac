@@ -5,7 +5,7 @@ SRCREV = "4649aa9700619f94cf9c66876e9549d83420e16c"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
 
-SRC_URI += " \
+SRC_URI += "\
     crate://crates.io/aho-corasick/1.1.3 \
     crate://crates.io/anyhow/1.0.87 \
     crate://crates.io/bstr/1.10.0 \

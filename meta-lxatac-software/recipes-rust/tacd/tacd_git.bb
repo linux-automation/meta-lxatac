@@ -8,7 +8,7 @@ S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
 PV = "0.1.0+git${SRCPV}"
 
-SRC_URI += " \
+SRC_URI += "\
     crate://crates.io/addr2line/0.22.0 \
     crate://crates.io/adler/1.0.2 \
     crate://crates.io/aead/0.3.2 \
@@ -702,7 +702,7 @@ SRC_URI[zvariant-3.15.2.sha256sum] = "4eef2be88ba09b358d3b58aca6e41cd853631d4478
 SRC_URI[zvariant_derive-3.15.2.sha256sum] = "37c24dc0bed72f5f90d1f8bb5b07228cbf63b3c6e9f82d82559d4bae666e7ed9"
 SRC_URI[zvariant_utils-1.0.1.sha256sum] = "7234f0d811589db492d16893e3f21e8e2fd282e6d01b0cddee310322062cc200"
 
-LIC_FILES_CHKSUM = " \
+LIC_FILES_CHKSUM = "\
     file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
 "
 

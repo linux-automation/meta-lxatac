@@ -12,7 +12,7 @@ SRC_URI[sha256sum] = "955b20bfa7358732d2c0c09ccfd4c1a69087b7e2c610b16dee7442d71a
 
 S = "${WORKDIR}/barebox-${PV}"
 
-EXTRA_OEMAKE = " \
+EXTRA_OEMAKE = "\
     ARCH=sandbox \
     CROSS_COMPILE=${TARGET_PREFIX} -C ${S} O=${B} \
     CROSS_PKG_CONFIG=pkg-config \
@@ -32,7 +32,7 @@ do_compile:class-native () {
     oe_runmake scripts
 }
 
-TOOLS = " \
+TOOLS = "\
     bareboxenv \
     bareboxcrc32 \
     kernel-install \

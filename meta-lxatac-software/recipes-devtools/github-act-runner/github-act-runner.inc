@@ -1,7 +1,7 @@
 SUMMARY = "GitHub act Runner"
 DESCRIPTION = "Alternative implementation of the GitHub Action runner protocol written in Go"
 
-SRC_URI = " \
+SRC_URI = "\
     git://github.com/ChristopherHX/github-act-runner.git;branch=main;protocol=https \
     file://github-act-runner.service \
 "
@@ -14,8 +14,8 @@ inherit systemd
 
 GO_IMPORT = "github.com/ChristopherHX/github-act-runner"
 
-RDEPENDS:${PN}:append = "nodejs"
-RDEPENDS:github-act-runner-dev:append = "make bash"
+RDEPENDS:${PN}:append = " nodejs"
+RDEPENDS:github-act-runner-dev:append = " make bash"
 
 SYSTEMD_SERVICE:${PN} = "github-act-runner.service"
 

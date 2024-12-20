@@ -9,7 +9,7 @@ RDEPENDS:${PN} = "bash"
 
 SYSTEMD_SERVICE:${PN} = "lxatac-factory-data.service"
 
-SRC_URI += " \
+SRC_URI += "\
     file://lxatac-factory-data.service \
     file://lxatac-factory-data.sh \
 "

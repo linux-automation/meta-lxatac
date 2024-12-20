@@ -39,7 +39,7 @@ BAREBOX_BUILDSYSTEM_VERSION ??= "${@get_layer_rev(os.path.dirname(d.getVar('FILE
 BAREBOX_FIRMWARE_DIR[doc] = "Overwrite barebox' firmware blobs search directory (CONFIG_EXTRA_FIRMWARE_DIR) with this path, default ${B}/firmware"
 BAREBOX_FIRMWARE_DIR ??= "${B}/firmware"
 
-EXTRA_OEMAKE = " \
+EXTRA_OEMAKE = "\
     CROSS_COMPILE=${TARGET_PREFIX} -C ${S} O=${B} \
     BUILDSYSTEM_VERSION=${BAREBOX_BUILDSYSTEM_VERSION} \
     CONFIG_EXTRA_FIRMWARE_DIR=${BAREBOX_FIRMWARE_DIR} \
