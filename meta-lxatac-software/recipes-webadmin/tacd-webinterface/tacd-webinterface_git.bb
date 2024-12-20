@@ -21,6 +21,7 @@ RDEPENDS:${PN}:remove = "nodejs"
 
 WEBUI_INSTALL_DIR = "${NPM_BUILD}/lib/node_modules/tacd-web"
 
+npm_run_build[doc] = "Run the build script that transpiles the source typescript to javascript"
 npm_run_build () {
     cd "${WEBUI_INSTALL_DIR}"
     npm run build
