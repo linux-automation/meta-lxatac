@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 inherit allarch
 
-SRC_URI += "\
+SRC_URI:append = " \
     file://hostname.conf \
     file://tac-bridge.nmconnection \
     file://port-dut.nmconnection \

@@ -1,4 +1,4 @@
-SRC_URI += "\
+SRC_URI:append = " \
     file://tacd.service \
     file://tacd-failsafe.sh \
     file://de.pengutronix.tacd.conf \

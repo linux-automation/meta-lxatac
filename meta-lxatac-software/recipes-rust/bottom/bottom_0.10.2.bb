@@ -1,6 +1,8 @@
 inherit cargo
 
-SRC_URI += "git://github.com/ClementTsang/bottom.git;protocol=https;branch=main"
+SRC_URI:append = " \
+    git://github.com/ClementTsang/bottom.git;protocol=https;branch=main \
+"
 SRCREV = "2ec1fb56c9db0b37acc4eca3230adfb52720376b"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
@@ -11,7 +13,7 @@ CARGO_SRC_DIR = ""
 # Pre-stripped binaries trigger a yocto QA error.
 CARGO_BUILD_FLAGS += "--config profile.release.strip=false"
 
-SRC_URI += "\
+SRC_URI:append = " \
     crate://crates.io/addr2line/0.22.0 \
     crate://crates.io/adler/1.0.2 \
     crate://crates.io/ahash/0.8.11 \

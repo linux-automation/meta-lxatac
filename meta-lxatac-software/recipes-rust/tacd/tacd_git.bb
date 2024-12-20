@@ -2,13 +2,15 @@ inherit cargo
 
 DEFAULT_PREFERENCE = "-1"
 
-SRC_URI += "git://github.com/linux-automation/tacd.git;protocol=https;branch=main"
+SRC_URI:append = " \
+    git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
+"
 SRCREV = "e79b017da65f4a084a8b24f1118e15b0c3f25ae8"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
 PV = "0.1.0+git${SRCPV}"
 
-SRC_URI += "\
+SRC_URI:append = " \
     crate://crates.io/addr2line/0.22.0 \
     crate://crates.io/adler/1.0.2 \
     crate://crates.io/aead/0.3.2 \

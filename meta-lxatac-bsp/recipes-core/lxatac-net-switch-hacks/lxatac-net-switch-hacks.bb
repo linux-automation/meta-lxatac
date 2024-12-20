@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 inherit allarch systemd
 
-SRC_URI += "\
+SRC_URI:append = " \
     file://01-increase-atomic-mem-pool-size.conf \
     file://60-spi-device.rules \
     file://spi-irq-prio-44009000.service \

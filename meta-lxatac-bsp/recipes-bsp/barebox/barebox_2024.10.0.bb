@@ -6,7 +6,7 @@
 # included.
 require barebox.inc
 
-SRC_URI += "\
+SRC_URI:append = " \
     file://defconfig \
     file://env \
 "
