@@ -1,4 +1,4 @@
-SUMMARY = "ARM Trusted Firmware-A"
+SUMMARY ?= "ARM Trusted Firmware-A"
 DESCRIPTION = "\
     Trusted Firmware-A (TF-A) is a reference implementation of secure world \
     software for Arm A-Profile architectures (Armv8-A and Armv7-A), including \
@@ -17,9 +17,9 @@ LICENSE = "\
     Zlib & \
     (GPL-2.0-only | GPL-3.0-only | BSD-3-Clause) \
 "
-LIC_FILES_CHKSUM = "file://docs/license.rst;md5=713afe122abbe07f067f939ca3c480c5"
+LIC_FILES_CHKSUM ?= "file://docs/license.rst;md5=713afe122abbe07f067f939ca3c480c5"
 
-DEPENDS = "dtc-native"
+DEPENDS += "dtc-native"
 PROVIDES = "virtual/ARM-tf-a"
 
 SRC_URI = "git://review.trustedfirmware.org/TF-A/trusted-firmware-a.git;protocol=https;branch=master"
@@ -29,8 +29,8 @@ B = "${WORKDIR}/build"
 
 inherit deploy
 
-COMPATIBLE_MACHINE = "none"
-PLATFORM = "none"
+COMPATIBLE_MACHINE ?= "none"
+PLATFORM ?= "none"
 
 EXTRA_OEMAKE = "\
     BUILD_BASE=${B} \
