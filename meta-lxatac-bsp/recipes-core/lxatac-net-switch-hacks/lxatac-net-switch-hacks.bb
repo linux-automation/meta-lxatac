@@ -1,9 +1,11 @@
+SUMMARY = "Hacks that make communication with the switch more reliable under load."
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 inherit allarch systemd
 
-SRC_URI += " \
+SRC_URI:append = " \
     file://01-increase-atomic-mem-pool-size.conf \
     file://60-spi-device.rules \
     file://spi-irq-prio-44009000.service \
@@ -34,10 +36,7 @@ do_install() {
 
 SYSTEMD_SERVICE:${PN} = "spi-irq-prio-44009000.service"
 
-# For chrt and pgrep in spi-irq-prio-44009000.service
-RDEPENDS:${PN} += "util-linux busybox"
+FILES:${PN} += "${libdir}/sysctl.d/"
 
-FILES:${PN} += "\
-    ${libdir}/sysctl.d/ \
-    ${sysconfdir} \
-"
+# For pgrep and chrt in spi-irq-prio-44009000.service
+RDEPENDS:${PN} += "busybox util-linux-chrt"

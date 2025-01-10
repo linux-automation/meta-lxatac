@@ -1,17 +1,11 @@
+SUMMARY = "Export USB Gadget functions over the TAC USB-C connector"
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-SUMMARY = "Export USB Gadget functions over the TAC USB-C connector"
-
-PACKAGE_ARCH = "${MACHINE_ARCH}"
-
 INHIBIT_DEFAULT_DEPS = "1"
 
-RDEPENDS:${PN} = " \
-    bash \
-"
-
-SRC_URI = " \
+SRC_URI = "\
     file://gadget-audio.sh \
     file://gadget-common.sh \
     file://gadget-ethernet-serial.sh \
@@ -24,6 +18,14 @@ SRC_URI = " \
     file://gadget-serial-storage.sh \
     file://gadget-serial.sh \
     file://gadget-storage.sh \
+"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+FILES:${PN} += "${datadir}"
+
+RDEPENDS:${PN} = "\
+    bash \
 "
 
 do_install () {
@@ -41,5 +43,3 @@ do_install () {
     install -D -m0755 ${WORKDIR}/gadget-serial.sh ${D}${bindir}/tac-gadget-serial
     install -D -m0755 ${WORKDIR}/gadget-storage.sh ${D}${bindir}/tac-gadget-storage
 }
-
-FILES:${PN} = "${bindir} ${datadir}"

@@ -1,30 +1,30 @@
-SUMMARY = "barebox is a bootloader designed for embedded systems. It runs on a variety of architectures including x86, ARM, MIPS, PowerPC and others."
+SUMMARY = "barebox is a bootloader designed for embedded systems."
 HOMEPAGE = "https://barebox.org/"
 SECTION = "bootloaders"
-PROVIDES = "virtual/bootloader"
-
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f5125d13e000b9ca1f0d3364286c4192"
-
-PACKAGE_ARCH = "${MACHINE_ARCH}"
-
-require conf/image-uefi.conf
-
-inherit kernel-arch deploy cml1 pkgconfig
 
 # libusb1 is only required for usb tools like imx-usb-loader. These tools may
 # be enabled within the defconfig file so depend on it here to be more user
 # friendly (do not abort the build). The actual tools are provided by the
 # barebox-tools package.
-DEPENDS = "libusb1 bison-native flex-native"
-
-export KBUILD_BUILD_USER ?= "oe-user"
-export KBUILD_BUILD_HOST ?= "oe-host"
+DEPENDS:append = " bison-native flex-native libusb1"
+PROVIDES = "virtual/bootloader"
 
 SRC_URI = "https://barebox.org/download/barebox-${PV}.tar.bz2"
 
 S = "${WORKDIR}/barebox-${PV}"
 B = "${WORKDIR}/build"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+# nooelint: oelint.file.requirenotfound
+require conf/image-uefi.conf
+
+inherit kernel-arch deploy cml1 pkgconfig
+
+export KBUILD_BUILD_USER ?= "oe-user"
+export KBUILD_BUILD_HOST ?= "oe-host"
 
 def get_layer_rev(path):
     try:
@@ -39,7 +39,7 @@ BAREBOX_BUILDSYSTEM_VERSION ??= "${@get_layer_rev(os.path.dirname(d.getVar('FILE
 BAREBOX_FIRMWARE_DIR[doc] = "Overwrite barebox' firmware blobs search directory (CONFIG_EXTRA_FIRMWARE_DIR) with this path, default ${B}/firmware"
 BAREBOX_FIRMWARE_DIR ??= "${B}/firmware"
 
-EXTRA_OEMAKE = " \
+EXTRA_OEMAKE = "\
     CROSS_COMPILE=${TARGET_PREFIX} -C ${S} O=${B} \
     BUILDSYSTEM_VERSION=${BAREBOX_BUILDSYSTEM_VERSION} \
     CONFIG_EXTRA_FIRMWARE_DIR=${BAREBOX_FIRMWARE_DIR} \
@@ -123,7 +123,7 @@ do_install () {
                 done
         fi
 }
-FILES:${PN} = "${BAREBOX_INSTALL_PATH}"
+FILES:${PN} += "${BAREBOX_INSTALL_PATH}"
 
 do_deploy () {
         if [ -n "${BAREBOX_BINARY}" ]; then

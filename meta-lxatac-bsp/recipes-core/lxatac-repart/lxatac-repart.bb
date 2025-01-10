@@ -2,15 +2,13 @@ SUMMARY = "Use systemd's update mechanism to only re-partition the disk after im
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-SRC_URI = " \
+SRC_URI = "\
     file://repart.d \
     file://ordering.conf \
     file://repart-before-tmpfiles.conf \
-    "
+"
 
 S = "${WORKDIR}"
-
-RDEPENDS:${PN} = "systemd"
 
 do_install () {
     install -d ${D}${libdir}/systemd/system/systemd-repart.service.d/
@@ -27,9 +25,10 @@ do_install () {
     touch ${D}/system-update
 }
 
-FILES:${PN} = " \
+FILES:${PN} += "\
     /system-update \
     ${libdir}/repart.d \
     ${libdir}/systemd/system/systemd-repart.service.d \
-    "
+"
 
+RDEPENDS:${PN} = "systemd"

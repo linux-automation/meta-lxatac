@@ -1,16 +1,18 @@
+SUMMARY = "Helpers around podman to start and update containers"
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 inherit allarch
 
-RDEPENDS_${PN} = " \
-    podman \
-    wget \
-"
-
-SRC_URI = " \
+SRC_URI = "\
     file://container-start.sh \
     file://container-update.sh \
+"
+
+RDEPENDS:${PN} = "\
+    podman \
+    wget \
 "
 
 do_install() {

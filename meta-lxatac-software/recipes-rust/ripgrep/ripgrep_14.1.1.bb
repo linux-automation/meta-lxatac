@@ -1,11 +1,20 @@
+SUMMARY = "ripgrep is a line-oriented recursive search tool searching for regex patterns"
+HOMEPAGE = "https://github.com/BurntSushi/ripgrep"
+LICENSE = "Unlicense | MIT"
+LIC_FILES_CHKSUM = "\
+    file://LICENSE-MIT;md5=8d0d0aa488af0ab9aafa3b85a7fc8e12 \
+    file://UNLICENSE;md5=7246f848faa4e9c9fc0ea91122d6e680 \
+"
+
 inherit cargo
 
-SRC_URI += "git://github.com/BurntSushi/ripgrep.git;protocol=https;branch=master"
-SRCREV = "4649aa9700619f94cf9c66876e9549d83420e16c"
-S = "${WORKDIR}/git"
+SRC_URI:append = " \
+    git://github.com/BurntSushi/ripgrep.git;protocol=https;branch=master \
+"
+
 CARGO_SRC_DIR = ""
 
-SRC_URI += " \
+SRC_URI:append = " \
     crate://crates.io/aho-corasick/1.1.3 \
     crate://crates.io/anyhow/1.0.87 \
     crate://crates.io/bstr/1.10.0 \
@@ -111,19 +120,6 @@ SRC_URI[windows_x86_64_gnu-0.52.6.sha256sum] = "147a5c80aabfbf0c7d901cb5895d1de3
 SRC_URI[windows_x86_64_gnullvm-0.52.6.sha256sum] = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
 SRC_URI[windows_x86_64_msvc-0.52.6.sha256sum] = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
-LIC_FILES_CHKSUM = " \
-    file://LICENSE-MIT;md5=8d0d0aa488af0ab9aafa3b85a7fc8e12 \
-    file://UNLICENSE;md5=7246f848faa4e9c9fc0ea91122d6e680 \
-"
+SRCREV = "4649aa9700619f94cf9c66876e9549d83420e16c"
 
-SUMMARY = "ripgrep is a line-oriented search tool that recursively searches your current \
-directory for a regex pattern while respecting your gitignore rules. ripgrep \
-has first class support on Windows, macOS and Linux."
-HOMEPAGE = "https://github.com/BurntSushi/ripgrep"
-LICENSE = "Unlicense | MIT"
-
-# includes this file if it exists but does not fail
-# this is useful for anything you may want to override from
-# what cargo-bitbake generates.
-include ripgrep-${PV}.inc
-include ripgrep.inc
+S = "${WORKDIR}/git"

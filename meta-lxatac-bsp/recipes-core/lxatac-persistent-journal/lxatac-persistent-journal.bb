@@ -1,7 +1,9 @@
+SUMMARY = "Use a bind mound to make systemd-journald logs persist across boots"
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-SRC_URI = " \
+SRC_URI = "\
     file://var-log-journal.mount \
 "
 
@@ -14,4 +16,4 @@ do_install () {
     install -m 0644 -t ${D}${systemd_system_unitdir}/ ${S}/var-log-journal.mount
 }
 
-FILES:${PN} = "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"

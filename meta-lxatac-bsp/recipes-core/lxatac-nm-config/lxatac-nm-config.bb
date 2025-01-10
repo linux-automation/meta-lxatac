@@ -1,9 +1,11 @@
+SUMMARY = "NetworkManager config for the LXA TAC"
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 inherit allarch
 
-SRC_URI += " \
+SRC_URI:append = " \
     file://hostname.conf \
     file://tac-bridge.nmconnection \
     file://port-dut.nmconnection \
@@ -12,7 +14,7 @@ SRC_URI += " \
     file://01-disable_switch_ipv6.conf \
     file://50-g-usb.link \
     file://52-switch.link \
-    "
+"
 
 N = "${libdir}/NetworkManager/system-connections"
 

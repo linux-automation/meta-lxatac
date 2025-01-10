@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 DEPENDS += "fiptool-native"
 
-SRC_URI += "file://genimage.config"
+SRC_URI:append = " file://genimage.config"
 
 inherit genimage
 

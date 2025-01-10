@@ -1,0 +1,22 @@
+{
+  "functions" : {
+    "known" : [
+      "do_genimage"
+    ]
+  },
+  "variables" : {
+    "known" : [
+      "BAREBOX_IMAGE_DEFAULT",
+      "BUNDLE_ARGS",
+      "GENIMAGE_IMAGE_SUFFIX",
+      "RAUC_BUNDLE_COMPATIBLE",
+      "RAUC_BUNDLE_FORMAT",
+      "RAUC_BUNDLE_HOOKS",
+      "RAUC_BUNDLE_SLOTS",
+      "RAUC_BUNDLE_VERSION",
+      "RAUC_SLOT_bootloader",
+      "RAUC_SLOT_rootfs",
+      "UMPF_PV"
+    ]
+  }
+}

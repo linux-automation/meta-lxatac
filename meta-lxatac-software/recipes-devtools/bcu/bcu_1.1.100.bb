@@ -9,14 +9,14 @@ SECTION = "devel"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=884d48c2aa7b82e1ad4a33909fab24b6"
 
+DEPENDS = "curl libftdi libusb1 libyaml openssl"
+
 SRC_URI = "git://github.com/nxp-imx/bcu;protocol=https;branch=master \
            file://0001-CMakeLists-do-not-use-vendored-libcurl.patch \
            "
 SRCREV = "c34d89b29f3d0d12793cd78b194d2f1d11728baf"
 
 S = "${WORKDIR}/git"
-
-DEPENDS = "curl libyaml libusb1 openssl libftdi"
 
 inherit cmake pkgconfig
 

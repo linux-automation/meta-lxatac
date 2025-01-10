@@ -1,7 +1,9 @@
+SUMMARY = "Use a bind mount to persist the labgrid cache across boots"
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-SRC_URI = " \
+SRC_URI = "\
     file://use-var-cache-labgrid.conf \
     file://var-cache-labgrid.mount \
 "
@@ -16,4 +18,4 @@ do_install () {
         ${S}/use-var-cache-labgrid.conf
 }
 
-FILES:${PN} = "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"

@@ -5,7 +5,6 @@ LIC_FILES_CHKSUM = "file://docs/license.rst;md5=b2c740efedc159745b9b31f88ff03dde
 
 SRCREV = "d3e71ead6ea5bc3555ac90a446efec84ef6c6122"
 
-
 COMPATIBLE_MACHINE = "lxatac"
 PLATFORM = "stm32mp1"
 
