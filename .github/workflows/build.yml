@@ -38,7 +38,7 @@ jobs:
             lxatac-debug-image \
             emmc-image \
             emmc-boot-image \
-            tf-a-stm32mp
+            trusted-firmware-a
 
           # Make the generates images available at a less deeply nested
           # location for the artifact upload (the directory structure is

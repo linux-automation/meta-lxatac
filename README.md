@@ -444,7 +444,7 @@ Then you are ready to proceed by [bringing the device into USB boot mode](#bring
 Flashing the LXA TAC from scratch requires a different set of firmware files
 than installing a RAUC update bundle. To build these files run:
 
-    $ bitbake emmc-image emmc-boot-image tf-a-stm32mp
+    $ bitbake emmc-image emmc-boot-image trusted-firmware-a 
 
 The required files should then appear in `tmp/deploy/images/lxatac/`.
 

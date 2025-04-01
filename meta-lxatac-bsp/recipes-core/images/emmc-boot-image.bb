@@ -15,5 +15,5 @@ GENIMAGE_IMAGE_SUFFIX = ""
 
 do_genimage[depends] += " \
     virtual/bootloader:do_deploy \
-    tf-a-stm32mp:do_deploy \
+    trusted-firmware-a:do_deploy \
 "
