@@ -4,3 +4,7 @@ PACKAGECONFIG:append = " \
   pstore \
   repart \
 "
+
+PACKAGECONFIG:remove = " \
+  vconsole \
+"
