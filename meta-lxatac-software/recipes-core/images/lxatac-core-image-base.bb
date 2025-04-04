@@ -54,6 +54,7 @@ IMAGE_INSTALL:append = "\
     iproute2-bash-completion \
     iproute2-devlink \
     iproute2-ifstat \
+    iproute2-ip \
     iproute2-lnstat \
     iproute2-nstat \
     iproute2-rtacct \
