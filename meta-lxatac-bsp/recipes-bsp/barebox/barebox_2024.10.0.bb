@@ -16,18 +16,6 @@ SRC_URI[sha256sum] = "955b20bfa7358732d2c0c09ccfd4c1a69087b7e2c610b16dee7442d71a
 
 COMPATIBLE_MACHINE = "lxatac"
 
-# barebox DTs are needed in the FIP image, so deploy all built DTs as barebox-*.dtb
-BAREBOX_DTBS_TO_DEPLOY = "arch/arm/dts/*.dtb"
-
-do_deploy:append () {
-	for DTB in ${BAREBOX_DTBS_TO_DEPLOY}; do
-		if [ -e ${DTB} ]; then
-			BAREBOX_DTB_BASENAME=barebox-$(basename ${DTB} .dtb)${BAREBOX_IMAGE_SUFFIX}
-			install -m 644 -T ${DTB} ${DEPLOYDIR}/${BAREBOX_DTB_BASENAME}.dtb
-		fi
-	done
-}
-
 DEPENDS:append = " panel-shineworld-lh133k"
 
 do_copy_fw() {
