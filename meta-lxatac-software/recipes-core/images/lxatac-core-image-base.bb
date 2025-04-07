@@ -35,6 +35,7 @@ IMAGE_INSTALL:append = "\
     curl \
     devmem2 \
     dfu-util \
+    dosfstools \
     e2fsprogs-tune2fs \
     ethtool \
     evtest \
