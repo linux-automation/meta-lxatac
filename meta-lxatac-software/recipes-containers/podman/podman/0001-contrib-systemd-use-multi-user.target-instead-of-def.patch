@@ -52,10 +52,10 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  contrib/systemd/system/podman.service.in                 | 2 +-
  5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/src/import/contrib/systemd/auto-update/podman-auto-update.service.in b/src/import/contrib/systemd/auto-update/podman-auto-update.service.in
+diff --git a/src/import/contrib/systemd/system/podman-auto-update.service.in b/src/import/contrib/systemd/system/podman-auto-update.service.in
 index a703912e2..992340abd 100644
---- a/src/import/contrib/systemd/auto-update/podman-auto-update.service.in
-+++ b/src/import/contrib/systemd/auto-update/podman-auto-update.service.in
+--- a/src/import/contrib/systemd/system/podman-auto-update.service.in
++++ b/src/import/contrib/systemd/system/podman-auto-update.service.in
 @@ -10,4 +10,4 @@ ExecStart=@@PODMAN@@ auto-update
  ExecStartPost=@@PODMAN@@ image prune -f
  
@@ -87,7 +87,7 @@ index de0249381..bc85feee0 100644
 --- a/src/import/contrib/systemd/system/podman-restart.service.in
 +++ b/src/import/contrib/systemd/system/podman-restart.service.in
 @@ -13,4 +13,4 @@ ExecStart=@@PODMAN@@ $LOGGING start --all --filter restart-policy=always
- ExecStop=/bin/sh -c '@@PODMAN@@ $LOGGING stop $(@@PODMAN@@ container ls --filter restart-policy=always -q)'
+ ExecStop=@@PODMAN@@  $LOGGING stop  --all --filter restart-policy=always
  
  [Install]
 -WantedBy=default.target
