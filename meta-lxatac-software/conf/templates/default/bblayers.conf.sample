@@ -8,6 +8,8 @@ BBFILES ?= ""
 BBLAYERS ?= " \
   ##OEROOT##/meta \
   ##OEROOT##/meta-poky \
+  ##OEROOT##/../meta-arm/meta-arm \
+  ##OEROOT##/../meta-arm/meta-arm-toolchain \
   ##OEROOT##/../meta-ptx \
   ##OEROOT##/../meta-oe/meta-oe \
   ##OEROOT##/../meta-oe/meta-python \

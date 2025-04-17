@@ -26,3 +26,7 @@
 	path = meta-selinux
 	url = https://git.yoctoproject.org/meta-selinux
 	branch = scarthgap
+[submodule "meta-arm"]
+	path = meta-arm
+	url = https://github.com/jonmason/meta-arm
+	branch = scarthgap
