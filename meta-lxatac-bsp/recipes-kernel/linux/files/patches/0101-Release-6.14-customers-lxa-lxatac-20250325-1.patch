@@ -1,21 +1,21 @@
 From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
-Date: Mon, 20 Jan 2025 08:05:05 +0100
-Subject: [PATCH] Release 6.13/customers/lxa/lxatac/20250120-1
+Date: Tue, 25 Mar 2025 07:04:32 +0100
+Subject: [PATCH] Release 6.14/customers/lxa/lxatac/20250325-1
 
 ---
  Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index b9464c88ac72..b27bda9372bb 100644
+index 8b6764d44a61..d9d4e56d1da2 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@
  VERSION = 6
- PATCHLEVEL = 13
+ PATCHLEVEL = 14
  SUBLEVEL = 0
 -EXTRAVERSION =
-+EXTRAVERSION =-20250120-1
++EXTRAVERSION =-20250325-1
  NAME = Baby Opossum Posse
  
  # *DOCUMENTATION*

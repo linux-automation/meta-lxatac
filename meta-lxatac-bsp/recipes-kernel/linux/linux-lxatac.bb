@@ -9,7 +9,7 @@ SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_VERSION}.t
            file://defconfig \
            "
 
-SRC_URI[sha256sum] = "e79dcc6eb86695c6babfb07c2861912b635d5075c6cd1cd0567d1ea155f80d6e"
+SRC_URI[sha256sum] = "a294b683e7b161bb0517bb32ec7ed1d2ea7603dfbabad135170ed12d00c47670"
 
 require files/patches/series.inc
 
