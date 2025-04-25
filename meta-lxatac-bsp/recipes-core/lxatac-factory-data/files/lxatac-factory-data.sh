@@ -16,9 +16,11 @@ mkdir -p "${DST_LINK_FILE_BASE}"
 # systemd.hostname= kernel commandline and interpreted by init.
 # -------------------------------------------------------------
 
-if [[ ! -e /etc/hostname ]]
+HOSTNAME="$(hostname)"
+
+if [[ "${HOSTNAME}" != "localhost" ]] && [[ ! -e /etc/hostname ]]
 then
-    hostname > /etc/hostname
+    echo "${HOSTNAME}" > /etc/hostname
 fi
 
 # Read Factory Data passed to us by barebox via the devicetree
