@@ -31,7 +31,6 @@ IMAGE_INSTALL:append = "\
     chrony \
     chronyc \
     container-control \
-    crun \
     curl \
     devmem2 \
     dfu-util \

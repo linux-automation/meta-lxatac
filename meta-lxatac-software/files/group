@@ -1,4 +1,5 @@
 root:x:0:
+gpio:x:981:
 systemd-journal-upload:x:982:
 pulse:x:983:
 avahi-autoipd:x:984:

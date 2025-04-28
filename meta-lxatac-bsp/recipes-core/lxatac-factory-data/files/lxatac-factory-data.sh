@@ -16,9 +16,19 @@ mkdir -p "${DST_LINK_FILE_BASE}"
 # systemd.hostname= kernel commandline and interpreted by init.
 # -------------------------------------------------------------
 
-if [[ ! -e /etc/hostname ]]
+if grep -q "^localhost\$" /etc/hostname
 then
-    hostname > /etc/hostname
+    # There was an error where "localhost" may have been persisted to
+    # /etc/hostname during bringup instead of lxatac-$SERIAL.
+    # Remove /etc/hostname if that is the case.
+    rm /etc/hostname
+fi
+
+HOSTNAME="$(hostname)"
+
+if [[ "${HOSTNAME}" != "localhost" ]] && [[ ! -e /etc/hostname ]]
+then
+    echo "${HOSTNAME}" > /etc/hostname
 fi
 
 # Read Factory Data passed to us by barebox via the devicetree
