@@ -6,7 +6,7 @@ This new directory should be used for board-specific headers,
 e.g. common data structures for factory data.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250411074045.2019372-1-a.fatoum@pengutronix.de/]
 ---
  Makefile | 1 +
  1 file changed, 1 insertion(+)

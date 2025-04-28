@@ -8,7 +8,7 @@ assignment code, so board code can use this to retrace which MAC
 addresses would be fixed up.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250411074045.2019372-1-a.fatoum@pengutronix.de/]
 ---
  include/net.h | 12 ++++++++++++
  net/eth.c     | 29 +++++++++++++++++++----------
