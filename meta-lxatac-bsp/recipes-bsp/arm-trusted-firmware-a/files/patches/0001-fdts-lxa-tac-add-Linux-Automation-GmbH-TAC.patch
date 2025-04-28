@@ -18,7 +18,7 @@ In the future there will also be a STM32MP153 based hardware generation.
 
 [1]: https://www.linux-automation.com/en/products/lxa-tac.html
 
-Upstream-Status: Pending
+Upstream-Status: Backport https://review.trustedfirmware.org/c/TF-A/trusted-firmware-a/+/36970
 
 Signed-off-by: Rouven Czerwinski <rouven@czerwinskis.de>
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
