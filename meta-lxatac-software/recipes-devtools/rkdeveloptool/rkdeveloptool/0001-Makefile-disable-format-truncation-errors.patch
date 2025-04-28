@@ -9,6 +9,7 @@ Content-Transfer-Encoding: 8bit
 The build fails with current compilers due to format-truncation errors.
 Ignore them for now.
 
+Upstream-Status: Pending
 Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
 ---
  Makefile.am | 2 +-
