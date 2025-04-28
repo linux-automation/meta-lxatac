@@ -121,7 +121,7 @@ DISTRO ?= "tacos"
 # meta/classes-recipe/image.bbclass and
 # meta/classes-recipe/core-image.bbclass for more details.
 # We default to allowing root login without a password for convenience.
-EXTRA_IMAGE_FEATURES ?= "allow-empty-password empty-root-password allow-root-login post-install-logging"
+EXTRA_IMAGE_FEATURES ?= "allow-empty-password empty-root-password allow-root-login"
 
 #
 # Additional image features
