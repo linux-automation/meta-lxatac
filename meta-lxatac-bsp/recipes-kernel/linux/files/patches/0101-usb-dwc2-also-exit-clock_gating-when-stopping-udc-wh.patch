@@ -13,6 +13,7 @@ To ensure that the clock gating will be in an valid state, we ensure
 that the clock gating will be enabled before stopping the udc.
 
 Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250417-dwc2_clock_gating-v1-1-8ea7c4d53d73@pengutronix.de/]
 ---
  drivers/usb/dwc2/gadget.c | 6 ++++++
  1 file changed, 6 insertions(+)
