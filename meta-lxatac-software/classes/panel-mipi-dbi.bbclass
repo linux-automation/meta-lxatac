@@ -36,7 +36,7 @@ do_configure[noexec] = "1"
 do_compile () {
     mipi-dbi-cmd \
         "${B}/${PANEL_FIRMWARE_BIN}" \
-        "${WORKDIR}/${PANEL_FIRMWARE}"
+        "${UNPACKDIR}/${PANEL_FIRMWARE}"
 }
 
 do_install () {

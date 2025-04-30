@@ -19,8 +19,8 @@ COMPATIBLE_MACHINE = "lxatac"
 DEPENDS:append = " panel-shineworld-lh133k"
 
 do_copy_fw() {
-    mkdir -p ${WORKDIR}/env/firmware/
-    cp ${RECIPE_SYSROOT}${nonarch_base_libdir}/firmware/shineworld,lh133k.bin ${WORKDIR}/env/firmware/
+    mkdir -p ${UNPACKDIR}/env/firmware/
+    cp ${RECIPE_SYSROOT}${nonarch_base_libdir}/firmware/shineworld,lh133k.bin ${UNPACKDIR}/env/firmware/
 }
 
 addtask copy_fw after do_configure before do_compile

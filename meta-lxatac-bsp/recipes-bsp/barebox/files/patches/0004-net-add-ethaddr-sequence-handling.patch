@@ -14,7 +14,7 @@ to iterate over such an Ethernet address sequence. Example usage:
           eth_register_ethaddr(i++, eth_addr);
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250411074045.2019372-1-a.fatoum@pengutronix.de/]
 ---
  include/net.h | 20 ++++++++++++++++++++
  1 file changed, 20 insertions(+)

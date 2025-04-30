@@ -7,7 +7,7 @@ appended by "-${global.serial_number} is a sane default. Add a Kconfig
 option to enable this.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250411074045.2019372-1-a.fatoum@pengutronix.de/]
 ---
  common/Kconfig |  8 ++++++++
  common/misc.c  | 16 ++++++++++++++++

@@ -12,10 +12,10 @@ SRC_URI += " \
     "
 
 do_install:append() {
-    install -D -m 0755 ${WORKDIR}/rauc-disable-cert.sh \
+    install -D -m 0755 ${UNPACKDIR}/rauc-disable-cert.sh \
         ${D}${bindir}/rauc-disable-cert
 
-    install -D -m 0755 ${WORKDIR}/rauc-enable-cert.sh \
+    install -D -m 0755 ${UNPACKDIR}/rauc-enable-cert.sh \
         ${D}${bindir}/rauc-enable-cert
 
     install -d ${D}${sysconfdir}/rauc/certificates-available
@@ -27,7 +27,7 @@ do_install:append() {
     # The RAUC hook will activate the certificate matching the key the
     # bundle was signed with.
     for cert in devel stable testing; do
-        install -D -m 0644 ${WORKDIR}/${cert}.cert.pem \
+        install -D -m 0644 ${UNPACKDIR}/${cert}.cert.pem \
             ${D}${sysconfdir}/rauc/certificates-available/${cert}.cert.pem
     done
 

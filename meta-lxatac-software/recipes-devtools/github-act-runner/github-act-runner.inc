@@ -1,8 +1,10 @@
 SUMMARY = "GitHub act Runner"
 DESCRIPTION = "Alternative implementation of the GitHub Action runner protocol written in Go"
 
+GO_IMPORT = "github.com/ChristopherHX/github-act-runner"
+
 SRC_URI = " \
-    git://github.com/ChristopherHX/github-act-runner.git;branch=main;protocol=https \
+    git://${GO_IMPORT};branch=main;protocol=https;destsuffix=${BPN}-${PV}/src/${GO_IMPORT} \
     file://github-act-runner.service \
 "
 
@@ -25,5 +27,5 @@ do_compile[network] = "1"
 
 do_install:append() {
     install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/github-act-runner.service ${D}${systemd_system_unitdir}/
+    install -m 0644 ${UNPACKDIR}/github-act-runner.service ${D}${systemd_system_unitdir}/
 }

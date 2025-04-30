@@ -1,7 +1,7 @@
 SUMMARY = "The LXA TAC System Daemon - Web Interface"
 SRC_URI = " \
     git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
-    npmsw://${THISDIR}/${BPN}/npm-shrinkwrap.json \
+    npmsw://${THISDIR}/${BPN}/npm-shrinkwrap.json;destsuffix=git/web \
     "
 LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = " \
@@ -11,7 +11,8 @@ LIC_FILES_CHKSUM = " \
 PV = "0.1.0+git${SRCPV}"
 SRCREV = "588a7e059aed85ce3928914cdedfbf05d5fadaa7"
 
-S = "${WORKDIR}/git/web"
+S = "${WORKDIR}/sources/git/web"
+UNPACKDIR = "${WORKDIR}/sources"
 
 inherit npm
 

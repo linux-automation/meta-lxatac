@@ -6,7 +6,7 @@ This is useful for host/target tools that use stdin as a fall back to
 read from when no file name is supplied.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250411074045.2019372-1-a.fatoum@pengutronix.de/]
 ---
  scripts/common.c | 29 +++++++++++++++++++++++++++++
  scripts/common.h |  1 +

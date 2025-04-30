@@ -6,16 +6,17 @@ SRC_URI = " \
     file://use-var-log-sa.conf \
 "
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/sources"
+UNPACKDIR = "${S}"
 
 inherit allarch
 
 do_install () {
     install -d ${D}${systemd_system_unitdir}/
-    install -m 0644 -t ${D}${systemd_system_unitdir}/ ${S}/var-log-sa.mount
+    install -m 0644 -t ${D}${systemd_system_unitdir}/ ${UNPACKDIR}/var-log-sa.mount
     install -d ${D}${systemd_system_unitdir}/sysstat.service.d/
     install -m 0644 -t ${D}${systemd_system_unitdir}/sysstat.service.d/ \
-        ${S}/use-var-log-sa.conf
+        ${UNPACKDIR}/use-var-log-sa.conf
 }
 
 FILES:${PN} = "${systemd_system_unitdir}"

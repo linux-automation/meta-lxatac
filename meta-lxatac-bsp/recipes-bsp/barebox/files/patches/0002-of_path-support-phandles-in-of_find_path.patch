@@ -15,7 +15,7 @@ heuristically, we add a new OF_FIND_PATH_FLAGS_PHANDLE0 to decode first
 property cell as phandle.
 
 Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250411074045.2019372-1-a.fatoum@pengutronix.de/]
 ---
  drivers/of/of_path.c | 49 ++++++++++++++++++++++++++++++++-----------------
  include/of.h         |  3 ++-
