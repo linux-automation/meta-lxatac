@@ -3,11 +3,11 @@ name: build
 on:
   pull_request:
     branches:
-      - styhead
+      - walnascar
       - stable-*
   push:
     branches:
-      - styhead
+      - walnascar
       - stable-*
   schedule:
     - cron: '10 21 * * 4'
