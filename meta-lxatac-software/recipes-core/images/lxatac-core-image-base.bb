@@ -17,9 +17,9 @@ IMAGE_LINGUAS = "en-us"
 
 IMAGE_INSTALL:append = "\
     alsa-utils \
+    android-tools \
     atftp \
     atftpd \
-    android-tools \
     avahi-utils \
     barebox-tools \
     bcu \
