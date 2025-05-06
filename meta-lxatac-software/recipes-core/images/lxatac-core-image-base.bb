@@ -52,6 +52,7 @@ IMAGE_INSTALL:append = "\
     iperf3 \
     iproute2 \
     iproute2-bash-completion \
+    iproute2-bridge \
     iproute2-devlink \
     iproute2-ifstat \
     iproute2-ip \
