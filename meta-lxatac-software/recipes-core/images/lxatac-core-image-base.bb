@@ -17,9 +17,9 @@ IMAGE_LINGUAS = "en-us"
 
 IMAGE_INSTALL:append = "\
     alsa-utils \
+    android-tools \
     atftp \
     atftpd \
-    android-tools \
     avahi-utils \
     barebox-tools \
     bcu \
@@ -52,6 +52,7 @@ IMAGE_INSTALL:append = "\
     iperf3 \
     iproute2 \
     iproute2-bash-completion \
+    iproute2-bridge \
     iproute2-devlink \
     iproute2-ifstat \
     iproute2-ip \
