@@ -4,6 +4,8 @@ SRC_URI += "file://userconfig.yaml \
             file://labgrid.conf \
             "
 
+SYSTEMD_AUTO_ENABLE:${PN}-coordinator = "disable"
+
 do_install:append() {
     # The userconfig.yaml is migrated via rauc hook between installs.
     # Deploy a copy of the file so that users can go back to a default config
