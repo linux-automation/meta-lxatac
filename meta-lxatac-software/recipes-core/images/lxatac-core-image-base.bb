@@ -104,6 +104,7 @@ IMAGE_INSTALL:append = "\
     python3-usbmuxctl \
     python3-usbsdmux \
     python3-venv \
+    qdl \
     rauc \
     ripgrep \
     rkdeveloptool \
