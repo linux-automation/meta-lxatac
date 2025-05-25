@@ -101,6 +101,7 @@ IMAGE_INSTALL:append = "\
     python3-labgrid \
     python3-lxa-iobus \
     python3-pygobject \
+    python3-snagboot \
     python3-usbmuxctl \
     python3-usbsdmux \
     python3-venv \
