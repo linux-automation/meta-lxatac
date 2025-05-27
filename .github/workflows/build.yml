@@ -16,6 +16,7 @@ jobs:
   build:
     name: build
     runs-on: [self-hosted, forrest, build]
+    timeout-minutes: 720
     if: ${{ vars.HAS_BUILD_RUNNER || github.repository == 'linux-automation/meta-lxatac' }}
     steps:
       - name: Check out the repository
