@@ -69,7 +69,7 @@ jobs:
       - name: Cache Data
         env:
           CACHE_KEY: ${{ secrets.YOCTO_CACHE_KEY }}
-        if: ${{ github.ref_protected && env.CACHE_KEY }}
+        if: ${{ env.CACHE_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$CACHE_KEY" >> ~/.ssh/id_ed25519
