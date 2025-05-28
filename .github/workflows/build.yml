@@ -16,6 +16,7 @@ jobs:
   build:
     name: build
     runs-on: [self-hosted, forrest, build]
+    timeout-minutes: 720
     if: ${{ vars.HAS_BUILD_RUNNER || github.repository == 'linux-automation/meta-lxatac' }}
     steps:
       - name: Check out the repository
@@ -69,7 +70,7 @@ jobs:
       - name: Cache Data
         env:
           CACHE_KEY: ${{ secrets.YOCTO_CACHE_KEY }}
-        if: ${{ github.ref_protected && env.CACHE_KEY }}
+        if: ${{ env.CACHE_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$CACHE_KEY" >> ~/.ssh/id_ed25519
