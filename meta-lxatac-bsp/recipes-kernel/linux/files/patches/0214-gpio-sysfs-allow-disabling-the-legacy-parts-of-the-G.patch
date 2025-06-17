@@ -1,0 +1,235 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Tue, 10 Jun 2025 16:38:29 +0200
+Subject: [PATCH] gpio: sysfs: allow disabling the legacy parts of the GPIO
+ sysfs interface
+
+Add a Kconfig switch allowing to disable the legacy parts of the GPIO
+sysfs interface. This means that even though we keep the
+/sys/class/gpio/ directory, it no longer contains the global
+export/unexport attribute pair (instead, the user should use the
+per-chip export/unpexport) nor the gpiochip$BASE entries. This option
+default to y if GPIO sysfs is enabled but we'll default it to n at some
+point in the future.
+
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250610-gpio-sysfs-chip-export-v1-0-a8c7aa4478b1@linaro.org/]
+---
+ drivers/gpio/Kconfig         |  8 ++++++++
+ drivers/gpio/gpiolib-sysfs.c | 32 ++++++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index f2c39bbff83a..18464fbef110 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -69,6 +69,14 @@ config GPIO_SYSFS
+ 	  use the character device /dev/gpiochipN with the appropriate
+ 	  ioctl() operations instead.
+ 
++config GPIO_SYSFS_LEGACY
++	bool "Enable legacy functionalities of the sysfs interface"
++	depends on GPIO_SYSFS
++	default y if GPIO_SYSFS
++	help
++	  Say Y here if you want to enable the legacy, global GPIO
++	  numberspace-based functionalities of the sysfs interface.
++
+ config GPIO_CDEV
+ 	bool "Character device (/dev/gpiochipN) support" if EXPERT
+ 	default y
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index 5ebbefae236d..3286dfd5328c 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -46,7 +46,9 @@ struct gpiod_data {
+ 	struct device *dev;
+ 
+ 	struct mutex mutex;
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	struct kernfs_node *value_class_node;
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 	struct kernfs_node *value_chip_node;
+ 	int irq;
+ 	unsigned char irq_flags;
+@@ -67,7 +69,9 @@ struct gpiod_data {
+ 
+ struct gpiodev_data {
+ 	struct gpio_device *gdev;
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	struct device *cdev_base; /* Class device by GPIO base */
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 	struct device *cdev_id; /* Class device by GPIO device ID */
+ 	struct list_head exported_lines;
+ };
+@@ -183,7 +187,9 @@ static irqreturn_t gpio_sysfs_irq(int irq, void *priv)
+ {
+ 	struct gpiod_data *data = priv;
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	sysfs_notify_dirent(data->value_class_node);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 	kernfs_notify(data->value_chip_node);
+ 
+ 	return IRQ_HANDLED;
+@@ -418,6 +424,7 @@ static umode_t gpio_is_visible(struct kobject *kobj, struct attribute *attr,
+  *   /ngpio ... matching gpio_chip.ngpio
+  */
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ static ssize_t base_show(struct device *dev, struct device_attribute *attr,
+ 			 char *buf)
+ {
+@@ -426,6 +433,7 @@ static ssize_t base_show(struct device *dev, struct device_attribute *attr,
+ 	return sysfs_emit(buf, "%u\n", data->gdev->base);
+ }
+ static DEVICE_ATTR_RO(base);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 
+ static ssize_t label_show(struct device *dev, struct device_attribute *attr,
+ 			  char *buf)
+@@ -550,6 +558,7 @@ static struct device_attribute dev_attr_unexport = __ATTR(unexport, 0200,
+ 							  NULL,
+ 							  chip_unexport_store);
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ static struct attribute *gpiochip_attrs[] = {
+ 	&dev_attr_base.attr,
+ 	&dev_attr_label.attr,
+@@ -557,6 +566,7 @@ static struct attribute *gpiochip_attrs[] = {
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(gpiochip);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 
+ static struct attribute *gpiochip_ext_attrs[] = {
+ 	&dev_attr_label.attr,
+@@ -567,6 +577,7 @@ static struct attribute *gpiochip_ext_attrs[] = {
+ };
+ ATTRIBUTE_GROUPS(gpiochip_ext);
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ /*
+  * /sys/class/gpio/export ... write-only
+  *	integer N ... number of GPIO to export (full access)
+@@ -631,10 +642,13 @@ static struct attribute *gpio_class_attrs[] = {
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(gpio_class);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 
+ static const struct class gpio_class = {
+ 	.name =		"gpio",
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	.class_groups =	gpio_class_groups,
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ };
+ 
+ static int match_gdev(struct device *dev, const void *desc)
+@@ -765,6 +779,7 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
+ 	 * at least one known user of gpiod_export_link() in the tree. This
+ 	 * function still uses class_find_device() internally.
+ 	 */
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	desc_data->dev = device_create_with_groups(&gpio_class, &gdev->dev,
+ 						   MKDEV(0, 0), desc_data,
+ 						   desc_data->attr_groups,
+@@ -781,6 +796,7 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
+ 		status = -ENODEV;
+ 		goto err_unregister_device;
+ 	}
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 
+ 	gdev_data = gdev_get_data(gdev);
+ 	if (!gdev_data) {
+@@ -824,10 +840,12 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
+ err_free_name:
+ 	kfree(desc_data->attr_group.name);
+ err_put_dirent:
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	sysfs_put(desc_data->value_class_node);
+ err_unregister_device:
+ 	device_unregister(desc_data->dev);
+ err_free_data:
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 	kfree(desc_data);
+ err_clear_bit:
+ 	clear_bit(FLAG_EXPORT, &desc->flags);
+@@ -836,12 +854,14 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
+ }
+ EXPORT_SYMBOL_GPL(gpiod_export);
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ static int match_export(struct device *dev, const void *desc)
+ {
+ 	struct gpiod_data *data = dev_get_drvdata(dev);
+ 
+ 	return data->desc == desc;
+ }
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 
+ /**
+  * gpiod_export_link - create a sysfs link to an exported GPIO node
+@@ -858,6 +878,7 @@ static int match_export(struct device *dev, const void *desc)
+ int gpiod_export_link(struct device *dev, const char *name,
+ 		      struct gpio_desc *desc)
+ {
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	struct device *cdev;
+ 	int ret;
+ 
+@@ -874,6 +895,9 @@ int gpiod_export_link(struct device *dev, const char *name,
+ 	put_device(cdev);
+ 
+ 	return ret;
++#else
++	return -EOPNOTSUPP;
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ }
+ EXPORT_SYMBOL_GPL(gpiod_export_link);
+ 
+@@ -912,8 +936,10 @@ void gpiod_unexport(struct gpio_desc *desc)
+ 
+ 		list_del(&desc_data->list);
+ 		clear_bit(FLAG_EXPORT, &desc->flags);
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 		sysfs_put(desc_data->value_class_node);
+ 		device_unregister(desc_data->dev);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 		kernfs_put(desc_data->value_chip_node);
+ 
+ 		/*
+@@ -968,6 +994,7 @@ int gpiochip_sysfs_register(struct gpio_device *gdev)
+ 
+ 	guard(mutex)(&sysfs_lock);
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 	/* use chip->base for the ID; it's already known to be unique */
+ 	data->cdev_base = device_create_with_groups(&gpio_class, parent,
+ 						    MKDEV(0, 0), data,
+@@ -978,13 +1005,16 @@ int gpiochip_sysfs_register(struct gpio_device *gdev)
+ 		kfree(data);
+ 		return PTR_ERR(data->cdev_base);
+ 	}
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 
+ 	data->cdev_id = device_create_with_groups(&gpio_class, parent,
+ 						  MKDEV(0, 0), data,
+ 						  gpiochip_ext_groups,
+ 						  "chip%d", gdev->id);
+ 	if (IS_ERR(data->cdev_id)) {
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 		device_unregister(data->cdev_base);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 		kfree(data);
+ 		return PTR_ERR(data->cdev_id);
+ 	}
+@@ -1003,7 +1033,9 @@ void gpiochip_sysfs_unregister(struct gpio_device *gdev)
+ 		if (!data)
+ 			return;
+ 
++#if IS_ENABLED(CONFIG_GPIO_SYSFS_LEGACY)
+ 		device_unregister(data->cdev_base);
++#endif /* CONFIG_GPIO_SYSFS_LEGACY */
+ 		device_unregister(data->cdev_id);
+ 		kfree(data);
+ 	}

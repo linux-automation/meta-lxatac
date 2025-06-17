@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 6.15.0-20250617-1 Kernel Configuration
+# Linux/arm 6.15.0-20250617-2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="arm-oe-linux-gnueabi-gcc (GCC) 14.2.0"
 CONFIG_CC_IS_GCC=y
@@ -2552,6 +2552,7 @@ CONFIG_OF_GPIO=y
 CONFIG_GPIOLIB_IRQCHIP=y
 # CONFIG_DEBUG_GPIO is not set
 CONFIG_GPIO_SYSFS=y
+CONFIG_GPIO_SYSFS_LEGACY=y
 CONFIG_GPIO_CDEV=y
 CONFIG_GPIO_CDEV_V1=y
 CONFIG_GPIO_GENERIC=y

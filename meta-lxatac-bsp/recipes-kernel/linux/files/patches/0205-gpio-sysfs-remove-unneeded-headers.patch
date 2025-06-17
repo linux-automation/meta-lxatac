@@ -1,0 +1,36 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Tue, 10 Jun 2025 16:38:20 +0200
+Subject: [PATCH] gpio: sysfs: remove unneeded headers
+
+No symbols from the linux/idr.h or linux/spinlock.h headers are used in
+this file so remove them. We also don't technically need linux/list.h
+currently but one of the follow-up commits will start using it so let's
+leave it.
+
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250610-gpio-sysfs-chip-export-v1-0-a8c7aa4478b1@linaro.org/]
+---
+ drivers/gpio/gpiolib-sysfs.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index b8fad61ae199..607c7f2a32eb 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -3,7 +3,6 @@
+ #include <linux/bitops.h>
+ #include <linux/cleanup.h>
+ #include <linux/device.h>
+-#include <linux/idr.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/kdev_t.h>
+@@ -12,7 +11,6 @@
+ #include <linux/mutex.h>
+ #include <linux/printk.h>
+ #include <linux/slab.h>
+-#include <linux/spinlock.h>
+ #include <linux/string.h>
+ #include <linux/srcu.h>
+ #include <linux/sysfs.h>

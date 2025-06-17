@@ -1,0 +1,160 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Tue, 10 Jun 2025 16:38:27 +0200
+Subject: [PATCH] gpio: sysfs: don't look up exported lines as class devices
+
+In preparation for adding a parallel, per-chip attribute group for
+exported GPIO lines, stop using class device APIs to refer to it in the
+code. When unregistering the chip, don't call class_find_device() but
+instead store exported lines in a linked list inside the GPIO chip data
+object and look it up there.
+
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250610-gpio-sysfs-chip-export-v1-0-a8c7aa4478b1@linaro.org/]
+---
+ drivers/gpio/gpiolib-sysfs.c | 60 ++++++++++++++++++++++++++++++++------------
+ 1 file changed, 44 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index 469ccc2c3e2c..5d2dc62c5bcb 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -43,6 +43,7 @@ enum {
+ 
+ struct gpiod_data {
+ 	struct gpio_desc *desc;
++	struct device *dev;
+ 
+ 	struct mutex mutex;
+ 	struct kernfs_node *value_class_node;
+@@ -58,12 +59,15 @@ struct gpiod_data {
+ 	struct attribute *attrs[GPIO_SYSFS_LINE_ATTR_SIZE];
+ 	struct attribute_group attr_group;
+ 	const struct attribute_group *attr_groups[2];
++
++	struct list_head list;
+ };
+ 
+ struct gpiodev_data {
+ 	struct gpio_device *gdev;
+ 	struct device *cdev_base; /* Class device by GPIO base */
+ 	struct device *cdev_id; /* Class device by GPIO device ID */
++	struct list_head exported_lines;
+ };
+ 
+ /*
+@@ -688,10 +692,10 @@ static void gpiod_attr_init(struct device_attribute *dev_attr, const char *name,
+  */
+ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
+ {
++	struct gpiodev_data *gdev_data;
+ 	struct gpiod_data *desc_data;
+ 	struct gpio_device *gdev;
+ 	struct attribute **attrs;
+-	struct device *dev;
+ 	int status;
+ 
+ 	/* can't export until sysfs is available ... */
+@@ -753,25 +757,40 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
+ 	desc_data->attr_group.attrs = desc_data->attrs;
+ 	desc_data->attr_groups[0] = &desc_data->attr_group;
+ 
+-	dev = device_create_with_groups(&gpio_class, &gdev->dev,
+-					MKDEV(0, 0), desc_data,
+-					desc_data->attr_groups,
+-					"gpio%u", desc_to_gpio(desc));
+-	if (IS_ERR(dev)) {
+-		status = PTR_ERR(dev);
++	/*
++	 * Note: we need to continue passing desc_data here as there's still
++	 * at least one known user of gpiod_export_link() in the tree. This
++	 * function still uses class_find_device() internally.
++	 */
++	desc_data->dev = device_create_with_groups(&gpio_class, &gdev->dev,
++						   MKDEV(0, 0), desc_data,
++						   desc_data->attr_groups,
++						   "gpio%u",
++						   desc_to_gpio(desc));
++	if (IS_ERR(desc_data->dev)) {
++		status = PTR_ERR(desc_data->dev);
+ 		goto err_free_data;
+ 	}
+ 
+-	desc_data->value_class_node = sysfs_get_dirent(dev->kobj.sd, "value");
++	desc_data->value_class_node = sysfs_get_dirent(desc_data->dev->kobj.sd,
++						       "value");
+ 	if (!desc_data->value_class_node) {
+ 		status = -ENODEV;
+ 		goto err_unregister_device;
+ 	}
+ 
++	gdev_data = gdev_get_data(gdev);
++	if (!gdev_data) {
++		status = -ENODEV;
++		goto err_unregister_device;
++	}
++
++	list_add(&desc_data->list, &gdev_data->exported_lines);
++
+ 	return 0;
+ 
+ err_unregister_device:
+-	device_unregister(dev);
++	device_unregister(desc_data->dev);
+ err_free_data:
+ 	kfree(desc_data);
+ err_clear_bit:
+@@ -830,8 +849,9 @@ EXPORT_SYMBOL_GPL(gpiod_export_link);
+  */
+ void gpiod_unexport(struct gpio_desc *desc)
+ {
+-	struct gpiod_data *desc_data;
+-	struct device *dev;
++	struct gpiod_data *desc_data = NULL;
++	struct gpiodev_data *gdev_data;
++	struct gpio_device *gdev;
+ 
+ 	if (!desc) {
+ 		pr_warn("%s: invalid GPIO\n", __func__);
+@@ -842,14 +862,22 @@ void gpiod_unexport(struct gpio_desc *desc)
+ 		if (!test_bit(FLAG_EXPORT, &desc->flags))
+ 			return;
+ 
+-		dev = class_find_device(&gpio_class, NULL, desc, match_export);
+-		if (!dev)
++		gdev = gpiod_to_gpio_device(desc);
++		gdev_data = gdev_get_data(gdev);
++		if (!gdev_data)
++			return;
++
++		list_for_each_entry(desc_data, &gdev_data->exported_lines, list)
++			if (desc == desc_data->desc)
++				break;
++
++		if (!desc_data)
+ 			return;
+ 
+-		desc_data = dev_get_drvdata(dev);
++		list_del(&desc_data->list);
+ 		clear_bit(FLAG_EXPORT, &desc->flags);
+ 		sysfs_put(desc_data->value_class_node);
+-		device_unregister(dev);
++		device_unregister(desc_data->dev);
+ 
+ 		/*
+ 		 * Release irq after deregistration to prevent race with
+@@ -859,7 +887,6 @@ void gpiod_unexport(struct gpio_desc *desc)
+ 			gpio_sysfs_free_irq(desc_data);
+ 	}
+ 
+-	put_device(dev);
+ 	mutex_destroy(&desc_data->mutex);
+ 	kfree(desc_data);
+ }
+@@ -900,6 +927,7 @@ int gpiochip_sysfs_register(struct gpio_device *gdev)
+ 		return -ENOMEM;
+ 
+ 	data->gdev = gdev;
++	INIT_LIST_HEAD(&data->exported_lines);
+ 
+ 	guard(mutex)(&sysfs_lock);
+ 

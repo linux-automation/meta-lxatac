@@ -1,0 +1,27 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Tue, 10 Jun 2025 16:38:16 +0200
+Subject: [PATCH] Documentation: gpio: undocument removed behavior
+
+Since commit 700cdf7ed00f ("gpio: sysfs: make the sysfs export behavior
+consistent"), named GPIO lines are no longer exported in sysfs as links
+named after the them. Drop the misleading bit from the ABI docs.
+
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250610-gpio-sysfs-chip-export-v1-0-a8c7aa4478b1@linaro.org/]
+---
+ Documentation/ABI/obsolete/sysfs-gpio | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/Documentation/ABI/obsolete/sysfs-gpio b/Documentation/ABI/obsolete/sysfs-gpio
+index da1345d854b4..8203bc2128db 100644
+--- a/Documentation/ABI/obsolete/sysfs-gpio
++++ b/Documentation/ABI/obsolete/sysfs-gpio
+@@ -19,7 +19,6 @@ Description:
+ 	/export ... asks the kernel to export a GPIO to userspace
+ 	/unexport ... to return a GPIO to the kernel
+ 	/gpioN ... for each exported GPIO #N OR
+-	/<LINE-NAME> ... for a properly named GPIO line
+ 	    /value ... always readable, writes fail for input GPIOs
+ 	    /direction ... r/w as: in, out (default low); write: high, low
+ 	    /edge ... r/w as: none, falling, rising, both
