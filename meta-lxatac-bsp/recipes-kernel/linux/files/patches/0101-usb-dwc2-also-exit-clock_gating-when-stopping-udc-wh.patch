@@ -19,7 +19,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250417-dwc2_clock_gati
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index bd4c788f03bc..d3d0d75ab1f5 100644
+index 300ea4969f0c..f323fb5597b3 100644
 --- a/drivers/usb/dwc2/gadget.c
 +++ b/drivers/usb/dwc2/gadget.c
 @@ -4604,6 +4604,12 @@ static int dwc2_hsotg_udc_stop(struct usb_gadget *gadget)
