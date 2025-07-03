@@ -8,7 +8,7 @@ BOOTSPEC_EXTRALINE = "linux-appendroot true\n"
 # that should be fixed there.
 # Once drm_leak_fbdev_smem is removed the kernel config option
 # CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM should be disabled as well.
-BOOTSPEC_OPTIONS += "rootwait drm_kms_helper.drm_leak_fbdev_smem=1"
+BOOTSPEC_OPTIONS += "drm_kms_helper.drm_leak_fbdev_smem=1"
 
 IMAGE_INSTALL:append = "\
     kernel-image \
