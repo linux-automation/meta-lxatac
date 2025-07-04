@@ -4,10 +4,9 @@ SRC_URI += " \
     file://defconfig \
     file://env \
 "
-require files/patches/series.inc
 
-PV = "2024.10.0"
-SRC_URI[sha256sum] = "955b20bfa7358732d2c0c09ccfd4c1a69087b7e2c610b16dee7442d71a5af88d"
+PV = "2025.07.0"
+SRC_URI[sha256sum] = "92add334bd0f5847deb2c23da54c78b40e8bae4f93c545e62be28e2f0afe137b"
 
 COMPATIBLE_MACHINE = "lxatac"
 
