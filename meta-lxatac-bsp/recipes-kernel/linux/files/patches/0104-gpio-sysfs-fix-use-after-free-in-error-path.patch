@@ -1,0 +1,44 @@
+From: Antonio Quartulli <antonio@mandelbit.com>
+Date: Mon, 23 Jun 2025 00:02:21 +0200
+Subject: [PATCH] gpio: sysfs: fix use-after-free in error path
+
+When invoking device_create_with_groups(), its return value is stored
+in `data->cdev_base`. However, in case of faiure, `data` is first freed
+and then derefernced in order to return `data->cdev_base`.
+
+Fix the use-after-free by extracting the error code before free'ing
+`data`.
+
+Fixes: fd19792851db ("gpio: sysfs: remove the mockdev pointer from struct gpio_device")
+Addresses-Coverity-ID: 1644512 ("Memory - illegal accesses  (USE_AFTER_FREE)")
+Signed-off-by: Antonio Quartulli <antonio@mandelbit.com>
+Link: https://lore.kernel.org/r/20250622220221.28025-1-antonio@mandelbit.com
+[Bartosz: added Fixes: tag, tweaked commit message]
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+---
+ drivers/gpio/gpiolib-sysfs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index e3a21aa7e4f6..0c74ddfebdbb 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -743,6 +743,7 @@ int gpiochip_sysfs_register(struct gpio_device *gdev)
+ 	struct gpiodev_data *data;
+ 	struct gpio_chip *chip;
+ 	struct device *parent;
++	int err;
+ 
+ 	/*
+ 	 * Many systems add gpio chips for SOC support very early,
+@@ -783,8 +784,9 @@ int gpiochip_sysfs_register(struct gpio_device *gdev)
+ 						    GPIOCHIP_NAME "%d",
+ 						    chip->base);
+ 	if (IS_ERR(data->cdev_base)) {
++		err = PTR_ERR(data->cdev_base);
+ 		kfree(data);
+-		return PTR_ERR(data->cdev_base);
++		return err;
+ 	}
+ 
+ 	return 0;

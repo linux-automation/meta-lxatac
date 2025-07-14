@@ -1,0 +1,27 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Tue, 10 Jun 2025 16:38:18 +0200
+Subject: [PATCH] gpio: sysfs: call mutex_destroy() in gpiod_unexport()
+
+While not critical, it's useful to have the corresponding call to
+mutex_destroy() whenever we use mutex_init(). Add the call right before
+kfreeing the GPIO data.
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20250610-gpio-sysfs-chip-export-v1-3-a8c7aa4478b1@linaro.org
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+---
+ drivers/gpio/gpiolib-sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index 4a3aa09dad9d..cd3381a4bc93 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -713,6 +713,7 @@ void gpiod_unexport(struct gpio_desc *desc)
+ 	}
+ 
+ 	put_device(dev);
++	mutex_destroy(&data->mutex);
+ 	kfree(data);
+ }
+ EXPORT_SYMBOL_GPL(gpiod_unexport);

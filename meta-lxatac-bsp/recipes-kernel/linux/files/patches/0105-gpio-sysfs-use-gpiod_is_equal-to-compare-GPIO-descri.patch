@@ -1,0 +1,28 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Fri, 4 Jul 2025 14:58:48 +0200
+Subject: [PATCH] gpio: sysfs: use gpiod_is_equal() to compare GPIO descriptors
+
+We have a dedicated comparator for GPIO descriptors that performs
+additional checks and hides the implementation detail of whether the
+same GPIO can be associated with two separate struct gpio_desc objects.
+Use it in sysfs code
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+---
+ drivers/gpio/gpiolib-sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index 0c74ddfebdbb..8538e11fe1e0 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -659,7 +659,7 @@ static int match_export(struct device *dev, const void *desc)
+ {
+ 	struct gpiod_data *data = dev_get_drvdata(dev);
+ 
+-	return data->desc == desc;
++	return gpiod_is_equal(data->desc, desc);
+ }
+ 
+ /**

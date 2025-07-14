@@ -1,0 +1,39 @@
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Date: Fri, 4 Jul 2025 14:58:57 +0200
+Subject: [PATCH] gpio: TODO: remove the task for the sysfs rework
+
+Remove the completed task tracking the rework of the sysfs interface and
+add a new task to track the removal of the legacy bits and pieces.
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+---
+ drivers/gpio/TODO | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpio/TODO b/drivers/gpio/TODO
+index 4a8b349f2483..022eafd9ca5c 100644
+--- a/drivers/gpio/TODO
++++ b/drivers/gpio/TODO
+@@ -183,16 +183,12 @@ remove the old ones and finally rename the new ones back to the old names.
+ 
+ -------------------------------------------------------------------------------
+ 
+-Extend the sysfs ABI to allow exporting lines by their HW offsets
++Remove legacy sysfs features
+ 
+-The need to support the sysfs GPIO class is one of the main obstacles to
+-removing the global GPIO numberspace from the kernel. In order to wean users
+-off using global numbers from user-space, extend the existing interface with
+-new per-gpiochip export/unexport attributes that allow to refer to GPIOs using
+-their hardware offsets within the chip.
+-
+-Encourage users to switch to using them and eventually remove the existing
+-global export/unexport attribues.
++We have two parallel per-chip class devices and per-exported-line attribute
++groups in sysfs. One is using the obsolete global GPIO numberspace and the
++second relies on hardware offsets of pins within the chip. Remove the former
++once user-space has switched to using the latter.
+ 
+ -------------------------------------------------------------------------------
+ 

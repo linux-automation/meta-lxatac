@@ -14,14 +14,8 @@ output.
 This fixes a warning issued by Yocto:
 	WARNING: linux-lxatac-6.7-r0 do_package_qa: QA Issue: File /usr/src/debug/linux-lxatac/6.7-r0/arch/arm/include/generated/asm/mach-types.h in package linux-lxatac-src contains reference to TMPDIR
 
-The patch was denied upstream with the following comment by Russel King:
-
-  Or just leave it as is. It's in a comment, it doesn't get into the
-  executable, and thus is harmless.
-
 Forwarded: https://lore.kernel.org/r/20240213092835.754462-2-u.kleine-koenig@pengutronix.de
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Upstream-Status: Denied
 ---
  arch/arm/tools/gen-mach-types | 13 ++++++++++++-
  1 file changed, 12 insertions(+), 1 deletion(-)
