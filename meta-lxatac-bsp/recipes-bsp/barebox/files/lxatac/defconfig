@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Barebox/arm 2025.07.0 Configuration
+# Barebox/arm 2025.07.0-20250806-1 Configuration
 #
 CONFIG_ARM=y
 CONFIG_ARCH_LINUX_NAME="arm"
