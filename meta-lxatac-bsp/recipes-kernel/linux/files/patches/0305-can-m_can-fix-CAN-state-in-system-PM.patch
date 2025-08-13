@@ -1,0 +1,67 @@
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+Date: Tue, 12 Aug 2025 16:58:31 +0200
+Subject: [PATCH] can: m_can: fix CAN state in system PM
+
+A suspend/resume cycle on a down interface results in the interface
+coming up in Error Active state. A suspend/resume cycle on an Up
+interface will always result in Error Active state, regardless of the
+actual CAN state.
+
+During suspend, only set running interfaces to CAN_STATE_SLEEPING.
+During resume only touch the CAN state of running interfaces. For
+wakeup sources, set the CAN state depending on the Protocol Status
+Regitser (PSR), for non wakeup source interfaces m_can_start() will do
+the same.
+
+Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state-handling-v1-0-b739e06c0a3b@pengutronix.de]
+---
+ drivers/net/can/m_can/m_can.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index e28f3d5f58f9..73f3524bfd1d 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -2507,12 +2507,11 @@ int m_can_class_suspend(struct device *dev)
+ 		}
+ 
+ 		m_can_clk_stop(cdev);
++		cdev->can.state = CAN_STATE_SLEEPING;
+ 	}
+ 
+ 	pinctrl_pm_select_sleep_state(dev);
+ 
+-	cdev->can.state = CAN_STATE_SLEEPING;
+-
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(m_can_class_suspend);
+@@ -2525,14 +2524,14 @@ int m_can_class_resume(struct device *dev)
+ 
+ 	pinctrl_pm_select_default_state(dev);
+ 
+-	cdev->can.state = CAN_STATE_ERROR_ACTIVE;
+-
+ 	if (netif_running(ndev)) {
+ 		ret = m_can_clk_start(cdev);
+ 		if (ret)
+ 			return ret;
+ 
+ 		if (cdev->pm_wake_source) {
++			u32 reg_psr;
++
+ 			/* Restore active interrupts but disable coalescing as
+ 			 * we may have missed important waterlevel interrupts
+ 			 * between suspend and resume. Timers are already
+@@ -2544,6 +2543,9 @@ int m_can_class_resume(struct device *dev)
+ 			if (cdev->ops->init)
+ 				ret = cdev->ops->init(cdev);
+ 
++			reg_psr = m_can_read(cdev, M_CAN_PSR);
++			cdev->can.state = m_can_can_state_get_by_psr(reg_psr);
++
+ 			m_can_write(cdev, M_CAN_IE, cdev->active_interrupts);
+ 		} else {
+ 			ret  = m_can_start(ndev);
