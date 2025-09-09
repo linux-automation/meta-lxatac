@@ -5,10 +5,8 @@ SRC_URI += " \
     file://env \
 "
 
-require files/patches/series.inc
-
-PV = "2025.07.0"
-SRC_URI[sha256sum] = "92add334bd0f5847deb2c23da54c78b40e8bae4f93c545e62be28e2f0afe137b"
+PV = "2025.08.0"
+SRC_URI[sha256sum] = "b32f141ee708e87cb0cc01d626adafc07bd6eb52d62ca969287d7d27462eab32"
 
 COMPATIBLE_MACHINE = "lxatac"
 
