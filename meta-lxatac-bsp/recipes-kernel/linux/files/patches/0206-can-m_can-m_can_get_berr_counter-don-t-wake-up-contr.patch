@@ -16,7 +16,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 73f3524bfd1d..22f131958a8c 100644
+index 149f3a8b5f7e..c24ea0e5599f 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
 @@ -790,6 +790,10 @@ static int m_can_get_berr_counter(const struct net_device *dev,

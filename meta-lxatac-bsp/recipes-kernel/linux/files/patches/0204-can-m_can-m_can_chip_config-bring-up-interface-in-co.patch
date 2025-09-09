@@ -21,7 +21,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index c31d7eb6e2eb..e28f3d5f58f9 100644
+index b485d2f3d971..310a907cbb7e 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
 @@ -1607,6 +1607,7 @@ static int m_can_chip_config(struct net_device *dev)

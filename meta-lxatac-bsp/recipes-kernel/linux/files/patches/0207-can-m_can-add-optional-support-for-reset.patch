@@ -21,7 +21,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state
  2 files changed, 24 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 22f131958a8c..d06570096554 100644
+index c24ea0e5599f..a34a0fb8aadb 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
 @@ -23,6 +23,7 @@
