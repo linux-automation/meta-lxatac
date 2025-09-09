@@ -21,7 +21,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index e28f3d5f58f9..73f3524bfd1d 100644
+index 310a907cbb7e..149f3a8b5f7e 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
 @@ -2507,12 +2507,11 @@ int m_can_class_suspend(struct device *dev)

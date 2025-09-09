@@ -22,7 +22,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state
  1 file changed, 29 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 9a7ee5b3913d..c31d7eb6e2eb 100644
+index a51dc0bb8124..b485d2f3d971 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
 @@ -812,6 +812,10 @@ static int m_can_handle_state_change(struct net_device *dev,

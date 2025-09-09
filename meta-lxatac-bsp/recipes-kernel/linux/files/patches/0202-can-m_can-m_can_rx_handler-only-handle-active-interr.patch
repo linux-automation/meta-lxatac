@@ -22,7 +22,7 @@ Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index c2c116ce1087..9a7ee5b3913d 100644
+index fe74dbd2c966..a51dc0bb8124 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
 @@ -1006,6 +1006,7 @@ static int m_can_rx_handler(struct net_device *dev, int quota, u32 irqstatus)
