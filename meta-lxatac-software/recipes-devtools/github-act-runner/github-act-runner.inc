@@ -4,7 +4,7 @@ DESCRIPTION = "Alternative implementation of the GitHub Action runner protocol w
 GO_IMPORT = "github.com/ChristopherHX/github-act-runner"
 
 SRC_URI = " \
-    git://${GO_IMPORT};branch=main;protocol=https;destsuffix=${BPN}-${PV}/src/${GO_IMPORT} \
+    git://${GO_IMPORT};branch=${SRCBRANCH};protocol=https;destsuffix=${BPN}-${PV}/src/${GO_IMPORT} \
     file://github-act-runner.service \
 "
 
