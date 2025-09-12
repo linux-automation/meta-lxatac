@@ -1,0 +1,99 @@
+recipes:
+  - recipe: "meta-lxatac-software/recipes-devtools/github-act-runner/github-act-runner_$PV.bb"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://github.com/ChristopherHX/github-act-runner.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+    header: |-
+      require github-act-runner.inc
+
+  - recipe: "meta-lxatac-software/recipes-devtools/gitlab-runner/gitlab-runner_$PV.bb"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://gitlab.com/gitlab-org/gitlab-runner.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+    header: |-
+      require gitlab-runner.inc
+
+  - recipe: "meta-lxatac-software/recipes-devtools/qdl/qdl_$PV.bb"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://github.com/linux-msm/qdl.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+    header: |-
+      require qdl.inc
+
+  - recipe: "meta-lxatac-software/recipes-devtools/rkdeveloptool/rkdeveloptool_git.bb"
+    template: "template.bb.jinja2"
+    git_branch:
+      url: "https://github.com/rockchip-linux/rkdeveloptool.git"
+      branch: master
+    header: |-
+      require rkdeveloptool.inc
+
+  - recipe: "meta-lxatac-software/recipes-rust/bottom/bottom_$PV.bb"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://github.com/ClementTsang/bottom.git"
+      # Limit to 0.10.x releases for now because the sysinfo dependency in
+      # in its version 0.37.0 requires edition2024, which is to new for the
+      # rustc in walnascar.
+      # TODO: change back to "^([\\d+\\.]*\\d+)$" when moving on from
+      # walnascar.
+      version_pattern: "^(0\\.10[\\.\\d+]*)$"
+      version_order: semver
+    header: |-
+      require bottom.inc
+
+  - recipe: "meta-lxatac-software/recipes-rust/ripgrep/ripgrep_$PV.bb"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://github.com/BurntSushi/ripgrep.git"
+      version_pattern: "^([\\d+\\.]*\\d+)$"
+      version_order: semver
+    header: |-
+      require ripgrep.inc
+
+  - recipe: "meta-lxatac-software/recipes-rust/tacd/tacd_git.bb"
+    template: "template.bb.jinja2"
+    git_branch:
+      url: "https://github.com/linux-automation/tacd.git"
+      branch: main
+    header: |-
+      require tacd.inc
+
+  - recipe: "meta-lxatac-software/recipes-support/imx-uuu/imx-uuu_$PV.bb"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://github.com/nxp-imx/mfgtools.git"
+      version_pattern: "^uuu_([\\d+\\.]*\\d+)$"
+      version_order: semver
+    header: |-
+      require imx-uuu.inc
+
+  - recipe: "meta-lxatac-software/recipes-webadmin/tacd-webinterface/tacd-webinterface_git.bb"
+    template: "template.bb.jinja2"
+    git_branch:
+      url: "https://github.com/linux-automation/tacd.git"
+      branch: main
+    header: |-
+      require tacd-webinterface.inc
+
+  - recipe: "meta-lxatac-software/recipes-support/bcu/bcu_%.bbappend"
+    template: "template.bb.jinja2"
+    git_tag:
+      url: "https://github.com/nxp-imx/bcu.git"
+      version_pattern: "^bcu_(1\\.1[\\.\\d+]*)$"
+      version_order: semver
+      add_pv: true
+    trailer: |-
+      SRC_URI:remove = "file://0001-CMakeLists-do-not-use-vendored-libcurl.patch"
+
+  - recipe: "meta-lxatac-software/recipes-graphics/panel-mipi-dbi/panel-mipi-dbi-native_git.bbappend"
+    template: "template.bb.jinja2"
+    git_branch:
+      url: "https://github.com/notro/panel-mipi-dbi.git"
+      branch: main
