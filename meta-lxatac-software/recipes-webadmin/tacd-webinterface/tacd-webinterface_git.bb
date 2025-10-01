@@ -5,11 +5,11 @@ SRC_URI = " \
     "
 LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = " \
-    file://../LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+    file://../LICENSE;md5=570a9b3749dd0463a1778803b12a6dce \
 "
 
 PV = "0.1.0+git${SRCPV}"
-SRCREV = "588a7e059aed85ce3928914cdedfbf05d5fadaa7"
+SRCREV = "71aae7abee147883b9c6e19b7119800c1b395b90"
 
 S = "${WORKDIR}/sources/git/web"
 UNPACKDIR = "${WORKDIR}/sources"
