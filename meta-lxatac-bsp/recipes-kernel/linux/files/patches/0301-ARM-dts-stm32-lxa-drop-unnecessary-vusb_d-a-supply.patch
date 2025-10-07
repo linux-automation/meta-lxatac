@@ -1,0 +1,57 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Sun, 5 Oct 2025 08:28:32 +0200
+Subject: [PATCH] ARM: dts: stm32: lxa: drop unnecessary vusb_d/a-supply
+
+The LXA device trees are the only STM32MP1 device tree that specify
+vusb_d/usb_a-supply and apparently not for good reason:
+
+- vusb_d-supply (vdd_usb) is the same as the phy-supply for usbphyc_port1
+- vusb_a-supply (reg18) is the same as vdda1v8-supply for usbphyc_port1
+
+and usbphyc_port1 is linked to the usbotg_hs node via the phys property.
+
+Specifying the regulators in the &usbotg_hs node is thus superfluous and
+has been even found to be harmful in one instance:
+Linux v6.10 was found to lock up every 50-125 or so reboots on the LXA
+TAC when the DWC2 driver probe enables the regulators in bulk, unless
+both properties were removed.
+
+This issue was so far not reproducible on v6.17 (> 500 reboots), but as
+these properties are unnecessary and different from other STM32MP1
+boards, remove them anyway.
+
+Upstream-Status: Submitted [https://lore.kernel.org/all/20251007-lxa-usb-dt-v1-1-cacde8088bb9@pengutronix.de/]
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ arch/arm/boot/dts/st/stm32mp153c-lxa-fairytux2.dtsi | 3 ---
+ arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi       | 3 ---
+ 2 files changed, 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/st/stm32mp153c-lxa-fairytux2.dtsi b/arch/arm/boot/dts/st/stm32mp153c-lxa-fairytux2.dtsi
+index 9eeb9d6b5eb0..7d3a6a3b5d09 100644
+--- a/arch/arm/boot/dts/st/stm32mp153c-lxa-fairytux2.dtsi
++++ b/arch/arm/boot/dts/st/stm32mp153c-lxa-fairytux2.dtsi
+@@ -374,9 +374,6 @@ &usbotg_hs {
+ 	phys = <&usbphyc_port1 0>;
+ 	phy-names = "usb2-phy";
+ 
+-	vusb_d-supply = <&vdd_usb>;
+-	vusb_a-supply = <&reg18>;
+-
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
+index be0c355d3105..9179075f2ead 100644
+--- a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
++++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
+@@ -493,9 +493,6 @@ &usbotg_hs {
+ 	phys = <&usbphyc_port1 0>;
+ 	phy-names = "usb2-phy";
+ 
+-	vusb_d-supply = <&vdd_usb>;
+-	vusb_a-supply = <&reg18>;
+-
+ 	g-rx-fifo-size = <512>;
+ 	g-np-tx-fifo-size = <32>;
+ 	g-tx-fifo-size = <128 128 64 16 16 16 16 16>;
