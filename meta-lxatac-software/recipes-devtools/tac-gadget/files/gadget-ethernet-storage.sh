@@ -17,8 +17,8 @@ setup_gadget
 
 # Set up ethernet
 mkdir "${DEVDIR}/functions/ecm.usb0"
-echo "${HOST_MAC:?} > ${DEVDIR}/functions/ecm.usb0/host_addr"
-echo "${DEV_MAC:?} > ${DEVDIR}/functions/ecm.usb0/dev_addr"
+echo "${HOST_MAC:?}" > "${DEVDIR}/functions/ecm.usb0/host_addr"
+echo "${DEV_MAC:?}" > "${DEVDIR}/functions/ecm.usb0/dev_addr"
 ln -s "${DEVDIR}/functions/ecm.usb0" "${DEVDIR}/configs/c.1"
 
 # Set up storage
