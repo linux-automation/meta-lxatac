@@ -1,7 +1,7 @@
 inherit cargo cargo-update-recipe-crates
 
 SRC_URI += "git://github.com/BurntSushi/ripgrep.git;protocol=https;branch=master"
-SRCREV = "4649aa9700619f94cf9c66876e9549d83420e16c"
+SRCREV = "3a612f88b805e14aef45bfa43e25a54abc6297fc"
 S = "${WORKDIR}/git"
 CARGO_SRC_DIR = ""
 
