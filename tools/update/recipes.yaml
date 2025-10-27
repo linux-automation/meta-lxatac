@@ -52,7 +52,11 @@ recipes:
     template: "template.bb.jinja2"
     git_tag:
       url: "https://github.com/BurntSushi/ripgrep.git"
-      version_pattern: "^([\\d+\\.]*\\d+)$"
+      # Limit to 14.x releases for now because ripgrep 15.x requires
+      # edition2024, which is to new for the rustc in walnascar.
+      # TODO: change back to "^([\\d+\\.]*\\d+)$" when moving on from
+      # walnascar.
+      version_pattern: "^(14\\.[\\d+\\.]*\\d+)$"
       version_order: semver
     header: |-
       require ripgrep.inc
