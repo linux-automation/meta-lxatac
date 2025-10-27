@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Barebox/arm 2025.09.0 Configuration
+# Barebox/arm 2025.10.0 Configuration
 #
 CONFIG_ARM=y
 CONFIG_ARCH_LINUX_NAME="arm"
@@ -29,6 +29,7 @@ CONFIG_ARCH_MULTIARCH=y
 # CONFIG_ARCH_LAYERSCAPE is not set
 # CONFIG_ARCH_OMAP_MULTI is not set
 # CONFIG_ARCH_ROCKCHIP is not set
+# CONFIG_ARCH_SAMSUNG is not set
 CONFIG_ARCH_STM32MP=y
 # CONFIG_ARCH_VERSATILE is not set
 # CONFIG_ARCH_VEXPRESS is not set
@@ -638,6 +639,7 @@ CONFIG_I2C_STM32=y
 # CONFIG_MTD is not set
 CONFIG_DISK=y
 CONFIG_DISK_WRITE=y
+# CONFIG_DM_BLK is not set
 
 #
 # drive types
@@ -871,6 +873,7 @@ CONFIG_NVMEM_LAYOUTS=y
 # CONFIG_EEPROM_93XX46 is not set
 CONFIG_STM32_BSEC=y
 # CONFIG_STM32_BSEC_WRITE is not set
+# CONFIG_NVMEM_ATMEL_SHA204A is not set
 
 #
 # Bus devices
@@ -1042,6 +1045,7 @@ CONFIG_FS_RATP=y
 # Security options
 #
 CONFIG_INSECURE=y
+# CONFIG_SECURITY_POLICY is not set
 # CONFIG_PASSWORD is not set
 # CONFIG_CRYPTO_KEYSTORE is not set
 # CONFIG_BLOBGEN is not set
@@ -1143,6 +1147,7 @@ CONFIG_RATP=y
 # CONFIG_ALLOW_PRNG_FALLBACK is not set
 # CONFIG_CRC_CCITT is not set
 CONFIG_CRC8=y
+# CONFIG_CRC16 is not set
 
 #
 # Library gui routines
