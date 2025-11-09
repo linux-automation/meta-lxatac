@@ -103,3 +103,17 @@ lxatac-usb-ports-p{{idx}}.{{if}}:
       '@ID_PATH': '{{sysfs}}:1.{{if}}'
 {% endfor %}
 {% endfor %}
+
+
+## Internal TFTP Server
+tftp:
+  TFTPProvider:
+    internal: "/srv/tftp/"
+    external: "/"
+
+## Internal HTTP Server
+http:
+  HTTPProvider:
+    internal: "/srv/www/"
+    external: "http://{{hostname}}/srv/"
+
