@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 6.17.0-20250930-1 Kernel Configuration
+# Linux/arm 6.17.0-20251007-1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="arm-oe-linux-gnueabi-gcc (GCC) 14.3.0"
 CONFIG_CC_IS_GCC=y
@@ -1715,7 +1715,8 @@ CONFIG_WIREGUARD=m
 # CONFIG_EQUALIZER is not set
 CONFIG_IFB=m
 # CONFIG_NET_TEAM is not set
-# CONFIG_MACVLAN is not set
+CONFIG_MACVLAN=m
+CONFIG_MACVTAP=m
 # CONFIG_IPVLAN is not set
 # CONFIG_VXLAN is not set
 # CONFIG_GENEVE is not set
@@ -1726,6 +1727,7 @@ CONFIG_IFB=m
 CONFIG_MACSEC=m
 # CONFIG_NETCONSOLE is not set
 CONFIG_TUN=m
+CONFIG_TAP=m
 # CONFIG_TUN_VNET_CROSS_LE is not set
 CONFIG_VETH=m
 # CONFIG_VIRTIO_NET is not set
