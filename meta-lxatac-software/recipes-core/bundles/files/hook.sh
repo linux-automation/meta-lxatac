@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -exu -o pipefail
+shopt -s nullglob
 
 EXTRA_MIGRATE_LISTS_DIR="/etc/rauc/migrate.d"
 CERT_AVAILABLE_DIR="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-available"
@@ -47,10 +48,6 @@ function migrate () {
 }
 
 function process_migrate_lists () {
-	if [[ ! -d "${EXTRA_MIGRATE_LISTS_DIR}" ]]; then
-		return
-	fi
-
 	for migrate_list in "${EXTRA_MIGRATE_LISTS_DIR}"/*.conf; do
 		# Migrate files in the list line by line
 		while read -r line; do
