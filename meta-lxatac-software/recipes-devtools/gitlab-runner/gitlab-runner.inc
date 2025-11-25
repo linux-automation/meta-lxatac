@@ -12,7 +12,7 @@ SRC_URI = " \
     file://gitlab-runner.service \
     "
 
-RDEPENDS:${PN}:append = "git"
+RDEPENDS:${PN}:append = " git"
 RDEPENDS:gitlab-runner-dev = "bash"
 
 inherit go-mod

@@ -16,8 +16,8 @@ inherit systemd
 
 GO_IMPORT = "github.com/ChristopherHX/github-act-runner"
 
-RDEPENDS:${PN}:append = "git nodejs"
-RDEPENDS:github-act-runner-dev:append = "make bash"
+RDEPENDS:${PN}:append = " git nodejs"
+RDEPENDS:github-act-runner-dev:append = " make bash"
 
 SYSTEMD_SERVICE:${PN} = "github-act-runner.service"
 
