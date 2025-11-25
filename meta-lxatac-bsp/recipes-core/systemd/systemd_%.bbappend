@@ -1,6 +1,6 @@
-RRECOMMENDS:${PN}:append = "less"
+RRECOMMENDS:${PN}:append = " less"
 # Enable lz4 and seccomp for systemd
-PACKAGECONFIG:append = "lz4"
+PACKAGECONFIG:append = " lz4"
 PACKAGECONFIG:remove = "networkd"
 
 # Re-enable LLMNR (but not mDNS, which is handled by avahi),
