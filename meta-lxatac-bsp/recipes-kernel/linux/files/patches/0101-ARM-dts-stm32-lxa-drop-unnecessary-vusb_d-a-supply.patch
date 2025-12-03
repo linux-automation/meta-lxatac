@@ -42,7 +42,7 @@ index 9eeb9d6b5eb0..7d3a6a3b5d09 100644
  };
  
 diff --git a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
-index be0c355d3105..9179075f2ead 100644
+index 154698f87b0e..ab13f0c39892 100644
 --- a/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 +++ b/arch/arm/boot/dts/st/stm32mp15xc-lxa-tac.dtsi
 @@ -493,9 +493,6 @@ &usbotg_hs {

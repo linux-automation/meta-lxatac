@@ -1,47 +1,28 @@
-# umpf-base: v6.17
+# umpf-base: v6.18
 # umpf-flags: upstreamstatus=insert
-# umpf-name: 6.17/customers/lxa/lxatac
-# umpf-version: 6.17/customers/lxa/lxatac/20251007-1
+# umpf-name: 6.18/customers/lxa/lxatac
+# umpf-version: 6.18/customers/lxa/lxatac/20251203-1
 # umpf-topic: v6.11/topic/reproducible-build
 # umpf-hashinfo: d6ed6f191343a77bfe41d7436b51dffe8bcac441
-# umpf-topic-range: e5f0a698b34ed76002dc5cff3804a61c80233a7a..9b470b1e1ef751cbcdade1b762585cb35ff44a4d
+# umpf-topic-range: 7d0a66e4bb9081d75c82ec4957c50034cb0ea449..8fdf882be296703026eb9f1a8005e90911344b11
 UMPF_SRC_URI += "\
   file://patches/0001-ARM-Don-t-mention-the-full-path-of-the-source-direct.patch \
   "
-# umpf-topic: v6.15/topic/stm32mp15-m_can-reset
-# umpf-hashinfo: 10bf2eb005f552c7afaf0cf1a6274d2974859011
-# umpf-topic-range: 9b470b1e1ef751cbcdade1b762585cb35ff44a4d..3e1dc86bdf66fa6b0dba02e70eecd24c13089165
-UMPF_SRC_URI += "\
-  file://patches/0101-dt-binding-can-m_can-add-optional-resets-property.patch \
-  file://patches/0102-ARM-dts-stm32-add-resets-property-to-m_can-nodes-in-.patch \
-  "
-# umpf-topic: v6.15/topic/m_can-reset
-# umpf-hashinfo: 7c84037736b776f7bc8300191cfff83dd137b49a
-# umpf-topic-range: 3e1dc86bdf66fa6b0dba02e70eecd24c13089165..28fb3f7408938f2fa315267d32bfd234bb56ed5a
-UMPF_SRC_URI += "\
-  file://patches/0201-can-m_can-m_can_plat_remove-add-missing-pm_runtime_d.patch \
-  file://patches/0202-can-m_can-m_can_rx_handler-only-handle-active-interr.patch \
-  file://patches/0203-can-m_can-m_can_handle_state_errors-fix-CAN-state-tr.patch \
-  file://patches/0204-can-m_can-m_can_chip_config-bring-up-interface-in-co.patch \
-  file://patches/0205-can-m_can-fix-CAN-state-in-system-PM.patch \
-  file://patches/0206-can-m_can-m_can_get_berr_counter-don-t-wake-up-contr.patch \
-  file://patches/0207-can-m_can-add-optional-support-for-reset.patch \
-  "
 # umpf-topic: v6.17/topic/lxa-usb-dt
 # umpf-hashinfo: 0c8f0f8768142a042609b245b31df880345e0396
-# umpf-topic-range: 28fb3f7408938f2fa315267d32bfd234bb56ed5a..329b51c5120ccf9118d963d50740237472d2aed6
+# umpf-topic-range: 8fdf882be296703026eb9f1a8005e90911344b11..252d462693657f340ea80ec585898b84398e2558
 UMPF_SRC_URI += "\
-  file://patches/0301-ARM-dts-stm32-lxa-drop-unnecessary-vusb_d-a-supply.patch \
+  file://patches/0101-ARM-dts-stm32-lxa-drop-unnecessary-vusb_d-a-supply.patch \
   "
-# umpf-release: 6.17/customers/lxa/lxatac/20251007-1
-# umpf-topic-range: 329b51c5120ccf9118d963d50740237472d2aed6..80352ac653bf5db6663cd4a59311ae0431dffaec
+# umpf-release: 6.18/customers/lxa/lxatac/20251203-1
+# umpf-topic-range: 252d462693657f340ea80ec585898b84398e2558..31d771933418a4aea0e18d6c3f62a8895b63523f
 UMPF_SRC_URI += "\
-  file://patches/0401-Release-6.17-customers-lxa-lxatac-20251007-1.patch \
+  file://patches/0201-Release-6.18-customers-lxa-lxatac-20251203-1.patch \
   "
 SRC_URI += "${UMPF_SRC_URI}"
 
-UMPF_BASE = "6.17"
-UMPF_VERSION = "20251007-1"
+UMPF_BASE = "6.18"
+UMPF_VERSION = "20251203-1"
 UMPF_PV = "${UMPF_BASE}-${UMPF_VERSION}"
 LINUX_VERSION ?= "${UMPF_BASE}"
 # umpf-end
