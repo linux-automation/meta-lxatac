@@ -1,0 +1,32 @@
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+Date: Wed, 6 Aug 2025 12:20:44 +0200
+Subject: [PATCH] can: m_can: m_can_get_berr_counter(): don't wake up
+ controller if interface is down
+
+If the interface is down, the CAN controller might be powered down,
+the clock disabled, and/or it's external reset asserted.
+
+Don't wake up the controller to read the CAN bus error counters, if
+the interface is down.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state-handling-v1-0-b739e06c0a3b@pengutronix.de]
+---
+ drivers/net/can/m_can/m_can.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 7541805c16de..b1a83cbed8d6 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -790,6 +790,10 @@ static int m_can_get_berr_counter(const struct net_device *dev,
+ 	struct m_can_classdev *cdev = netdev_priv(dev);
+ 	int err;
+ 
++	/* Avoid waking up the controller if the interface is down */
++	if (!(dev->flags & IFF_UP))
++		return 0;
++
+ 	err = m_can_clk_start(cdev);
+ 	if (err)
+ 		return err;
