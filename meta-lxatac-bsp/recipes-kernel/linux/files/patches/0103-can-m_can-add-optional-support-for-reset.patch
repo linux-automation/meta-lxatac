@@ -1,0 +1,126 @@
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+Date: Wed, 6 Aug 2025 11:38:07 +0200
+Subject: [PATCH] can: m_can: add optional support for reset
+
+In some SoCs (observed on the STM32MP15) the M_CAN IP core keeps the
+CAN state and CAN error counters over an internal reset cycle. The
+STM32MP15 SoC provides an external reset, which is shared between both
+M_CAN cores.
+
+Add support for an optional external reset. Take care of shared
+resets, de-assert reset during the probe phase in
+m_can_class_register() and while the interface is up, assert the reset
+otherwise.
+
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20250812-m_can-fix-state-handling-v1-0-b739e06c0a3b@pengutronix.de]
+---
+ drivers/net/can/m_can/m_can.c | 26 +++++++++++++++++++++++---
+ drivers/net/can/m_can/m_can.h |  1 +
+ 2 files changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index b1a83cbed8d6..02b8423b99da 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -23,6 +23,7 @@
+ #include <linux/pinctrl/consumer.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
++#include <linux/reset.h>
+ 
+ #include "m_can.h"
+ 
+@@ -1832,6 +1833,7 @@ static int m_can_close(struct net_device *dev)
+ 
+ 	close_candev(dev);
+ 
++	reset_control_assert(cdev->rst);
+ 	m_can_clk_stop(cdev);
+ 	phy_power_off(cdev->transceiver);
+ 
+@@ -2074,11 +2076,15 @@ static int m_can_open(struct net_device *dev)
+ 	if (err)
+ 		goto out_phy_power_off;
+ 
++	err = reset_control_deassert(cdev->rst);
++	if (err)
++		goto exit_disable_clks;
++
+ 	/* open the can device */
+ 	err = open_candev(dev);
+ 	if (err) {
+ 		netdev_err(dev, "failed to open can device\n");
+-		goto exit_disable_clks;
++		goto out_reset_control_assert;
+ 	}
+ 
+ 	if (cdev->is_peripheral)
+@@ -2134,6 +2140,8 @@ static int m_can_open(struct net_device *dev)
+ 	else
+ 		napi_disable(&cdev->napi);
+ 	close_candev(dev);
++out_reset_control_assert:
++	reset_control_assert(cdev->rst);
+ exit_disable_clks:
+ 	m_can_clk_stop(cdev);
+ out_phy_power_off:
+@@ -2422,15 +2430,23 @@ int m_can_class_register(struct m_can_classdev *cdev)
+ 		}
+ 	}
+ 
++	cdev->rst = devm_reset_control_get_optional_shared(cdev->dev, NULL);
++	if (IS_ERR(cdev->rst))
++		return PTR_ERR(cdev->rst);
++
+ 	ret = m_can_clk_start(cdev);
+ 	if (ret)
+ 		return ret;
+ 
++	ret = reset_control_deassert(cdev->rst);
++	if (ret)
++		goto clk_disable;
++
+ 	if (cdev->is_peripheral) {
+ 		ret = can_rx_offload_add_manual(cdev->net, &cdev->offload,
+ 						NAPI_POLL_WEIGHT);
+ 		if (ret)
+-			goto clk_disable;
++			goto out_reset_control_assert;
+ 	}
+ 
+ 	if (!cdev->net->irq) {
+@@ -2459,8 +2475,10 @@ int m_can_class_register(struct m_can_classdev *cdev)
+ 		 KBUILD_MODNAME, cdev->net->irq, cdev->version);
+ 
+ 	/* Probe finished
+-	 * Stop clocks. They will be reactivated once the M_CAN device is opened
++	 * Assert reset and stop clocks.
++	 * They will be reactivated once the M_CAN device is opened
+ 	 */
++	reset_control_assert(cdev->rst);
+ 	m_can_clk_stop(cdev);
+ 
+ 	return 0;
+@@ -2468,6 +2486,8 @@ int m_can_class_register(struct m_can_classdev *cdev)
+ rx_offload_del:
+ 	if (cdev->is_peripheral)
+ 		can_rx_offload_del(&cdev->offload);
++out_reset_control_assert:
++	reset_control_assert(cdev->rst);
+ clk_disable:
+ 	m_can_clk_stop(cdev);
+ 
+diff --git a/drivers/net/can/m_can/m_can.h b/drivers/net/can/m_can/m_can.h
+index bd4746c63af3..7b7600697c6b 100644
+--- a/drivers/net/can/m_can/m_can.h
++++ b/drivers/net/can/m_can/m_can.h
+@@ -86,6 +86,7 @@ struct m_can_classdev {
+ 	struct device *dev;
+ 	struct clk *hclk;
+ 	struct clk *cclk;
++	struct reset_control *rst;
+ 
+ 	struct workqueue_struct *tx_wq;
+ 	struct phy *transceiver;
