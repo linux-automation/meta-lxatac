@@ -12,7 +12,7 @@ DEPENDS = "libxml2 libusb1"
 inherit pkgconfig
 
 SRC_URI = "git://github.com/linux-msm/${BPN}.git;branch=master;protocol=https"
-SRCREV = "a601db1868bcda454a77b6769ca9efac3b0a114c"
+SRCREV = "6eeb866b1503a9219258edbdb72fcd478c20b2d7"
 
 S = "${WORKDIR}/git"
 
