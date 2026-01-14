@@ -16,7 +16,7 @@
 	branch = walnascar
 [submodule "meta-virtualization"]
 	path = meta-virtualization
-	url = https://github.com/lgirdk/meta-virtualization.git
+	url = https://git.yoctoproject.org/meta-virtualization
 	branch = walnascar
 [submodule "poky"]
 	path = poky
