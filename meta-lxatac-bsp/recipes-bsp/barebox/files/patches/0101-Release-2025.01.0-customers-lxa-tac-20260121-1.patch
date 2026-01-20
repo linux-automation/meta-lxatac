@@ -1,0 +1,22 @@
+From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
+Date: Wed, 21 Jan 2026 06:37:41 +0100
+Subject: [PATCH] Release 2025.01.0/customers/lxa/tac/20260121-1
+
+Upstream-Status: Inappropriate [Machine generated]
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index fd411d09cb04..0ded0e5863fb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@
+ VERSION = 2026
+ PATCHLEVEL = 01
+ SUBLEVEL = 0
+-EXTRAVERSION =
++EXTRAVERSION =-20260121-1
+ NAME = None
+ 
+ # *DOCUMENTATION*

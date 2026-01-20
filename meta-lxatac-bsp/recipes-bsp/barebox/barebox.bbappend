@@ -5,6 +5,8 @@ SRC_URI += " \
     file://env \
 "
 
+require files/patches/series.inc
+
 PV = "2026.01.0"
 SRC_URI[sha256sum] = "219283d67c5d2f79bd22915b8a71906531223cb01e6e5b8d1658f299441e4169"
 

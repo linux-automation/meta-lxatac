@@ -1,0 +1,50 @@
+From: Ahmad Fatoum <a.fatoum@barebox.org>
+Date: Tue, 20 Jan 2026 11:49:53 +0100
+Subject: [PATCH] efi: loader: remove dependency on LIBFDT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+LIBFDT is often available, because CONFIG_BOARD_GENERIC_DT pulls it in,
+but in the normal case, we unflatten DT and have no need for libfdt at
+all.
+
+Remove the libfdt dependency from the EFI loader code by opencoding the
+magic check.
+
+Fixes: 229bc3b37e64 ("efi: loader: implement bootm handler")
+Reported-by: Leonard Göhrs <l.goehrs@pengutronix.de>
+Signed-off-by: Ahmad Fatoum <a.fatoum@barebox.org>
+Upstream-Status: Submitted [https://lore.barebox.org/barebox/20260120104957.41978-1-a.fatoum@barebox.org]
+---
+ efi/loader/bootm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/efi/loader/bootm.c b/efi/loader/bootm.c
+index dffe53bcf9c8..da664847def8 100644
+--- a/efi/loader/bootm.c
++++ b/efi/loader/bootm.c
+@@ -124,15 +124,20 @@ static efi_status_t copy_fdt(void **fdtp)
+  */
+ static efi_status_t efi_install_fdt(void *fdt)
+ {
++	const struct fdt_header *hdr = fdt;
+ 	/*
+ 	 * The EBBR spec requires that we have either an FDT or an ACPI table
+ 	 * but not both.
+ 	 */
+ 	efi_status_t ret;
+ 
+-	/* Install device tree */
+-	if (fdt_check_header(fdt)) {
+-		pr_err("invalid device tree\n");
++	if (hdr->magic != cpu_to_fdt32(FDT_MAGIC)) {
++		pr_err("bad magic: 0x%08x\n", fdt32_to_cpu(hdr->magic));
++		return EFI_LOAD_ERROR;
++	}
++
++	if (hdr->version != cpu_to_fdt32(17)) {
++		pr_err("bad dt version: 0x%08x\n", fdt32_to_cpu(hdr->version));
+ 		return EFI_LOAD_ERROR;
+ 	}
+ 

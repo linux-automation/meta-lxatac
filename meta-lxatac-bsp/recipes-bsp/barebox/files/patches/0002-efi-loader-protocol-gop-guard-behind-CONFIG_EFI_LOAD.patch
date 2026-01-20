@@ -1,0 +1,62 @@
+From: Ahmad Fatoum <a.fatoum@barebox.org>
+Date: Tue, 20 Jan 2026 11:49:52 +0100
+Subject: [PATCH] efi: loader: protocol: gop: guard behind
+ CONFIG_EFI_LOADER_GOP
+
+The gop protocol implementation uses fb_open, which is only available
+with CONFIG_IMAGE_RENDERER=y.
+
+Add a dedicated symbol for it and have it select CONFIG_IMAGE_RENDERER=y
+to fix link errors for configurations with CONFIG_VIDEO=y, but no
+CONFIG_IMAGE_RENDERER.
+
+Fixes: d040f49ad0b3 ("efi: loader: protocol: add graphical output protocol support")
+Signed-off-by: Ahmad Fatoum <a.fatoum@barebox.org>
+Upstream-Status: Submitted [https://lore.barebox.org/barebox/20260120104957.41978-1-a.fatoum@barebox.org]
+---
+ efi/loader/protocols/Kconfig  | 18 ++++++++++++++++++
+ efi/loader/protocols/Makefile |  2 +-
+ 2 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/efi/loader/protocols/Kconfig b/efi/loader/protocols/Kconfig
+index ba6f562b7585..ad7896065ab7 100644
+--- a/efi/loader/protocols/Kconfig
++++ b/efi/loader/protocols/Kconfig
+@@ -2,6 +2,24 @@
+ 
+ menu "UEFI protocol support"
+ 
++config EFI_LOADER_GOP
++	bool "Graphics output protocol"
++	depends on VIDEO
++	select IMAGE_RENDERER
++	default y
++	help
++    	  The graphics output protocol (GOP) provides UEFI applications access
++    	  to a framebuffer for graphical output. This allows booting of UEFI
++    	  applications and operating systems that require graphics support.
++
++    	  The protocol exposes the video mode information and framebuffer
++    	  details to UEFI payloads, enabling them to render graphics, display
++    	  boot menus, and provide visual feedback during boot.
++
++    	  If you have video support enabled and want to boot UEFI applications
++    	  that require graphics (such as GRUB with graphical menus or Linux
++    	  with EFIFB), say Y here.
++
+ config EFI_LOADER_HII
+ 	bool "HII protocols"
+ 	default y
+diff --git a/efi/loader/protocols/Makefile b/efi/loader/protocols/Makefile
+index a323927b89e3..d0b55bde4644 100644
+--- a/efi/loader/protocols/Makefile
++++ b/efi/loader/protocols/Makefile
+@@ -2,7 +2,7 @@
+ 
+ obj-$(CONFIG_FS) += file.o
+ obj-$(CONFIG_DISK) += disk.o
+-obj-$(CONFIG_VIDEO) += gop.o
++obj-$(CONFIG_EFI_LOADER_GOP) += gop.o
+ obj-$(CONFIG_CONSOLE_FULL) += console.o
+ obj-$(CONFIG_EFI_LOADER_HII) += hii.o hii_config.o
+ obj-$(CONFIG_EFI_LOADER_UNICODE_COLLATION_PROTOCOL2) += unicode_collation.o

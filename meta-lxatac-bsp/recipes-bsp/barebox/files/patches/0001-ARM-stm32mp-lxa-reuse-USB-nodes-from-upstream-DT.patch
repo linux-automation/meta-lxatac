@@ -1,0 +1,55 @@
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Tue, 20 Jan 2026 14:17:25 +0100
+Subject: [PATCH] ARM: stm32mp: lxa: reuse USB nodes from upstream DT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Disabling EHCI in favor of OHCI has been part of the TAC DT since a few
+years back. Let's reuse the same DT description the kernel uses and see
+what the fallout is.
+
+Cc: Rouven Czerwinski <rouven.czerwinski@linaro.org>
+Cc: Leonard Göhrs <l.goehrs@pengutronix.de>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Upstream-Status: Submitted [https://lore.barebox.org/barebox/20260120131728.785913-1-a.fatoum@pengutronix.de/]
+---
+ arch/arm/dts/stm32mp153c-lxa-fairytux2.dtsi | 8 --------
+ arch/arm/dts/stm32mp15xc-lxa-tac.dtsi       | 8 --------
+ 2 files changed, 16 deletions(-)
+
+diff --git a/arch/arm/dts/stm32mp153c-lxa-fairytux2.dtsi b/arch/arm/dts/stm32mp153c-lxa-fairytux2.dtsi
+index 2312dd08280e..701981358c68 100644
+--- a/arch/arm/dts/stm32mp153c-lxa-fairytux2.dtsi
++++ b/arch/arm/dts/stm32mp153c-lxa-fairytux2.dtsi
+@@ -83,14 +83,6 @@ last_chosen@10 {
+ 	};
+ };
+ 
+-&usbh_ehci {
+-	status = "disabled";
+-};
+-
+-&usbh_ohci {
+-	status = "okay";
+-};
+-
+ &baseboard_eeprom {
+ 	partitions {
+ 		compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi b/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi
+index 0cb66500db47..6bd119a799e0 100644
+--- a/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi
++++ b/arch/arm/dts/stm32mp15xc-lxa-tac.dtsi
+@@ -128,11 +128,3 @@ backend_state_emmc: partition@c0000 {
+ 		};
+ 	};
+ };
+-
+-&usbh_ehci {
+-	status = "disabled";
+-};
+-
+-&usbh_ohci {
+-	status = "okay";
+-};
