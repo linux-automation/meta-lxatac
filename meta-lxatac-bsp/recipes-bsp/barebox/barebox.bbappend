@@ -5,8 +5,8 @@ SRC_URI += " \
     file://env \
 "
 
-PV = "2025.11.0"
-SRC_URI[sha256sum] = "6a487eb975169ef4ecc912d3e1044fb9ee4aa164c21d4db960a384a60d0914f6"
+PV = "2026.01.0"
+SRC_URI[sha256sum] = "219283d67c5d2f79bd22915b8a71906531223cb01e6e5b8d1658f299441e4169"
 
 COMPATIBLE_MACHINE = "lxatac"
 
