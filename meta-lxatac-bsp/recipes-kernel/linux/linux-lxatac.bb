@@ -14,7 +14,7 @@ SRC_URI[sha256sum] = "9106a4605da9e31ff17659d958782b815f9591ab308d03b0ee21aad6c7
 require files/patches/series.inc
 
 PV = "${UMPF_PV}"
-S = "${WORKDIR}/linux-${LINUX_VERSION}"
+S = "${UNPACKDIR}/linux-${LINUX_VERSION}"
 
 COMPATIBLE_MACHINE = "lxatac"
 

@@ -8,8 +8,7 @@ SRC_URI = " \
     file://repart-before-tmpfiles.conf \
     "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 RDEPENDS:${PN} = "systemd"
 

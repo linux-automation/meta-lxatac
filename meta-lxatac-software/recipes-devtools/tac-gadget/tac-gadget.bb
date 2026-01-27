@@ -26,8 +26,7 @@ SRC_URI = " \
     file://gadget-storage.sh \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 do_install () {
     install -D -m0644 ${UNPACKDIR}/gadget-common.sh ${D}${datadir}/gadget/gadget-common

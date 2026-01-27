@@ -14,8 +14,7 @@ SRC_URI += " \
     file://52-switch.link \
     "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 N = "${libdir}/NetworkManager/system-connections"
 

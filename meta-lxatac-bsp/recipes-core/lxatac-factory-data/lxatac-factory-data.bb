@@ -14,8 +14,7 @@ SRC_URI += " \
     file://lxatac-factory-data.sh \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 do_install() {
     install -m 0644 -D ${UNPACKDIR}/lxatac-factory-data.service ${D}${systemd_system_unitdir}/lxatac-factory-data.service
