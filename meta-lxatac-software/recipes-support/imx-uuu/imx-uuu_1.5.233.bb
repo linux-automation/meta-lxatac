@@ -2,7 +2,7 @@ SUMMARY = "Universal Update Utility"
 DESCRIPTION = "Image deployment tool for i.MX chips"
 HOMEPAGE = "https://github.com/NXPmicro/mfgtools"
 
-SRC_URI = "git://github.com/nxp-imx/mfgtools.git;protocol=https;branch=master"
+SRC_URI = "git://github.com/nxp-imx/mfgtools.git;protocol=https;branch=master;tag=uuu_${PV}"
 SRCREV = "79ce7d2b2e7459e7b7c94f902d172c30b08884ab"
 
 LICENSE = "BSD-3-Clause"
