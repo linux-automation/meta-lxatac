@@ -1,32 +1,40 @@
+[submodule "bitbake"]
+	path = bitbake
+	url = https://git.openembedded.org/bitbake
+	branch = 2.14
+[submodule "openembedded-core"]
+	path = openembedded-core
+	url = https://git.openembedded.org/openembedded-core
+	branch = whinlatter
+[submodule "meta-yocto"]
+	path = meta-yocto
+	url = https://git.yoctoproject.org/meta-yocto
+	branch = whinlatter
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
-	branch = walnascar
+	branch = master
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
-	branch = walnascar
+	branch = whinlatter
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
-	branch = walnascar
+	branch = whinlatter
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
-	branch = walnascar
+	branch = master
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://git.yoctoproject.org/meta-virtualization
-	branch = walnascar
-[submodule "poky"]
-	path = poky
-	url = https://git.yoctoproject.org/poky
-	branch = walnascar
+	branch = whinlatter
 [submodule "meta-selinux"]
 	path = meta-selinux
 	url = https://git.yoctoproject.org/meta-selinux
-	branch = walnascar
+	branch = whinlatter
 [submodule "meta-arm"]
 	path = meta-arm
 	url = https://git.yoctoproject.org/meta-arm
-	branch = walnascar
+	branch = whinlatter

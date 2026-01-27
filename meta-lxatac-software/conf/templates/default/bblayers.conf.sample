@@ -7,7 +7,7 @@ BBFILES ?= ""
 
 BBLAYERS ?= " \
   ##OEROOT##/meta \
-  ##OEROOT##/meta-poky \
+  ##OEROOT##/../meta-yocto/meta-poky \
   ##OEROOT##/../meta-arm/meta-arm \
   ##OEROOT##/../meta-arm/meta-arm-toolchain \
   ##OEROOT##/../meta-ptx \
