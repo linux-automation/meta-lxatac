@@ -14,8 +14,6 @@ inherit pkgconfig
 SRC_URI = "git://github.com/linux-msm/${BPN}.git;branch=master;protocol=https"
 SRCREV = "6eeb866b1503a9219258edbdb72fcd478c20b2d7"
 
-S = "${WORKDIR}/git"
-
 do_install () {
     oe_runmake install DESTDIR=${D} prefix=${prefix}
 }
