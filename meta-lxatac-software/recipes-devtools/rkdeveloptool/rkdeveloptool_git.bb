@@ -10,6 +10,7 @@ SRC_URI = "git://github.com/rockchip-linux/rkdeveloptool.git;protocol=https;bran
            file://0001-Makefile-disable-format-truncation-errors.patch \
            "
 
+# Commit created 0000-00-00 00:00:00 +0000
 SRCREV = "46bb4c073624226c3f05b37b9ecc50bbcf543f5a"
 PV = "1.32+git"
 

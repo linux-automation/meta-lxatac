@@ -9,6 +9,7 @@ SRC_URI = "\
     file://gitlab-runner.service \
     "
 
+# Commit created 0000-00-00 00:00:00 +0000
 SRCREV = "b667bb8c9bb7a9abdc82991a8c04765b7ce376ee"
 SRCBRANCH = "18-8-stable"
 
