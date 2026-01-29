@@ -1,4 +1,20 @@
 recipes:
+  - recipe: "meta-lxatac-bsp/recipes-bsp/barebox/barebox.bbappend"
+    git_tag:
+      url: "https://github.com/barebox/barebox.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+    tarball:
+      url: "https://barebox.org/download/barebox-$PV.tar.bz2"
+
+  - recipe: "meta-lxatac-bsp/recipes-bsp/barebox/barebox-tools.bbappend"
+    git_tag:
+      url: "https://github.com/barebox/barebox.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+    tarball:
+      url: "https://barebox.org/download/barebox-$PV.tar.bz2"
+
   - recipe: "meta-lxatac-software/recipes-devtools/github-act-runner/github-act-runner_$PV.bb"
     git_tag:
       url: "https://github.com/ChristopherHX/github-act-runner.git"

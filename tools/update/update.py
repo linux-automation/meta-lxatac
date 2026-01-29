@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import glob
+import hashlib
 from tempfile import TemporaryDirectory
 import re
 import os.path
 import subprocess
 
+import requests
 import yaml
 
 
@@ -41,6 +43,22 @@ PATTERNS = tuple(
         (
             r"\s(?P<needle>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \+\d{4})\s",
             lambda ri: ri.get("commit_date"),
+        ),
+        (
+            r'^SRC_URI\[md5sum\] = "[^"]*(?P<needle>[0-9a-f]{32})"',
+            lambda ri: ri.get("md5sum"),
+        ),
+        (
+            r'^SRC_URI\[sha1sum\] = "[^"]*(?P<needle>[0-9a-f]{40})"',
+            lambda ri: ri.get("sha1sum"),
+        ),
+        (
+            r'^SRC_URI\[sha256sum\] = "[^"]*(?P<needle>[0-9a-f]{64})"',
+            lambda ri: ri.get("sha256sum"),
+        ),
+        (
+            r'^SRC_URI\[sha512sum\] = "[^"]*(?P<needle>[0-9a-f]{128})"',
+            lambda ri: ri.get("sha512sum"),
         ),
     )
 )
@@ -175,12 +193,53 @@ def fetch_git_tag(info):
     info.update(newest)
 
 
+def fetch_tarball(recipe_info):
+    """Get hash values for a release tarball
+
+    Some recipes use git tags to determine the most recent version,
+    but use tarballs to actually fetch the code.
+    In that case download the tarball and calculate the checksum.
+    """
+
+    url = recipe_info["tarball"]["url"]
+    url = url.replace("$PV", recipe_info.get("pv", ""))
+
+    print(f"Hashing {url}")
+
+    hashers = {
+        "md5sum": hashlib.md5(),
+        "sha1sum": hashlib.sha1(),
+        "sha256sum": hashlib.sha256(),
+        "sha512sum": hashlib.sha512(),
+    }
+
+    with requests.get(url, stream=True) as req:
+        req.raise_for_status()
+
+        for chunk in req.iter_content(chunk_size=8192):
+            print(".", end="", flush=True)
+
+            if chunk:
+                for hasher in hashers.values():
+                    hasher.update(chunk)
+
+    recipe_info.update((name, hasher.hexdigest()) for name, hasher in hashers.items())
+
+    print(" done.")
+
+
 def fetch_info(recipe_info):
     if "git_branch" in recipe_info:
         fetch_git_branch(recipe_info)
 
     elif "git_tag" in recipe_info:
         fetch_git_tag(recipe_info)
+
+    # The most recent version is determined by a git strategy,
+    # but for some recipes a tarball is used to actually fetch the release.
+    # If that is the case we need to update the hash.
+    if "tarball" in recipe_info:
+        fetch_tarball(recipe_info)
 
 
 def write_recipe(recipe_info):
