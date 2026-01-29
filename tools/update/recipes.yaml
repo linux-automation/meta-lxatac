@@ -1,0 +1,57 @@
+recipes:
+  - recipe: "meta-lxatac-software/recipes-devtools/github-act-runner/github-act-runner_$PV.bb"
+    git_tag:
+      url: "https://github.com/ChristopherHX/github-act-runner.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+
+  - recipe: "meta-lxatac-software/recipes-devtools/gitlab-runner/gitlab-runner_$PV.bb"
+    git_tag:
+      url: "https://gitlab.com/gitlab-org/gitlab-runner.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+
+  - recipe: "meta-lxatac-software/recipes-devtools/qdl/qdl_$PV.bb"
+    git_tag:
+      url: "https://github.com/linux-msm/qdl.git"
+      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      version_order: semver
+
+  - recipe: "meta-lxatac-software/recipes-devtools/rkdeveloptool/rkdeveloptool_git.bb"
+    git_branch:
+      url: "https://github.com/rockchip-linux/rkdeveloptool.git"
+      branch: master
+
+  - recipe: "meta-lxatac-software/recipes-rust/bottom/bottom_$PV.bb"
+    git_tag:
+      url: "https://github.com/ClementTsang/bottom.git"
+      version_pattern: "^([\\d+\\.]*\\d+)$"
+      version_order: semver
+
+  - recipe: "meta-lxatac-software/recipes-rust/ripgrep/ripgrep_$PV.bb"
+    git_tag:
+      url: "https://github.com/BurntSushi/ripgrep.git"
+      version_pattern: "^([\\d+\\.]*\\d+)$"
+      version_order: semver
+
+  - recipe: "meta-lxatac-software/recipes-rust/tacd/tacd_git.bb"
+    git_branch:
+      url: "https://github.com/linux-automation/tacd.git"
+      branch: main
+
+  - recipe: "meta-lxatac-software/recipes-support/imx-uuu/imx-uuu_$PV.bb"
+    git_tag:
+      url: "https://github.com/nxp-imx/mfgtools.git"
+      version_pattern: "^uuu_([\\d+\\.]*\\d+)$"
+      version_order: semver
+
+  - recipe: "meta-lxatac-software/recipes-webadmin/tacd-webinterface/tacd-webinterface_git.bb"
+    git_branch:
+      url: "https://github.com/linux-automation/tacd.git"
+      branch: main
+
+  - recipe: "meta-lxatac-software/recipes-support/bcu/bcu_%.bbappend"
+    git_tag:
+      url: "https://github.com/nxp-imx/bcu.git"
+      version_pattern: "^bcu_(1\\.1[\\.\\d+]*)$"
+      version_order: semver
