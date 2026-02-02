@@ -6,10 +6,6 @@
 	path = openembedded-core
 	url = https://git.openembedded.org/openembedded-core
 	branch = whinlatter
-[submodule "meta-yocto"]
-	path = meta-yocto
-	url = https://git.yoctoproject.org/meta-yocto
-	branch = whinlatter
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
