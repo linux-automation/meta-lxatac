@@ -18,5 +18,5 @@ unset THIS_SCRIPT
 
 TEMPLATECONF="${DIR}/meta-lxatac-software/conf/templates/default/"
 
-# shellcheck source=poky/oe-init-build-env
-. "${DIR}/poky/oe-init-build-env" "$1"
+# shellcheck source=openembedded-core/oe-init-build-env
+. "${DIR}/openembedded-core/oe-init-build-env" "$1"

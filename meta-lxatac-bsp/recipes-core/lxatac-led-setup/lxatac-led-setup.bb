@@ -7,8 +7,7 @@ SRC_URI += " \
     file://lxatac-led-setup.sh \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 SYSTEMD_SERVICE:${PN} = "lxatac-led-setup.service"
 

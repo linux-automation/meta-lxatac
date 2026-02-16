@@ -5,8 +5,7 @@ SRC_URI = " \
     file://var-log-journal.mount \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 inherit allarch
 

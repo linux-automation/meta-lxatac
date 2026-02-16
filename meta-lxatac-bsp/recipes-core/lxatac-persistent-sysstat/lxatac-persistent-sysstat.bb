@@ -6,8 +6,7 @@ SRC_URI = " \
     file://use-var-log-sa.conf \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 inherit allarch
 

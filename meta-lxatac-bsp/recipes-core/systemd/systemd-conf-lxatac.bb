@@ -7,8 +7,7 @@ SRC_URI += " \
     file://01-watchdog.conf \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 do_install () {
     # We have decided against using the `WATCHDOG_RUNTIME_SEC` variable

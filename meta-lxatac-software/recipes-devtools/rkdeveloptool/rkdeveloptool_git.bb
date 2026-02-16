@@ -13,8 +13,6 @@ SRC_URI = "git://github.com/rockchip-linux/rkdeveloptool.git;protocol=https;bran
 SRCREV = "46bb4c073624226c3f05b37b9ecc50bbcf543f5a"
 PV = "1.32+git"
 
-S = "${WORKDIR}/git"
-
 DEPENDS = "libusb1 udev"
 
 inherit autotools pkgconfig

@@ -9,8 +9,7 @@ SRC_URI += " \
     file://spi-irq-prio-44009000.service \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 
 do_install() {
     # Increase the kernel atomic memory pool size.
