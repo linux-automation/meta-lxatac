@@ -3,12 +3,13 @@ updates:
   - package-ecosystem: gitsubmodule
     directory: "/"
     commit-message:
-      prefix: "meta-*: "
+      prefix: "yocto: "
     schedule:
       interval: "weekly"
       day: "thursday"
     groups:
       layers:
         patterns:
+          - "bitbake"
+          - "openembedded-core"
           - "meta-*"
-          - "poky"
