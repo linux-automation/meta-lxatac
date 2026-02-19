@@ -56,8 +56,8 @@ recipes:
       branch: main
 
   - recipe: "meta-lxatac-software/recipes-support/imx-uuu/imx-uuu_$PV.bb"
-    git_tag:
-      url: "https://github.com/nxp-imx/mfgtools.git"
+    github_release:
+      project: "nxp-imx/mfgtools"
       version_pattern: "^uuu_([\\d+\\.]*\\d+)$"
       version_order: semver
 
@@ -67,7 +67,7 @@ recipes:
       branch: main
 
   - recipe: "meta-lxatac-software/recipes-support/bcu/bcu_%.bbappend"
-    git_tag:
-      url: "https://github.com/nxp-imx/bcu.git"
+    github_release:
+      project: "nxp-imx/bcu"
       version_pattern: "^bcu_(1\\.1[\\.\\d+]*)$"
       version_order: semver

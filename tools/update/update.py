@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import glob
 import hashlib
 from tempfile import TemporaryDirectory
@@ -86,6 +87,12 @@ def branch_key(name):
 def run(cmd, capture=True):
     stdout = subprocess.PIPE if capture else None
     return subprocess.run(cmd, stdout=stdout, check=True, text=True).stdout
+
+
+def get_json(url):
+    with requests.get(url, stream=True) as req:
+        req.raise_for_status()
+        return req.json()
 
 
 def fetch_git_branch(info):
@@ -193,6 +200,70 @@ def fetch_git_tag(info):
     info.update(newest)
 
 
+def fetch_github_release(recipe_info):
+    """Get information about the most recent GitHub release
+
+    This has the benefit of being able to filter out pre-releases,
+    when compared to `git_tag`.
+    """
+
+    project = recipe_info["github_release"]["project"]
+    version_pattern = re.compile(recipe_info["github_release"]["version_pattern"])
+    prereleases = recipe_info["github_release"].get("prereleases", False)
+
+    releases = get_json(f"https://api.github.com/repos/{project}/releases")
+
+    versions = list()
+
+    for release in releases:
+        # Filter out draft releases
+        if release.get("draft", False):
+            continue
+
+        # Filter out prereleases (if desired)
+        if not prereleases and release.get("prerelease", False):
+            continue
+
+        # Only keep versions that match our schema
+        version_match = version_pattern.match(release["tag_name"])
+
+        if version_match is not None:
+            versions.append(
+                {
+                    "tag": version_match[0],
+                    "pv": version_match[1],
+                }
+            )
+
+    if recipe_info["github_release"]["version_order"] == "semver":
+        versions.sort(key=semver_key)
+        versions = versions[-1:]
+
+    for version in versions:
+        tag = version["tag"]
+        tag_info = get_json(
+            f"https://api.github.com/repos/{project}/git/matching-refs/tags/{tag}"
+        )
+        commit_info = get_json(tag_info[0]["object"]["url"])
+
+        version["commit_hash"] = commit_info["sha"]
+
+        who = (
+            commit_info.get("committer")
+            or commit_info.get("author")
+            or commit_info.get("tagger")
+        )
+        commit_date = who["date"].replace("T", " ").replace("Z", " +0000")
+        version["commit_date"] = commit_date
+        version["commit_timestamp"] = datetime.fromisoformat(commit_date).timestamp()
+
+    # Sort the remaining candidates by date.
+    # If the version_order is semver the dict will only have one element
+    # at this point in time.
+    newest = max(versions, key=lambda version: version["commit_timestamp"])
+    recipe_info.update(newest)
+
+
 def fetch_tarball(recipe_info):
     """Get hash values for a release tarball
 
@@ -234,6 +305,9 @@ def fetch_info(recipe_info):
 
     elif "git_tag" in recipe_info:
         fetch_git_tag(recipe_info)
+
+    elif "github_release" in recipe_info:
+        fetch_github_release(recipe_info)
 
     # The most recent version is determined by a git strategy,
     # but for some recipes a tarball is used to actually fetch the release.
