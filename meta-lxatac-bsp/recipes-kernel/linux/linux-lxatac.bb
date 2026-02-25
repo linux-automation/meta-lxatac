@@ -18,6 +18,10 @@ S = "${UNPACKDIR}/linux-${LINUX_VERSION}"
 
 COMPATIBLE_MACHINE = "lxatac"
 
+# Track which files are compiled in so we can ignore CVEs that only
+# affect files we do not build.
+SPDX_INCLUDE_COMPILED_SOURCES = "1"
+
 # The coreutils-native dependency is required since kernel 6.11,
 # which uses the `truncate` tool in a script.
 # It can likely be removed again once the kernel.bbclass is updated.
