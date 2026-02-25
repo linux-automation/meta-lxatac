@@ -2,6 +2,7 @@
 *.swp
 *.orig
 *.rej
+*.pyc
 *~
 
 # Place proprietary recipes and configs in a separate meta-lxatac-foo git
