@@ -93,3 +93,11 @@ jobs:
         with:
           name: images
           path: images/*.desktop
+
+      - name: Upload Software Bill of Materials to GitHub
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom
+          path: |
+            images/lxatac-core-image-base-lxatac.rootfs.json
+            images/lxatac-core-image-base-lxatac.rootfs.spdx.json
