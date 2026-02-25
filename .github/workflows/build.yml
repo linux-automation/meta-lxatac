@@ -101,3 +101,7 @@ jobs:
             images/lxatac-core-image-base-lxatac.rootfs.json
             images/lxatac-core-image-base-lxatac.rootfs.spdx.json
             images/recipe-linux-lxatac.spdx.json
+
+  sbom_cve_check:
+    needs: build
+    uses: ./.github/workflows/sbom-cve-check.yml
