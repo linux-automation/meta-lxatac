@@ -9,7 +9,7 @@ SRC_URI = "\
     file://github-act-runner.service \
     "
 
-# Commit created 0000-00-00 00:00:00 +0000
+# Commit created 2026-01-23 14:54:24 +0100
 SRCREV = "c934667526f602e5732e7072fcd53b36cf044e37"
 SRCBRANCH = "main"
 
