@@ -9,8 +9,9 @@ SRC_URI = "\
     file://github-act-runner.service \
     "
 
-SRCBRANCH = "main"
+# Commit created 0000-00-00 00:00:00 +0000
 SRCREV = "c934667526f602e5732e7072fcd53b36cf044e37"
+SRCBRANCH = "main"
 
 RDEPENDS:${PN}:append = " git nodejs"
 RDEPENDS:github-act-runner-dev:append = " make bash"

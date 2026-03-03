@@ -5,6 +5,7 @@ SRC_URI += " \
     file://env \
 "
 
+# Release commit created 0000-00-00 00:00:00 +0000
 PV = "2025.11.0"
 SRC_URI[sha256sum] = "6a487eb975169ef4ecc912d3e1044fb9ee4aa164c21d4db960a384a60d0914f6"
 

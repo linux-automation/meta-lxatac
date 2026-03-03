@@ -1,7 +1,10 @@
 inherit cargo cargo-update-recipe-crates
 
 SRC_URI += "git://github.com/ClementTsang/bottom.git;protocol=https;branch=main;tag=${PV}"
+
+# Commit created 0000-00-00 00:00:00 +0000
 SRCREV = "2f0e9dea99232f0cb116dd1011d9ff1ba9495594"
+
 CARGO_SRC_DIR = ""
 
 # The bottom Cargo.toml strips release builds, why makes it hard to debug.

@@ -1,0 +1,87 @@
+name: update recipes
+
+on:
+  schedule:
+    - cron: '10 21 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: update recipes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Configure git
+        run: |
+          git config user.email "info@linux-automation.com"
+          git config user.name "Recipe Updater Bot"
+
+      - name: Create a new branch
+        run: git checkout -b "update/recipes-$(date +%Y%m%d)"
+
+      - name: Run update script
+        run: python3 -u tools/update/update.py tools/update/recipes.yaml
+
+      - name: Commit changes to recipes
+        id: recipe-commit
+        run: |
+          git add .
+          git commit --signoff --message="Recipe updates for $(date +%Y-%m-%d)"
+        continue-on-error: true
+
+      - name: Update rust and go dependencies
+        if: ${{ steps.recipe-commit.outcome == 'success' }}
+        run: |
+          # Set up the system for use with bitbake
+          sudo apt-get install chrpath diffstat
+          echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
+          # Get meta layers
+          git submodule init
+          git submodule update --single-branch --depth 1
+
+          # Configure bitbake to use pre-built sstate
+          mkdir -p build/conf
+          cat <<EOF > build/conf/auto.conf
+          # Use the shared sstate cache
+          SSTATE_MIRRORS = "file://.* https://github-runner.pengutronix.de/sstate-cache/PATH"
+
+          # As long as we do not have a global hash equivalence server running together
+          # with the sstate mirror, using a (local) hash equivalence server will be
+          # ineffective as hashes match less often. Disable hash equivalence for now.
+          BB_SIGNATURE_HANDLER = "OEBasicHash"
+          BB_HASHSERVE = ""
+
+          # Prefer fast compression over small file size
+          OPKGBUILDCMD = "opkg-build -Z gzip -a -1n"
+          EOF
+
+          source oe-init-build-env
+
+          # Update the -crates.inc files
+          bitbake -c update_crates bottom tacd ripgrep
+
+          # Update the -go-mods.inc and -licenses.inc files
+          bitbake -c update_modules github-act-runner gitlab-runner
+
+      - name: Commit changes to rust and go dependencies
+        if: ${{ steps.recipe-commit.outcome == 'success' }}
+        run: |
+          git add .
+          git commit --signoff --message="Rust and Go dependency update for $(date +%Y-%m-%d)"
+        continue-on-error: true
+
+      - name: Push changes upstream
+        if: ${{ steps.recipe-commit.outcome == 'success' }}
+        run: git push --set-upstream origin "$(git branch --show-current)"
+
+      - name: Create pull request
+        if: ${{ steps.recipe-commit.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr create --base "${{ github.ref_name }}" --fill-first
