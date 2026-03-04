@@ -99,6 +99,7 @@ IMAGE_INSTALL:append = "\
     pps-tools \
     pv \
     python3-labgrid \
+    python3-labgrid-coordinator \
     python3-lxa-iobus \
     python3-pygobject \
     python3-snagboot \
