@@ -19,7 +19,7 @@ recipes:
       # This gives us less information about the release, but is much quicker.
       basic: true
     tarball:
-      url: "https://www.kernel.org/pub/linux/kernel/v6.x/linux-$PV.tar.xz"
+      url: "https://www.kernel.org/pub/linux/kernel/v7.x/linux-$PV.tar.xz"
 
   - recipe: "meta-lxatac-software/recipes-devtools/github-act-runner/github-act-runner_$PV.bb"
     git_tag:
