@@ -73,7 +73,7 @@ LIC_FILES_CHKSUM += "\
     file://pkg/mod/github.com/containerd/stargz-snapshotter/estargz@v0.18.1/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57;spdx=Apache-2.0 \
     file://pkg/mod/github.com/cpuguy83/go-md2man/v2@v2.0.7/LICENSE.md;md5=80794f9009df723bbc6fe19234c9f517;spdx=MIT \
     file://pkg/mod/github.com/creack/pty@v1.1.24/LICENSE;md5=93958070863d769117fa33b129020050;spdx=MIT \
-    file://pkg/mod/github.com/cyphar/filepath-securejoin@v0.6.1/COPYING.md;md5=048cdd67beeeb4338809b85793683c91;spdx=BSD-3-Clause+AND+MPL-2.0 \
+    file://pkg/mod/github.com/cyphar/filepath-securejoin@v0.6.1/COPYING.md;md5=048cdd67beeeb4338809b85793683c91;spdx=MPL-2.0 \
     file://pkg/mod/github.com/davecgh/go-spew@v1.1.2-0.20180830191138-d8f796af33cc/LICENSE;md5=c06795ed54b2a35ebeeb543cd3a73e56;spdx=ISC \
     file://pkg/mod/github.com/denisbrodbeck/machineid@v1.0.1/LICENSE.md;md5=6243912f756442acbdcf80af3bc76aae;spdx=MIT \
     file://pkg/mod/github.com/distribution/reference@v0.6.0/LICENSE;md5=d2794c0df5b907fdace235a619d80314;spdx=Apache-2.0 \
