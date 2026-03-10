@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    if: ${{ vars.SCHEDULED_AUTO_UPDATE || github.event_name == 'workflow_dispatch' || github.repository == 'linux-automation/meta-lxatac' }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v6
