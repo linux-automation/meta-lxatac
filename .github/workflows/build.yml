@@ -45,6 +45,7 @@ jobs:
           # Keep in mind that we are in the `build` directory because
           # `oe-init-build-env` implicitly `cd`s there.
           mv tmp/deploy/images/lxatac ../images
+          mv tmp/deploy/spdx/3.0.1/lxatac/recipes/recipe-linux-lxatac.spdx.json ../images
 
       - name: Print logs of failed jobs
         if: ${{ failure() }}
@@ -99,3 +100,4 @@ jobs:
           path: |
             images/lxatac-core-image-base-lxatac.rootfs.json
             images/lxatac-core-image-base-lxatac.rootfs.spdx.json
+            images/recipe-linux-lxatac.spdx.json
