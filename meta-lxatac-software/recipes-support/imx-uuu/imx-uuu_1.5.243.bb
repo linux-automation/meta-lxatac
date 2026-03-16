@@ -4,8 +4,8 @@ HOMEPAGE = "https://github.com/NXPmicro/mfgtools"
 
 SRC_URI = "git://github.com/nxp-imx/mfgtools.git;protocol=https;branch=master;tag=uuu_${PV}"
 
-# Commit created 2025-08-28 15:09:42 +0000
-SRCREV = "395e793b8821392ebc5ce47d852c3557b62e9f51"
+# Commit created 2025-12-16 14:29:49 +0000
+SRCREV = "bb04dcf48c7be428bd6d9b6d50b15c021bdd6495"
 
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=38ec0c18112e9a92cffc4951661e85a5"
