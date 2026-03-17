@@ -129,21 +129,31 @@ class GitRepo:
 
         return self._run(["git", "-C", self._git_dir, *cmd]).strip()
 
-    def commit_info(self, commit):
-        git_format, fields = zip(*self.LOG_FORMAT)
-        res = self._git("log", "-1", f"--format={'%x00'.join(git_format)}", commit)
+    def commit_info(self, commit, basic):
+        if basic:
+            return {"commit_hash": self.refs().get(commit, commit)}
 
-        return dict(zip(fields, res.split("\x00"), strict=True))
+        else:
+            git_format, fields = zip(*self.LOG_FORMAT)
+            res = self._git("log", "-1", f"--format={'%x00'.join(git_format)}", commit)
 
-    def branch_head(self, branch):
-        return self.commit_info(f"refs/heads/{branch}")
+            return dict(zip(fields, res.split("\x00"), strict=True))
 
-    def tag(self, tag):
-        return self.commit_info(f"refs/tags/{tag}")
+    def branch_head(self, branch, basic):
+        return self.commit_info(f"refs/heads/{branch}", basic)
+
+    def tag(self, tag, basic):
+        return self.commit_info(f"refs/tags/{tag}", basic)
 
     def refs(self):
         if self._refs is None:
-            ref_list = self._git("show-ref")
+            # Use the local clone for information if there is one.
+            # Oterwise ask the server for a list of refs.
+            ref_list = (
+                self._git("show-ref")
+                if self._git_dir is not None
+                else self._run(["git", "ls-remote", "--refs", self.url]).strip()
+            )
 
             self._refs = dict(ln.split("\t", 1)[::-1] for ln in ref_list.split("\n"))
 
@@ -179,9 +189,10 @@ def fetch_git_branch(info):
 
     url = info["git_branch"]["url"]
     branch = info["git_branch"]["branch"]
+    basic = info["git_branch"].get("basic", False)
 
     repo = GitRepo(url)
-    info.update(repo.branch_head(branch))
+    info.update(repo.branch_head(branch, basic))
 
     version_pattern = info.get("version_pattern")
     describe = info.get("describe")
@@ -202,6 +213,7 @@ def fetch_git_tag(info):
 
     url = info["git_tag"]["url"]
     version_pattern = re.compile(info["git_tag"]["version_pattern"])
+    basic = info["git_tag"].get("basic", False)
 
     repo = GitRepo(url)
 
@@ -220,10 +232,11 @@ def fetch_git_tag(info):
         versions = versions[-1:]
 
     for version in versions:
-        version.update(repo.tag(version["tag"]))
+        version.update(repo.tag(version["tag"], basic))
 
-        version["branches"] = repo.containing_branches(version["commit_hash"])
-        version["branch"] = max(version["branches"], key=branch_key, default=None)
+        if not basic:
+            version["branches"] = repo.containing_branches(version["commit_hash"])
+            version["branch"] = max(version["branches"], key=branch_key, default=None)
 
     # Sort the remaining candidates by date.
     # If the version_order is semver the dict will only have one element
