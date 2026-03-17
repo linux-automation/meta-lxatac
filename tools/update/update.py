@@ -84,15 +84,91 @@ def branch_key(name):
     return (5000, name)
 
 
-def run(cmd, capture=True):
-    stdout = subprocess.PIPE if capture else None
-    return subprocess.run(cmd, stdout=stdout, check=True, text=True).stdout
-
-
 def get_json(url):
     with requests.get(url, stream=True) as req:
         req.raise_for_status()
         return req.json()
+
+
+class GitRepo:
+    LOG_FORMAT = [
+        ("%H", "commit_hash"),
+        ("%ci", "commit_date"),
+        ("%ct", "commit_timestamp"),
+        ("%(describe:tags=true)", "describe"),
+    ]
+
+    def __init__(self, url):
+        self.url = url
+
+        self._git_dir = None
+        self._refs = None
+
+    def _run(self, cmd, capture=True):
+        stdout = subprocess.PIPE if capture else None
+        return subprocess.run(cmd, stdout=stdout, check=True, text=True).stdout
+
+    def _git(self, *cmd):
+        if self._git_dir is None:
+            # We must keep a reference to self.tmp for as long as we need the
+            # temporary directory.
+            self._tmp = TemporaryDirectory()
+            self._git_dir = os.path.join(self._tmp.name, "repo.git")
+
+            self._run(
+                [
+                    "git",
+                    "clone",
+                    "--bare",
+                    "--filter=blob:none",
+                    self.url,
+                    self._git_dir,
+                ],
+                False,
+            )
+
+        return self._run(["git", "-C", self._git_dir, *cmd]).strip()
+
+    def commit_info(self, commit):
+        git_format, fields = zip(*self.LOG_FORMAT)
+        res = self._git("log", "-1", f"--format={'%x00'.join(git_format)}", commit)
+
+        return dict(zip(fields, res.split("\x00"), strict=True))
+
+    def branch_head(self, branch):
+        return self.commit_info(f"refs/heads/{branch}")
+
+    def tag(self, tag):
+        return self.commit_info(f"refs/tags/{tag}")
+
+    def refs(self):
+        if self._refs is None:
+            ref_list = self._git("show-ref")
+
+            self._refs = dict(ln.split("\t", 1)[::-1] for ln in ref_list.split("\n"))
+
+        return self._refs
+
+    def refs_with_prefix(self, prefix):
+        return list(
+            ref.removeprefix(prefix) for ref in self.refs() if ref.startswith(prefix)
+        )
+
+    def branches(self):
+        return self.refs_with_prefix("refs/heads/")
+
+    def tags(self):
+        return self.refs_with_prefix("refs/tags/")
+
+    def containing_branches(self, commit):
+        res = self._git(
+            "branch",
+            "--format=%(refname:lstrip=2)",
+            "--contains",
+            commit,
+        )
+
+        return list(branch.strip() for branch in res.split())
 
 
 def fetch_git_branch(info):
@@ -104,19 +180,8 @@ def fetch_git_branch(info):
     url = info["git_branch"]["url"]
     branch = info["git_branch"]["branch"]
 
-    with TemporaryDirectory() as dir:
-        git_dir = os.path.join(dir, "repo.git")
-
-        run(["git", "clone", "--bare", "--filter=blob:none", url, git_dir], False)
-
-        git = ["git", "-C", git_dir]
-        commit_hash = run([*git, "rev-parse", f"refs/heads/{branch}"]).strip()
-        commit_date = run([*git, "log", "-1", "--format=%ci", commit_hash]).strip()
-
-        try:
-            info["describe"] = run([*git, "describe", "--tags", branch]).strip()
-        except subprocess.CalledProcessError:
-            pass
+    repo = GitRepo(url)
+    info.update(repo.branch_head(branch))
 
     version_pattern = info.get("version_pattern")
     describe = info.get("describe")
@@ -126,9 +191,6 @@ def fetch_git_branch(info):
 
     if version:
         info["pv"] = f"{version}+git"
-
-    info["commit_hash"] = commit_hash
-    info["commit_date"] = commit_date
 
 
 def fetch_git_tag(info):
@@ -141,62 +203,32 @@ def fetch_git_tag(info):
     url = info["git_tag"]["url"]
     version_pattern = re.compile(info["git_tag"]["version_pattern"])
 
+    repo = GitRepo(url)
+
     versions = list()
 
-    with TemporaryDirectory() as dir:
-        git_dir = os.path.join(dir, "repo.git")
+    for tag in repo.tags():
+        if (version_match := version_pattern.match(tag)) is not None:
+            pv = version_match[1]
+            versions.append({"tag": tag, "pv": pv})
 
-        run(["git", "clone", "--bare", "--filter=blob:none", url, git_dir], False)
+    if info["git_tag"]["version_order"] == "semver":
+        # When sorting by semver we do not need to get all commit dates,
+        # only the one for the newest commit by semver in the tag name.
+        # We can thus reduce the versions dict to only one entry.
+        versions.sort(key=semver_key)
+        versions = versions[-1:]
 
-        git = ["git", "-C", git_dir]
-        tags = run([*git, "tag", "--list"]).strip()
+    for version in versions:
+        version.update(repo.tag(version["tag"]))
 
-        for tag in tags.split("\n"):
-            version_match = version_pattern.match(tag)
-
-            if version_match is not None:
-                pv = version_match[1]
-                versions.append({"tag": tag, "pv": pv})
-
-        if info["git_tag"]["version_order"] == "semver":
-            # When sorting by semver we do not need to get all commit dates,
-            # only the one for the newest commit by semver in the tag name.
-            # We can thus reduce the versions dict to only one entry.
-            versions.sort(key=semver_key)
-            versions = versions[-1:]
-
-        for version in versions:
-            tag_name = version["tag"]
-
-            hash = run([*git, "rev-parse", f"refs/tags/{tag_name}^{{commit}}"]).strip()
-
-            version["commit_hash"] = hash
-            version["commit_date"] = run(
-                [*git, "log", "-1", "--format=%ci", hash]
-            ).strip()
-            version["commit_timestamp"] = int(
-                run([*git, "log", "-1", "--format=%ct", hash]).strip()
-            )
-
-            branches = run(
-                [
-                    *git,
-                    "branch",
-                    "--format=%(refname:lstrip=2)",
-                    "--contains",
-                    hash,
-                ]
-            ).strip()
-
-            version["branches"] = list(
-                branch.strip() for branch in branches.split("\n")
-            )
-            version["branch"] = max(version["branches"], key=branch_key)
+        version["branches"] = repo.containing_branches(version["commit_hash"])
+        version["branch"] = max(version["branches"], key=branch_key, default=None)
 
     # Sort the remaining candidates by date.
     # If the version_order is semver the dict will only have one element
     # at this point in time.
-    newest = max(versions, key=lambda version: version["commit_timestamp"])
+    newest = max(versions, key=lambda version: version.get("commit_timestamp"))
     info.update(newest)
 
 
