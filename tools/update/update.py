@@ -378,9 +378,9 @@ def get_old_recipes(recipe):
     )
 
 
-def write_recipe(recipe_info):
+def write_recipe(recipe, recipe_info):
     # List old recipes and read one of them
-    old_recipes = get_old_recipes(recipe_info["recipe"])
+    old_recipes = get_old_recipes(recipe)
 
     with open(old_recipes[0], "r") as fd:
         recipe_bb = fd.read()
@@ -394,7 +394,7 @@ def write_recipe(recipe_info):
                 recipe_bb = recipe_bb[:start] + rep + recipe_bb[end:]
 
     # Write new recipe to disk
-    recipe_path = recipe_info["recipe"].replace("$PV", recipe_info.get("pv", ""))
+    recipe_path = recipe.replace("$PV", recipe_info.get("pv", ""))
 
     with open(recipe_path, "w") as fd:
         fd.write(recipe_bb)
@@ -412,10 +412,18 @@ def main(argv):
         config = yaml.safe_load(fd)
 
     for recipe_info in config["recipes"]:
-        print(f"\n\nGenerate: {recipe_info['recipe']}")
+        # Specify either a single recipe or a list of them to generate
+        # using the same information.
+        recipes = recipe_info.get("recipes", [])
+        if "recipe" in recipe_info:
+            recipes.append(recipe_info["recipe"])
+
+        print(f"\n\nGenerate:", " ".join(recipes))
 
         fetch_info(recipe_info)
-        write_recipe(recipe_info)
+
+        for recipe in recipes:
+            write_recipe(recipe, recipe_info)
 
         print("done")
 
