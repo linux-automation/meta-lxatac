@@ -361,9 +361,26 @@ def fetch_info(recipe_info):
         fetch_tarball(recipe_info)
 
 
+def get_old_recipes(recipe):
+    # Use a glob to find candidate files
+    recipe_glob = glob.escape(recipe).replace("$PV", "*")
+
+    # Filter the candidate files using a regex that matches everything
+    # that looks like a version number.
+    # This excludes files that just happen to be called `..._*.bb`.
+    recipe_regex = re.escape(recipe).replace("\\$PV", "[\\d+\\.]*\\d+")
+    recipe_regex = re.compile(recipe_regex)
+
+    return list(
+        old_recipe
+        for old_recipe in glob.glob(recipe_glob)
+        if recipe_regex.fullmatch(old_recipe)
+    )
+
+
 def write_recipe(recipe_info):
     # List old recipes and read one of them
-    old_recipes = glob.glob(glob.escape(recipe_info["recipe"]).replace("$PV", "*"))
+    old_recipes = get_old_recipes(recipe_info["recipe"])
 
     with open(old_recipes[0], "r") as fd:
         recipe_bb = fd.read()
