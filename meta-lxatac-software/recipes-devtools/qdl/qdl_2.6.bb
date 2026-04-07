@@ -12,7 +12,7 @@ DEPENDS = "libxml2 libusb1"
 inherit pkgconfig
 
 SRC_URI = "git://github.com/linux-msm/${BPN}.git;branch=master;protocol=https;tag=v${PV}"
-SRCREV = "ff592b74025a529f5f543a2777b48e53572cb9a4"
+SRCREV = "1cdefb30ada4b747758b1df073de8fc74fdadb28"
 
 do_install () {
     oe_runmake install DESTDIR=${D} prefix=${prefix}
