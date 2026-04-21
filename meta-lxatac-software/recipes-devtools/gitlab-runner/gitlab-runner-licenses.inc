@@ -227,12 +227,12 @@ LIC_FILES_CHKSUM += "\
     file://pkg/mod/gitlab.com/gitlab-org/fleeting/fleeting@v0.0.0-20260304132817-7f6dd45d4237/LICENSE;md5=9003ea0d4b37164b85d0076686192694;spdx=MIT \
     file://pkg/mod/gitlab.com/gitlab-org/fleeting/nesting@v0.4.0/LICENSE;md5=9003ea0d4b37164b85d0076686192694;spdx=MIT \
     file://pkg/mod/gitlab.com/gitlab-org/fleeting/taskscaler/metrics/prometheus@v0.0.0-20260223104030-891f7bc8d103/LICENSE;md5=9003ea0d4b37164b85d0076686192694;spdx=MIT \
-    file://pkg/mod/gitlab.com/gitlab-org/fleeting/taskscaler@v0.0.0-20260218095153-b5a12239e8c1/LICENSE;md5=9003ea0d4b37164b85d0076686192694;spdx=MIT \
+    file://pkg/mod/gitlab.com/gitlab-org/fleeting/taskscaler@v0.0.0-20260311212304-25dd020ebd12/LICENSE;md5=9003ea0d4b37164b85d0076686192694;spdx=MIT \
     file://pkg/mod/gitlab.com/gitlab-org/gitlab-terminal@v0.0.0-20230425165333-62e9b619707c/LICENSE;md5=c78dd4fccb86dab7b0ae76c069d392e9;spdx=MIT \
     file://pkg/mod/gitlab.com/gitlab-org/golang-cli-helpers@v0.0.0-20220124161940-198f30295e7e/LICENSE;md5=8c4f17b4c9797cfd000b25f514aec1f6;spdx=MIT \
     file://pkg/mod/gitlab.com/gitlab-org/labkit@v1.46.0/LICENSE;md5=9d58200f323d972006640bf5f3cb213f;spdx=MIT \
-    file://pkg/mod/gitlab.com/gitlab-org/moa@v0.0.0-20260311233113-2b1643156012/LICENSE;md5=8ed3a17a1bcf9278bad00eaf286b6e04;spdx=MIT \
-    file://pkg/mod/gitlab.com/gitlab-org/step-runner@v0.31.0/LICENSE;md5=919b3bc6d65f1a54c05a3cafbac7af05;spdx=MIT \
+    file://pkg/mod/gitlab.com/gitlab-org/moa@v0.0.0-20260323144604-1ca892a61e74/LICENSE;md5=8ed3a17a1bcf9278bad00eaf286b6e04;spdx=MIT \
+    file://pkg/mod/gitlab.com/gitlab-org/step-runner@v0.32.1-0.20260409123551-724bb7215d2b/LICENSE;md5=919b3bc6d65f1a54c05a3cafbac7af05;spdx=MIT \
     file://pkg/mod/go.mozilla.org/pkcs7@v0.9.0/LICENSE;md5=a9b2952d51b44eae97b6090117f60792;spdx=MIT \
     file://pkg/mod/go.opentelemetry.io/auto/sdk@v1.2.1/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327;spdx=Apache-2.0 \
     file://pkg/mod/go.opentelemetry.io/contrib/detectors/gcp@v1.39.0/LICENSE;md5=24dad3abbe7a8f390afc8ab967bfefa7;spdx=Apache-2.0 \
@@ -251,7 +251,7 @@ LIC_FILES_CHKSUM += "\
     file://pkg/mod/golang.org/x/mod@v0.33.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
     file://pkg/mod/golang.org/x/net@v0.50.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
     file://pkg/mod/golang.org/x/oauth2@v0.35.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
-    file://pkg/mod/golang.org/x/sync@v0.19.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
+    file://pkg/mod/golang.org/x/sync@v0.20.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
     file://pkg/mod/golang.org/x/sys@v0.41.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
     file://pkg/mod/golang.org/x/term@v0.40.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
     file://pkg/mod/golang.org/x/text@v0.34.0/LICENSE;md5=7998cb338f82d15c0eff93b7004d272a;spdx=BSD-3-Clause \
@@ -262,7 +262,7 @@ LIC_FILES_CHKSUM += "\
     file://pkg/mod/google.golang.org/genproto/googleapis/api@v0.0.0-20260203192932-546029d2fa20/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57;spdx=Apache-2.0 \
     file://pkg/mod/google.golang.org/genproto/googleapis/rpc@v0.0.0-20260217215200-42d3e9bedb6d/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57;spdx=Apache-2.0 \
     file://pkg/mod/google.golang.org/genproto@v0.0.0-20260128011058-8636f8732409/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57;spdx=Apache-2.0 \
-    file://pkg/mod/google.golang.org/grpc@v1.79.1/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57;spdx=Apache-2.0 \
+    file://pkg/mod/google.golang.org/grpc@v1.79.2/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57;spdx=Apache-2.0 \
     file://pkg/mod/google.golang.org/protobuf@v1.36.11/LICENSE;md5=02d4002e9171d41a8fad93aa7faf3956;spdx=BSD-3-Clause \
     file://pkg/mod/gopkg.in/evanphx/json-patch.v4@v4.13.0/LICENSE;md5=96ae735ca1b4dcdb6b26f4ca4b8ba645;spdx=BSD-3-Clause \
     file://pkg/mod/gopkg.in/inf.v0@v0.9.1/LICENSE;md5=13cea479df204c85485b5db6eb1bc9d5;spdx=BSD-3-Clause \
