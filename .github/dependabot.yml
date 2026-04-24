@@ -13,3 +13,13 @@ updates:
           - "bitbake"
           - "openembedded-core"
           - "meta-*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+    groups:
+      actions:
+        patterns:
+          - "*"
