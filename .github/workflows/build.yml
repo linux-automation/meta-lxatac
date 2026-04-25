@@ -18,7 +18,7 @@ jobs:
     if: ${{ vars.HAS_BUILD_RUNNER || github.repository == 'linux-automation/meta-lxatac' }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -87,7 +87,7 @@ jobs:
             images/lxatac-core-bundle-base-lxatac.raucb
 
       - name: Upload Artifact links to GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: images
           path: images/*.desktop

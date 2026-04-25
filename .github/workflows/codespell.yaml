@@ -11,6 +11,6 @@ jobs:
     name: codespell
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: python3 -m pip install codespell
       - run: codespell meta-lxatac-bsp meta-lxatac-software .github oe-init-build-env README.md
