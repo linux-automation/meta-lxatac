@@ -12,6 +12,7 @@ SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_VERSION}.t
 SRC_URI[sha256sum] = "303079a8250b8f381f82b03f90463d12ac98d4f6b149b761ea75af1323521357"
 
 require files/patches/series.inc
+require recipes-kernel/linux/cve-exclusion.inc
 
 PV = "${UMPF_PV}"
 S = "${UNPACKDIR}/linux-${LINUX_VERSION}"
