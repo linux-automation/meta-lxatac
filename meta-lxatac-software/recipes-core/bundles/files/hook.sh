@@ -4,7 +4,7 @@ set -exu -o pipefail
 shopt -s nullglob
 
 EXTRA_MIGRATE_LISTS_DIR="/etc/rauc/migrate.d"
-CERT_AVAILABLE_DIR="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-available"
+CERT_AVAILABLE_DIRS="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-available ${RAUC_SLOT_MOUNT_POINT:?}/usr/lib/rauc/certificates-available"
 CERT_ENABLED_DIR="${RAUC_SLOT_MOUNT_POINT:?}/etc/rauc/certificates-enabled"
 BUNDLE_SPKI_HASHES="${RAUC_BUNDLE_SPKI_HASHES:?}"
 
@@ -12,26 +12,28 @@ function enable_certificates () {
 	# Ignore the enabled certificates from the bundle
 	rm "${CERT_ENABLED_DIR}"/*
 
-	for cert in "${CERT_AVAILABLE_DIR}"/*; do
-		cert_name=$(basename "${cert}")
+	for available_dir in ${CERT_AVAILABLE_DIRS}; do
+		for cert in "${available_dir}"/*; do
+			cert_name=$(basename "${cert}")
 
-		cert_hash=$(openssl x509 -pubkey -noout -in "${cert}" \
-			| openssl pkey -pubin -outform der \
-			| openssl dgst -sha256 -c -hex \
-			| awk '{print toupper($2)}')
+			cert_hash=$(openssl x509 -pubkey -noout -in "${cert}" \
+				| openssl pkey -pubin -outform der \
+				| openssl dgst -sha256 -c -hex \
+				| awk '{print toupper($2)}')
 
-		# Enable certificates that match the hash of the public key(s)
-		# that the current bundle is signed with.
-		# This means that a bundle signed with e.g. an official stable
-		# channel certificate will only be able to install other
-		# bundles from the same release channel.
-		for bundle_hash in ${BUNDLE_SPKI_HASHES}; do
-			if [[ "${bundle_hash}" == "${cert_hash}" ]]; then
-				echo "Enable certificate ${cert_name}"
-				ln -s \
-				   "../certificates-available/${cert_name}"\
-				   "${CERT_ENABLED_DIR}/${cert_name}"
-			fi
+			# Enable certificates that match the hash of the public key(s)
+			# that the current bundle is signed with.
+			# This means that a bundle signed with e.g. an official stable
+			# channel certificate will only be able to install other
+			# bundles from the same release channel.
+			for bundle_hash in ${BUNDLE_SPKI_HASHES}; do
+				if [[ "${bundle_hash}" == "${cert_hash}" ]]; then
+					echo "Enable certificate ${cert_name}"
+					ln --symbolic --relative \
+					   "${cert}" \
+					   "${CERT_ENABLED_DIR}/${cert_name}"
+				fi
+			done
 		done
 	done
 
