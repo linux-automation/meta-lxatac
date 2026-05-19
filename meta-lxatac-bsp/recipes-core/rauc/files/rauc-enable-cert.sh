@@ -18,9 +18,7 @@ if [[ ! -f "${AVAILABLE_DIR}/$1" ]]; then
     exit 1
 fi
 
-if [[ -L "${ENABLED_DIR}/$1" ]]; then
-    rm "${ENABLED_DIR}/$1"
-fi
+rm -f "${ENABLED_DIR}/"*.cert.pem
 
 ln -s "../certificates-available/$1" "${ENABLED_DIR}/$1"
 openssl rehash "${ENABLED_DIR}"
