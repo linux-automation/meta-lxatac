@@ -18,7 +18,11 @@ do_install:append() {
     install -D -m 0755 ${UNPACKDIR}/rauc-enable-cert.sh \
         ${D}${bindir}/rauc-enable-cert
 
-    install -d ${D}${sysconfdir}/rauc/certificates-available
+    # Install distro-provided configuration to `nonarch_libdir`
+    # (`/usr/lib`) which is also the default in `rauc-conf.bb`
+    # but user-editable configuration to `sysconfdir` (`/etc`).
+    install -d ${D}${sysconfdir}/rauc
+    install -d ${D}${nonarch_libdir}/rauc/certificates-available
     install -d ${D}${sysconfdir}/rauc/certificates-enabled
 
     # Ship the different release channel certificates with each image.
@@ -28,7 +32,7 @@ do_install:append() {
     # bundle was signed with.
     for cert in devel stable testing; do
         install -D -m 0644 ${UNPACKDIR}/${cert}.cert.pem \
-            ${D}${sysconfdir}/rauc/certificates-available/${cert}.cert.pem
+            ${D}${nonarch_libdir}/rauc/certificates-available/${cert}.cert.pem
     done
 
     KEYRING_FILE_NAME=$(basename "${RAUC_KEYRING_FILE}")
@@ -38,13 +42,14 @@ do_install:append() {
     # installed above is overwritten by this mv.
     # If RAUC_KEYRING_FILE is overridden the extra cert will be installed
     # along with the other ones.
-    mv ${D}${sysconfdir}/rauc/${KEYRING_FILE_NAME} \
-        ${D}${sysconfdir}/rauc/certificates-available/${KEYRING_FILE_NAME}
+    mv ${D}${nonarch_libdir}/rauc/${KEYRING_FILE_NAME} \
+        ${D}${nonarch_libdir}/rauc/certificates-available/${KEYRING_FILE_NAME}
 
     # Due to the certificate enable/disable logic in the RAUC hook the
     # following line is only relevant for images _not_ installed via RAUC.
     for cert in ${RAUC_CERT_ENABLE}; do
-        ln -s ../certificates-available/${cert} \
+        ln --relative --symbolic \
+            ${D}${nonarch_libdir}/rauc/certificates-available/${cert} \
             ${D}${sysconfdir}/rauc/certificates-enabled/${cert}
     done
 
