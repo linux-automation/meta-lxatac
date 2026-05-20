@@ -31,3 +31,5 @@ EXTRA_OEMAKE:append = " \
     STM32MP_SPI_NOR=0 \
     DTB_FILE_NAME=${TFA_DTB_NAME} \
 "
+
+FILES:${PN} += "/firmware/trusted-firmware-a"
