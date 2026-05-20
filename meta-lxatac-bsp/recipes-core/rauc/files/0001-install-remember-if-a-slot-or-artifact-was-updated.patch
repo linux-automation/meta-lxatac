@@ -1,0 +1,52 @@
+From bb04907155c5fc7962934c06d15c49d2058b2209 Mon Sep 17 00:00:00 2001
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Thu, 20 Mar 2025 10:58:41 +0100
+Subject: [PATCH 1/6] install: remember if a slot or artifact was updated
+
+This will allow us to determine if a reboot should be performed after an
+automatic installation.
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+Upstream-Status: Backport
+---
+ include/install.h | 4 ++++
+ src/install.c     | 2 ++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/include/install.h b/include/install.h
+index 23fc4ae1..275bcbab 100644
+--- a/include/install.h
++++ b/include/install.h
+@@ -36,6 +36,10 @@ typedef struct {
+ 	gchar *require_manifest_hash;
+ 	gchar *transaction;
+ 	RaucBundleAccessArgs access_args;
++
++	/* install result flags */
++	gboolean updated_slots;
++	gboolean updated_artifacts;
+ } RaucInstallArgs;
+ 
+ /**
+diff --git a/src/install.c b/src/install.c
+index 5a906850..e1fcc4cf 100644
+--- a/src/install.c
++++ b/src/install.c
+@@ -1498,12 +1498,14 @@ static gboolean launch_and_wait_default_handler(RaucInstallArgs *args, gchar* bu
+ 				r_context_end_step("update_slots", FALSE);
+ 				return FALSE;
+ 			}
++			args->updated_slots = TRUE;
+ 		} else if (plan->target_repo) {
+ 			if (!handle_artifact_install_plan(manifest, plan, args, hook_name, &ierror)) {
+ 				g_propagate_error(error, ierror);
+ 				r_context_end_step("update_slots", FALSE);
+ 				return FALSE;
+ 			}
++			args->updated_artifacts = TRUE;
+ 		}
+ 	}
+ 
+-- 
+2.47.3
+

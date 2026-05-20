@@ -1,0 +1,49 @@
+From 955ce2acf9cf78dd8cb104e0f42ef52f6250ed6c Mon Sep 17 00:00:00 2001
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Wed, 5 Mar 2025 15:33:48 +0100
+Subject: [PATCH 5/6] context: implement a polling speedup factor for testing
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+Upstream-Status: Backport
+---
+ include/context.h |  1 +
+ src/context.c     | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/include/context.h b/include/context.h
+index 18079598..d0022c78 100644
+--- a/include/context.h
++++ b/include/context.h
+@@ -76,6 +76,7 @@ typedef struct {
+ 	struct {
+ 		/* mock contents of /proc/cmdline */
+ 		const gchar *proc_cmdline;
++		gint64 polling_speedup;
+ 	} mock;
+ } RaucContext;
+ 
+diff --git a/src/context.c b/src/context.c
+index 3f30c6d4..fd897237 100644
+--- a/src/context.c
++++ b/src/context.c
+@@ -525,6 +525,17 @@ gboolean r_context_configure(GError **error)
+ 		return FALSE;
+ 	}
+ 
++	/* configure mocks */
++	const gchar *polling_speedup = g_getenv("RAUC_TEST_POLLING_SPEEDUP");
++	if (polling_speedup) {
++		gint64 result = g_ascii_strtoll(polling_speedup, NULL, 10);
++		if ((result < 1) || (result > 1000)) {
++			g_error("Invalid RAUC_TEST_POLLING_SPEEDUP value '%s'", polling_speedup);
++			return FALSE;
++		}
++		context->mock.polling_speedup = result;
++	}
++
+ 	context->pending = FALSE;
+ 
+ 	return TRUE;
+-- 
+2.47.3
+
