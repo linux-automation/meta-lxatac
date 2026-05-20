@@ -1,8 +1,5 @@
 SUMMARY = "The LXA TAC System Daemon - Web Interface"
-SRC_URI = " \
-    git://github.com/linux-automation/tacd.git;protocol=https;branch=main \
-    npmsw://${THISDIR}/${BPN}/npm-shrinkwrap.json;destsuffix=${BP}/web \
-    "
+SRC_URI = "git://github.com/linux-automation/tacd.git;protocol=https;branch=main"
 LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = " \
     file://../LICENSE;md5=570a9b3749dd0463a1778803b12a6dce \
@@ -14,16 +11,14 @@ PV = "0.1.0+git${SRCPV}"
 
 S = "${UNPACKDIR}/${BP}/web"
 
-inherit npm
+DEPENDS += "nodejs-native"
 
-# Remove the runtime dependency on nodejs. We only use it during the
-# build process to generate static html, js and css files.
-RDEPENDS:${PN}:remove = "nodejs"
+# Allow npm to download packages from the internet, since the npmsw fetcher
+# is no longer supported and we use npm to fetch packages instead.
+do_compile[network] = "1"
 
-WEBUI_INSTALL_DIR = "${NPM_BUILD}/lib/node_modules/tacd-web"
-
-npm_run_build () {
-    cd "${WEBUI_INSTALL_DIR}"
+do_compile() {
+    npm ci .
     npm run build
 
     # Provide compressed variants of all files worth compressing
@@ -32,13 +27,9 @@ npm_run_build () {
         -exec gzip -fk9 {} \;
 }
 
-do_compile:append() {
-    bb.build.exec_func("npm_run_build", d)
-}
-
 do_install() {
     install -d "${D}${datadir}/tacd"
-    cp -r "${WEBUI_INSTALL_DIR}/build" "${D}${datadir}/tacd/webui"
+    cp -r "${S}/build" "${D}${datadir}/tacd/webui"
 }
 
 FILES:${PN} = "${datadir}/tacd"
