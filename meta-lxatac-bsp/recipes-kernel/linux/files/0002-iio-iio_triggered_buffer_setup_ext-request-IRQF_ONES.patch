@@ -1,0 +1,40 @@
+From 657fff382793258bf2fb806c3f08b1dbc2b1c42a Mon Sep 17 00:00:00 2001
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+Date: Thu, 14 May 2026 16:43:41 +0200
+Subject: [PATCH] iio: iio_triggered_buffer_setup_ext(): request IRQF_ONESHOT
+ only if threaded handler is present
+
+Since commit aef30c8d569c ("genirq: Warn about using IRQF_ONESHOT without a
+threaded handler") the kernel warns when requesting an IRQ using
+IRQF_ONESHOT without a threaded handler.
+
+iio_triggered_buffer_setup_ext() always passes IRQF_ONESHOT to
+iio_alloc_pollfunc(), even if no threaded handler is given by the caller,
+which results in a kernel warning.
+
+Fix this warning by only passing IRQF_ONESHOT if a threaded handler is
+given.
+
+Fixes: 23f2d735a932 ("iio: Add helper function for initializing triggered buffers")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Upstream-Status: Submitted [https://lore.kernel.org/all/20260514-iio-irq-fixes-v1-1-3bc28b094ad6@pengutronix.de/]
+---
+ drivers/iio/buffer/industrialio-triggered-buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/iio/buffer/industrialio-triggered-buffer.c b/drivers/iio/buffer/industrialio-triggered-buffer.c
+index 9bf75dee7ff86..40eea3a447246 100644
+--- a/drivers/iio/buffer/industrialio-triggered-buffer.c
++++ b/drivers/iio/buffer/industrialio-triggered-buffer.c
+@@ -64,7 +64,7 @@ int iio_triggered_buffer_setup_ext(struct iio_dev *indio_dev,
+ 
+ 	indio_dev->pollfunc = iio_alloc_pollfunc(h,
+ 						 thread,
+-						 IRQF_ONESHOT,
++						 thread ? IRQF_ONESHOT : 0,
+ 						 indio_dev,
+ 						 "%s_consumer%d",
+ 						 indio_dev->name,
+-- 
+2.47.3
+

@@ -7,6 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 SRC_URI = "https://www.kernel.org/pub/linux/kernel/v7.x/linux-${PV}.tar.xz \
            file://0001-ARM-Don-t-mention-the-full-path-of-the-source-direct.patch \
+           file://0002-iio-iio_triggered_buffer_setup_ext-request-IRQF_ONES.patch \
            file://defconfig \
            "
 
