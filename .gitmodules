@@ -1,23 +1,23 @@
 [submodule "bitbake"]
 	path = bitbake
 	url = https://git.openembedded.org/bitbake
-	branch = 2.14
+	branch = 2.18
 [submodule "openembedded-core"]
 	path = openembedded-core
 	url = https://git.openembedded.org/openembedded-core
-	branch = whinlatter
+	branch = wrynose
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
-	branch = whinlatter
+	branch = master
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
-	branch = whinlatter
+	branch = wrynose
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
-	branch = whinlatter
+	branch = master
 [submodule "meta-labgrid"]
 	path = meta-labgrid
 	url = https://github.com/labgrid-project/meta-labgrid.git
@@ -25,12 +25,12 @@
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://git.yoctoproject.org/meta-virtualization
-	branch = whinlatter
+	branch = master
 [submodule "meta-selinux"]
 	path = meta-selinux
 	url = https://git.yoctoproject.org/meta-selinux
-	branch = whinlatter
+	branch = wrynose
 [submodule "meta-arm"]
 	path = meta-arm
 	url = https://git.yoctoproject.org/meta-arm
-	branch = whinlatter
+	branch = wrynose

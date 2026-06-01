@@ -1,6 +1,6 @@
-From 904d7b7c89313c817d82720026d7b834825bc415 Mon Sep 17 00:00:00 2001
+From eff422ffa7ebaca0e33aa06e25b8c784ee9a8248 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Leonard=20G=C3=B6hrs?= <l.goehrs@pengutronix.de>
-Date: Mon, 11 Nov 2024 13:49:06 +0100
+Date: Tue, 19 May 2026 13:49:10 +0200
 Subject: [PATCH] contrib/systemd: use multi-user.target instead of
  default.target
 MIME-Version: 1.0
@@ -52,50 +52,50 @@ Signed-off-by: Leonard Göhrs <l.goehrs@pengutronix.de>
  contrib/systemd/system/podman.service.in                 | 2 +-
  5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/src/import/contrib/systemd/system/podman-auto-update.service.in b/src/import/contrib/systemd/system/podman-auto-update.service.in
-index a703912e2..992340abd 100644
---- a/src/import/contrib/systemd/system/podman-auto-update.service.in
-+++ b/src/import/contrib/systemd/system/podman-auto-update.service.in
+diff --git a/contrib/systemd/system/podman-auto-update.service.in b/contrib/systemd/system/podman-auto-update.service.in
+index a703912e28..992340abdb 100644
+--- a/contrib/systemd/system/podman-auto-update.service.in
++++ b/contrib/systemd/system/podman-auto-update.service.in
 @@ -10,4 +10,4 @@ ExecStart=@@PODMAN@@ auto-update
  ExecStartPost=@@PODMAN@@ image prune -f
  
  [Install]
 -WantedBy=default.target
 +WantedBy=multi-user.target
-diff --git a/src/import/contrib/systemd/system/podman-clean-transient.service.in b/src/import/contrib/systemd/system/podman-clean-transient.service.in
-index 88f5ec823..164bcd480 100644
---- a/src/import/contrib/systemd/system/podman-clean-transient.service.in
-+++ b/src/import/contrib/systemd/system/podman-clean-transient.service.in
+diff --git a/contrib/systemd/system/podman-clean-transient.service.in b/contrib/systemd/system/podman-clean-transient.service.in
+index 88f5ec823b..164bcd480f 100644
+--- a/contrib/systemd/system/podman-clean-transient.service.in
++++ b/contrib/systemd/system/podman-clean-transient.service.in
 @@ -18,4 +18,4 @@ Type=oneshot
  ExecStart=@@PODMAN@@ system prune --external
  
  [Install]
 -WantedBy=default.target
 +WantedBy=multi-user.target
-diff --git a/src/import/contrib/systemd/system/podman-kube@.service.in b/src/import/contrib/systemd/system/podman-kube@.service.in
-index 7c9ead1c6..47754d92f 100644
---- a/src/import/contrib/systemd/system/podman-kube@.service.in
-+++ b/src/import/contrib/systemd/system/podman-kube@.service.in
+diff --git a/contrib/systemd/system/podman-kube@.service.in b/contrib/systemd/system/podman-kube@.service.in
+index 7c9ead1c66..47754d92f2 100644
+--- a/contrib/systemd/system/podman-kube@.service.in
++++ b/contrib/systemd/system/podman-kube@.service.in
 @@ -14,4 +14,4 @@ Type=notify
  NotifyAccess=all
  
  [Install]
 -WantedBy=default.target
 +WantedBy=multi-user.target
-diff --git a/src/import/contrib/systemd/system/podman-restart.service.in b/src/import/contrib/systemd/system/podman-restart.service.in
-index de0249381..bc85feee0 100644
---- a/src/import/contrib/systemd/system/podman-restart.service.in
-+++ b/src/import/contrib/systemd/system/podman-restart.service.in
-@@ -13,4 +13,4 @@ ExecStart=@@PODMAN@@ $LOGGING start --all --filter restart-policy=always
- ExecStop=@@PODMAN@@  $LOGGING stop  --all --filter restart-policy=always
+diff --git a/contrib/systemd/system/podman-restart.service.in b/contrib/systemd/system/podman-restart.service.in
+index b5d1adfe6a..a83b3d59dd 100644
+--- a/contrib/systemd/system/podman-restart.service.in
++++ b/contrib/systemd/system/podman-restart.service.in
+@@ -13,4 +13,4 @@ ExecStart=@@PODMAN@@ $LOGGING start --all --filter should-start-on-boot=true
+ ExecStop=@@PODMAN@@  $LOGGING stop --service --all
  
  [Install]
 -WantedBy=default.target
 +WantedBy=multi-user.target
-diff --git a/src/import/contrib/systemd/system/podman.service.in b/src/import/contrib/systemd/system/podman.service.in
-index c1a5952b5..5fe8ab428 100644
---- a/src/import/contrib/systemd/system/podman.service.in
-+++ b/src/import/contrib/systemd/system/podman.service.in
+diff --git a/contrib/systemd/system/podman.service.in b/contrib/systemd/system/podman.service.in
+index c1a5952b5c..5fe8ab428c 100644
+--- a/contrib/systemd/system/podman.service.in
++++ b/contrib/systemd/system/podman.service.in
 @@ -13,4 +13,4 @@ Environment=LOGGING="--log-level=info"
  ExecStart=@@PODMAN@@ $LOGGING system service
  
@@ -103,5 +103,5 @@ index c1a5952b5..5fe8ab428 100644
 -WantedBy=default.target
 +WantedBy=multi-user.target
 -- 
-2.39.5
+2.47.3
 

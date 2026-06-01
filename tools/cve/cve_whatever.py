@@ -20,7 +20,7 @@ def main(*manifest_paths):
     #
     #   $ sbom-cve-check --verbose \
     #     --sbom-path "${BBPATH}/tmp/deploy/images/lxatac/lxatac-core-image-base-lxatac.rootfs.spdx.json" \
-    #     --yocto-vex-manifest "${BBPATH}/tmp/deploy/images/lxatac/lxatac-core-image-base-lxatac.rootfs.json" \
+    #     --yocto-vex-manifest "${BBPATH}/tmp/deploy/images/lxatac/lxatac-core-image-base-lxatac.rootfs.vex.json" \
     #     --export-type yocto-cve-check-manifest \
     #     --export-path cve-check-no-annot.json
     #
@@ -28,7 +28,7 @@ def main(*manifest_paths):
     #
     #   $ git -C ~/work/Projects/linux-vulns/ pull
     #   $ ./openembedded-core/scripts/contrib/improve_kernel_cve_report.py \
-    #     --spdx "${BBPATH}/tmp/deploy/spdx/3.0.1/lxatac/recipes/recipe-linux-lxatac.spdx.json" \
+    #     --spdx "${BBPATH}/tmp/deploy/spdx/3.0.1/lxatac/recipes/build-linux-lxatac.spdx.json" \
     #     --datadir ~/work/Projects/linux-vulns/ \
     #     --old-cve-report cve-check-no-annot.json \
     #     --new-cve-report cve-check-linux-no-annot.json

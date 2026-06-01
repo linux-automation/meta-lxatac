@@ -44,12 +44,6 @@ recipes:
       version_pattern: "^([\\d+\\.]*\\d+)$"
       version_order: semver
 
-  - recipe: "meta-lxatac-software/recipes-rust/ripgrep/ripgrep_$PV.bb"
-    git_tag:
-      url: "https://github.com/BurntSushi/ripgrep.git"
-      version_pattern: "^([\\d+\\.]*\\d+)$"
-      version_order: semver
-
   - recipe: "meta-lxatac-software/recipes-rust/tacd/tacd_git.bb"
     git_branch:
       url: "https://github.com/linux-automation/tacd.git"

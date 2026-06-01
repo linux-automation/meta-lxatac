@@ -2,27 +2,36 @@
 
 set -euo pipefail
 
-AVAILABLE_DIR="/etc/rauc/certificates-available"
+AVAILABLE_DIRS="/usr/lib/rauc/certificates-available /etc/rauc/certificates-available"
 ENABLED_DIR="/etc/rauc/certificates-enabled"
 
 if [[ "$#" -ne 1 ]]; then
     echo "Usage: $0 cert.pem"
     echo "Available certificates:"
-    ls "${AVAILABLE_DIR}"
+    for dir in ${AVAILABLE_DIRS}; do
+        test -d "${dir}" && ls "${dir}"
+    done
     exit 1
 fi
 
-if [[ ! -f "${AVAILABLE_DIR}/$1" ]]; then
+cert=""
+
+for dir in ${AVAILABLE_DIRS}; do
+    if [[ -f "${dir}/$1" ]]; then
+        cert="${dir}/$1"
+        break
+    fi
+done
+
+if [[ -z "${cert}" ]]; then
     echo "The certificate to activate must be stored in:"
-    echo "${AVAILABLE_DIR}"
+    echo "${AVAILABLE_DIRS}"
     exit 1
 fi
 
-if [[ -L "${ENABLED_DIR}/$1" ]]; then
-    rm "${ENABLED_DIR}/$1"
-fi
+rm -f "${ENABLED_DIR}/"*.cert.pem
 
-ln -s "../certificates-available/$1" "${ENABLED_DIR}/$1"
+ln --symbolic --relative "${cert}" "${ENABLED_DIR}/$1"
 openssl rehash "${ENABLED_DIR}"
 
 # Ask the tacd to update the list of channels
