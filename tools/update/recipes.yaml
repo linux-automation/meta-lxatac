@@ -24,7 +24,9 @@ recipes:
   - recipe: "meta-lxatac-software/recipes-devtools/gitlab-runner/gitlab-runner_$PV.bb"
     git_tag:
       url: "https://gitlab.com/gitlab-org/gitlab-runner.git"
-      version_pattern: "^v([\\d+\\.]*\\d+)$"
+      # Stick to the 18.x.y series for now because it requires go >= 1.26.3,
+      # while we are currently on go 1.26.2.
+      version_pattern: "^v(18\\.[\\d+\\.]*\\d+)$"
       version_order: semver
 
   - recipe: "meta-lxatac-software/recipes-devtools/qdl/qdl_$PV.bb"
