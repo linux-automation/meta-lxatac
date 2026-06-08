@@ -5,8 +5,8 @@ DEFAULT_PREFERENCE = "-1"
 
 SRC_URI += "git://github.com/linux-automation/tacd.git;protocol=https;branch=main"
 
-# Commit created 2026-03-03 10:43:39 +0100
-SRCREV = "bbbc81e9f6ed66fadc5d05582ec80030d9ccb4de"
+# Commit created 2026-06-04 08:03:46 +0200
+SRCREV = "0bf1aca15f7bebe6b02301fc6cd1a876c3037489"
 PV = "0.1.0+git${SRCPV}"
 
 CARGO_SRC_DIR = ""
