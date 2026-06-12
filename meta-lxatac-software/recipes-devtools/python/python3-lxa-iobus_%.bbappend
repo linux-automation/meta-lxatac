@@ -8,4 +8,5 @@ SRC_URI += " \
 do_install:append() {
     install -D -m0644 ${UNPACKDIR}/80-can0-iobus.link ${D}${libdir}/systemd/network/80-can0-iobus.link
     install -D -m0644 ${UNPACKDIR}/lxa-iobus.service ${D}${systemd_system_unitdir}/lxa-iobus.service
+    install -d -m0644 ${D}/var/cache/lxa-iobus
 }

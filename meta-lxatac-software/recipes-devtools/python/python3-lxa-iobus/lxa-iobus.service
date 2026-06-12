@@ -4,7 +4,6 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStartPre=/usr/bin/mkdir -p /var/cache/lxa-iobus
 ExecStartPre=/usr/sbin/ip link set can0_iobus down
 ExecStartPre=/usr/sbin/ip link set can0_iobus type can tq 400 prop-seg 9 phase-seg1 9 phase-seg2 6 sjw 5
 ExecStartPre=/usr/sbin/ip link set can0_iobus up
@@ -13,6 +12,16 @@ Environment="PYTHONUNBUFFERED=1"
 Environment="AIOHTTP_NO_EXTENSIONS=1"
 Restart=on-failure
 RestartSec=30
+
+# Hardening Options
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectKernelLogs=true
+ProtectSystem=strict
+ReadWritePaths=/var/cache/lxa-iobus/
 
 [Install]
 WantedBy=multi-user.target
