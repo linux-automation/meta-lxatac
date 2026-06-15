@@ -1,5 +1,5 @@
-# Release commit created 2026-05-19 20:35:46 +0200
-PV = "2026.05.0"
-SRC_URI[sha256sum] = "4fddbb274876b782be01a569abeb8d28807d65acd8b84a70807474766dfa3dce"
+# Release commit created 2026-06-08 15:02:32 +0200
+PV = "2026.06.0"
+SRC_URI[sha256sum] = "521b427efe4d5199641fd6440ed77226fed3ba7088ee2f6361b510187f700f09"
 
 BAREBOX_TOOLS:append = " rk-usb-loader"
