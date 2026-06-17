@@ -11,7 +11,7 @@ SRC_URI = "https://www.kernel.org/pub/linux/kernel/v7.x/linux-${PV}.tar.xz \
            file://defconfig \
            "
 
-SRC_URI[sha256sum] = "094977eb62c20e3d1939fe81a92958a1f987f339446e532fa86963b2804e32dc"
+SRC_URI[sha256sum] = "691f44797fbe790dc8a321604c927087526ad27b6d649925d60f8eed0a2564a0"
 
 require recipes-kernel/linux/cve-exclusion.inc
 
