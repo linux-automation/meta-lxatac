@@ -5,17 +5,17 @@ SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-SRC_URI = "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_VERSION}.tar.xz \
+SRC_URI = "https://www.kernel.org/pub/linux/kernel/v7.x/linux-${PV}.tar.xz \
+           file://0001-ARM-Don-t-mention-the-full-path-of-the-source-direct.patch \
+           file://0002-iio-iio_triggered_buffer_setup_ext-request-IRQF_ONES.patch \
            file://defconfig \
            "
 
-SRC_URI[sha256sum] = "303079a8250b8f381f82b03f90463d12ac98d4f6b149b761ea75af1323521357"
+SRC_URI[sha256sum] = "691f44797fbe790dc8a321604c927087526ad27b6d649925d60f8eed0a2564a0"
 
-require files/patches/series.inc
 require recipes-kernel/linux/cve-exclusion.inc
 
-PV = "${UMPF_PV}"
-S = "${UNPACKDIR}/linux-${LINUX_VERSION}"
+S = "${UNPACKDIR}/linux-${PV}"
 
 COMPATIBLE_MACHINE = "lxatac"
 

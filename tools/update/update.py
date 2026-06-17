@@ -84,15 +84,101 @@ def branch_key(name):
     return (5000, name)
 
 
-def run(cmd, capture=True):
-    stdout = subprocess.PIPE if capture else None
-    return subprocess.run(cmd, stdout=stdout, check=True, text=True).stdout
-
-
 def get_json(url):
     with requests.get(url, stream=True) as req:
         req.raise_for_status()
         return req.json()
+
+
+class GitRepo:
+    LOG_FORMAT = [
+        ("%H", "commit_hash"),
+        ("%ci", "commit_date"),
+        ("%ct", "commit_timestamp"),
+        ("%(describe:tags=true)", "describe"),
+    ]
+
+    def __init__(self, url):
+        self.url = url
+
+        self._git_dir = None
+        self._refs = None
+
+    def _run(self, cmd, capture=True):
+        stdout = subprocess.PIPE if capture else None
+        return subprocess.run(cmd, stdout=stdout, check=True, text=True).stdout
+
+    def _git(self, *cmd):
+        if self._git_dir is None:
+            # We must keep a reference to self.tmp for as long as we need the
+            # temporary directory.
+            self._tmp = TemporaryDirectory()
+            self._git_dir = os.path.join(self._tmp.name, "repo.git")
+
+            self._run(
+                [
+                    "git",
+                    "clone",
+                    "--bare",
+                    "--filter=blob:none",
+                    self.url,
+                    self._git_dir,
+                ],
+                False,
+            )
+
+        return self._run(["git", "-C", self._git_dir, *cmd]).strip()
+
+    def commit_info(self, commit, basic):
+        if basic:
+            return {"commit_hash": self.refs().get(commit, commit)}
+
+        else:
+            git_format, fields = zip(*self.LOG_FORMAT)
+            res = self._git("log", "-1", f"--format={'%x00'.join(git_format)}", commit)
+
+            return dict(zip(fields, res.split("\x00"), strict=True))
+
+    def branch_head(self, branch, basic):
+        return self.commit_info(f"refs/heads/{branch}", basic)
+
+    def tag(self, tag, basic):
+        return self.commit_info(f"refs/tags/{tag}", basic)
+
+    def refs(self):
+        if self._refs is None:
+            # Use the local clone for information if there is one.
+            # Oterwise ask the server for a list of refs.
+            ref_list = (
+                self._git("show-ref")
+                if self._git_dir is not None
+                else self._run(["git", "ls-remote", "--refs", self.url]).strip()
+            )
+
+            self._refs = dict(ln.split("\t", 1)[::-1] for ln in ref_list.split("\n"))
+
+        return self._refs
+
+    def refs_with_prefix(self, prefix):
+        return list(
+            ref.removeprefix(prefix) for ref in self.refs() if ref.startswith(prefix)
+        )
+
+    def branches(self):
+        return self.refs_with_prefix("refs/heads/")
+
+    def tags(self):
+        return self.refs_with_prefix("refs/tags/")
+
+    def containing_branches(self, commit):
+        res = self._git(
+            "branch",
+            "--format=%(refname:lstrip=2)",
+            "--contains",
+            commit,
+        )
+
+        return list(branch.strip() for branch in res.split())
 
 
 def fetch_git_branch(info):
@@ -103,20 +189,10 @@ def fetch_git_branch(info):
 
     url = info["git_branch"]["url"]
     branch = info["git_branch"]["branch"]
+    basic = info["git_branch"].get("basic", False)
 
-    with TemporaryDirectory() as dir:
-        git_dir = os.path.join(dir, "repo.git")
-
-        run(["git", "clone", "--bare", "--filter=blob:none", url, git_dir], False)
-
-        git = ["git", "-C", git_dir]
-        commit_hash = run([*git, "rev-parse", f"refs/heads/{branch}"]).strip()
-        commit_date = run([*git, "log", "-1", "--format=%ci", commit_hash]).strip()
-
-        try:
-            info["describe"] = run([*git, "describe", "--tags", branch]).strip()
-        except subprocess.CalledProcessError:
-            pass
+    repo = GitRepo(url)
+    info.update(repo.branch_head(branch, basic))
 
     version_pattern = info.get("version_pattern")
     describe = info.get("describe")
@@ -126,9 +202,6 @@ def fetch_git_branch(info):
 
     if version:
         info["pv"] = f"{version}+git"
-
-    info["commit_hash"] = commit_hash
-    info["commit_date"] = commit_date
 
 
 def fetch_git_tag(info):
@@ -140,63 +213,35 @@ def fetch_git_tag(info):
 
     url = info["git_tag"]["url"]
     version_pattern = re.compile(info["git_tag"]["version_pattern"])
+    basic = info["git_tag"].get("basic", False)
+
+    repo = GitRepo(url)
 
     versions = list()
 
-    with TemporaryDirectory() as dir:
-        git_dir = os.path.join(dir, "repo.git")
+    for tag in repo.tags():
+        if (version_match := version_pattern.match(tag)) is not None:
+            pv = version_match[1]
+            versions.append({"tag": tag, "pv": pv})
 
-        run(["git", "clone", "--bare", "--filter=blob:none", url, git_dir], False)
+    if info["git_tag"]["version_order"] == "semver":
+        # When sorting by semver we do not need to get all commit dates,
+        # only the one for the newest commit by semver in the tag name.
+        # We can thus reduce the versions dict to only one entry.
+        versions.sort(key=semver_key)
+        versions = versions[-1:]
 
-        git = ["git", "-C", git_dir]
-        tags = run([*git, "tag", "--list"]).strip()
+    for version in versions:
+        version.update(repo.tag(version["tag"], basic))
 
-        for tag in tags.split("\n"):
-            version_match = version_pattern.match(tag)
-
-            if version_match is not None:
-                pv = version_match[1]
-                versions.append({"tag": tag, "pv": pv})
-
-        if info["git_tag"]["version_order"] == "semver":
-            # When sorting by semver we do not need to get all commit dates,
-            # only the one for the newest commit by semver in the tag name.
-            # We can thus reduce the versions dict to only one entry.
-            versions.sort(key=semver_key)
-            versions = versions[-1:]
-
-        for version in versions:
-            tag_name = version["tag"]
-
-            hash = run([*git, "rev-parse", f"refs/tags/{tag_name}^{{commit}}"]).strip()
-
-            version["commit_hash"] = hash
-            version["commit_date"] = run(
-                [*git, "log", "-1", "--format=%ci", hash]
-            ).strip()
-            version["commit_timestamp"] = int(
-                run([*git, "log", "-1", "--format=%ct", hash]).strip()
-            )
-
-            branches = run(
-                [
-                    *git,
-                    "branch",
-                    "--format=%(refname:lstrip=2)",
-                    "--contains",
-                    hash,
-                ]
-            ).strip()
-
-            version["branches"] = list(
-                branch.strip() for branch in branches.split("\n")
-            )
-            version["branch"] = max(version["branches"], key=branch_key)
+        if not basic:
+            version["branches"] = repo.containing_branches(version["commit_hash"])
+            version["branch"] = max(version["branches"], key=branch_key, default=None)
 
     # Sort the remaining candidates by date.
     # If the version_order is semver the dict will only have one element
     # at this point in time.
-    newest = max(versions, key=lambda version: version["commit_timestamp"])
+    newest = max(versions, key=lambda version: version.get("commit_timestamp"))
     info.update(newest)
 
 
@@ -316,9 +361,26 @@ def fetch_info(recipe_info):
         fetch_tarball(recipe_info)
 
 
-def write_recipe(recipe_info):
+def get_old_recipes(recipe):
+    # Use a glob to find candidate files
+    recipe_glob = glob.escape(recipe).replace("$PV", "*")
+
+    # Filter the candidate files using a regex that matches everything
+    # that looks like a version number.
+    # This excludes files that just happen to be called `..._*.bb`.
+    recipe_regex = re.escape(recipe).replace("\\$PV", "[\\d+\\.]*\\d+")
+    recipe_regex = re.compile(recipe_regex)
+
+    return list(
+        old_recipe
+        for old_recipe in glob.glob(recipe_glob)
+        if recipe_regex.fullmatch(old_recipe)
+    )
+
+
+def write_recipe(recipe, recipe_info):
     # List old recipes and read one of them
-    old_recipes = glob.glob(glob.escape(recipe_info["recipe"]).replace("$PV", "*"))
+    old_recipes = get_old_recipes(recipe)
 
     with open(old_recipes[0], "r") as fd:
         recipe_bb = fd.read()
@@ -332,7 +394,7 @@ def write_recipe(recipe_info):
                 recipe_bb = recipe_bb[:start] + rep + recipe_bb[end:]
 
     # Write new recipe to disk
-    recipe_path = recipe_info["recipe"].replace("$PV", recipe_info.get("pv", ""))
+    recipe_path = recipe.replace("$PV", recipe_info.get("pv", ""))
 
     with open(recipe_path, "w") as fd:
         fd.write(recipe_bb)
@@ -350,10 +412,18 @@ def main(argv):
         config = yaml.safe_load(fd)
 
     for recipe_info in config["recipes"]:
-        print(f"\n\nGenerate: {recipe_info['recipe']}")
+        # Specify either a single recipe or a list of them to generate
+        # using the same information.
+        recipes = recipe_info.get("recipes", [])
+        if "recipe" in recipe_info:
+            recipes.append(recipe_info["recipe"])
+
+        print(f"\n\nGenerate:", " ".join(recipes))
 
         fetch_info(recipe_info)
-        write_recipe(recipe_info)
+
+        for recipe in recipes:
+            write_recipe(recipe, recipe_info)
 
         print("done")
 
