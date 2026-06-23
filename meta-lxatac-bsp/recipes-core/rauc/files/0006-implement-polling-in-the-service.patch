@@ -1,0 +1,1086 @@
+From c93d427661daef73f1fa94bcfec4554db44b717e Mon Sep 17 00:00:00 2001
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Thu, 20 Mar 2025 17:04:24 +0100
+Subject: [PATCH 6/6] implement polling in the service
+
+This implements large parts of #1114 (Simple Update Server Support).
+
+The polling functionality in RAUC allows a device to periodically check
+for updates from a specified source. It fetches bundle manifests, checks
+for available updates, and initiates installations if necessary. This
+functionality is intended to automate the update process and ensure that
+the system remains up-to-date with minimal manual intervention.
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+Upstream-Status: Backport
+---
+ include/config_file.h |  11 +
+ include/install.h     |   1 +
+ include/polling.h     |  38 +++
+ include/service.h     |   5 +
+ meson.build           |   1 +
+ qemu-test-init        |  19 +-
+ src/config_file.c     | 118 ++++++++
+ src/install.c         |   5 +
+ src/polling.c         | 644 ++++++++++++++++++++++++++++++++++++++++++
+ src/service.c         |  22 ++
+ 10 files changed, 863 insertions(+), 1 deletion(-)
+ create mode 100644 include/polling.h
+ create mode 100644 src/polling.c
+
+diff --git a/include/config_file.h b/include/config_file.h
+index d47509cf..8edf0da3 100644
+--- a/include/config_file.h
++++ b/include/config_file.h
+@@ -27,6 +27,7 @@ typedef enum {
+ 	R_CONFIG_ERROR_ARTIFACT_REPO_TYPE,
+ 	R_CONFIG_ERROR_EMPTY_FILE,
+ 	R_CONFIG_ERROR_MISSING_OPTION,
++	R_CONFIG_ERROR_POLLING,
+ } RConfigError;
+ 
+ #define R_CONFIG_ERROR r_config_error_quark()
+@@ -101,6 +102,16 @@ typedef struct {
+ 	/* logging */
+ 	GList *loggers;
+ 
++	/* polling */
++	gchar *polling_url;
++	gchar **polling_inhibit_files;
++	gchar **polling_candidate_criteria;
++	gchar **polling_install_criteria;
++	gchar **polling_reboot_criteria;
++	gint64 polling_interval_ms;
++	gint64 polling_max_interval_ms;
++	gchar *polling_reboot_cmd;
++
+ 	GHashTable *slots;
+ 	/* flag to ensure slot states were determined */
+ 	gboolean slot_states_determined;
+diff --git a/include/install.h b/include/install.h
+index 275bcbab..feb1efa5 100644
+--- a/include/install.h
++++ b/include/install.h
+@@ -26,6 +26,7 @@ typedef struct {
+ 	gchar *name;
+ 	GSourceFunc notify;
+ 	GSourceFunc cleanup;
++	gpointer data; /* private pointer for notify and cleanup callbacks */
+ 	GMutex status_mutex;
+ 	GQueue status_messages;
+ 	gint status_result;
+diff --git a/include/polling.h b/include/polling.h
+new file mode 100644
+index 00000000..1d2d175c
+--- /dev/null
++++ b/include/polling.h
+@@ -0,0 +1,38 @@
++#pragma once
++
++#include <glib.h>
++#include <gio/gio.h>
++
++#define R_POLLING_ERROR r_polling_error_quark()
++GQuark r_polling_error_quark(void);
++
++typedef enum {
++	R_POLLING_ERROR_DISABLED,
++	R_POLLING_ERROR_INVALID_BUNDLE,
++	R_POLLING_ERROR_CONFIG,
++} RPollingError;
++
++/**
++ * Register Poller interface.
++ *
++ * @param connection the connection on which the name was acquired
++ */
++void r_polling_on_bus_acquired(GDBusConnection *connection);
++
++/**
++ * Set up the polling GSource and D-Bus interface.
++ *
++ * @param error a GError, or NULL
++ *
++ * @return TRUE if setup was successful
++ */
++gboolean r_polling_setup(GError **error)
++G_GNUC_WARN_UNUSED_RESULT;
++
++/**
++ * Names of supported and default criteria for the configuration.
++ */
++extern const gchar * const r_polling_supported_candidate_criteria[];
++extern const gchar * const r_polling_default_candidate_criteria[];
++extern const gchar * const r_polling_supported_install_criteria[];
++extern const gchar * const r_polling_supported_reboot_criteria[];
+diff --git a/include/service.h b/include/service.h
+index 522b3354..8b88ff43 100644
+--- a/include/service.h
++++ b/include/service.h
+@@ -2,6 +2,8 @@
+ 
+ #include <glib.h>
+ 
++#include "rauc-installer-generated.h"
++
+ #define R_SERVICE_ERROR r_service_error_quark()
+ GQuark r_service_error_quark(void);
+ 
+@@ -22,6 +24,9 @@ G_GNUC_WARN_UNUSED_RESULT;
+ 
+ void set_last_error(const gchar *message);
+ 
++/* used by poll.c */
++extern RInstaller *r_installer;
++
+ /* Track whether the running slot has been marked as good.
+  * This is used to inhibit polling until we have something to fall back to.
+  * Currently, this information is lost when restarting the service, so this
+diff --git a/meson.build b/meson.build
+index 9a89cdba..df3046cb 100644
+--- a/meson.build
++++ b/meson.build
+@@ -132,6 +132,7 @@ sources_rauc = files([
+   'src/mark.c',
+   'src/mbr.c',
+   'src/mount.c',
++  'src/polling.c',
+   'src/service.c',
+   'src/shell.c',
+   'src/signature.c',
+diff --git a/qemu-test-init b/qemu-test-init
+index 7df46d9a..5e23c467 100755
+--- a/qemu-test-init
++++ b/qemu-test-init
+@@ -40,7 +40,9 @@ for x in "$@"; do
+     export LSAN_OPTIONS=suppressions="$(pwd)/test/asan.supp"
+     export UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+   elif [ "$x" = "service-backtrace" ]; then
+-    SERVICE_BACKTRACE=1
++    export SERVICE_BACKTRACE=1
++  elif [ "$x" = "service-poll" ]; then
++    export SERVICE_POLL=1
+   fi
+ done
+ 
+@@ -193,6 +195,20 @@ if [ -n "$SERVICE" ]; then
+     echo "" >> /etc/rauc/system.conf
+   fi
+ 
++  if [ -n "$SERVICE_POLL" ]; then
++    export RAUC_TEST_POLLING_SPEEDUP=10
++    echo "" >> /etc/rauc/system.conf
++    echo "[handlers]" >> /etc/rauc/system.conf
++    echo "system-info=$(pwd)/test/bin/systeminfo.sh" >> /etc/rauc/system.conf
++    echo "" >> /etc/rauc/system.conf
++    echo "[polling]" >> /etc/rauc/system.conf
++    echo "url=https://127.0.0.2/test/good-adaptive-meta-bundle.raucb" >> /etc/rauc/system.conf
++    echo "inhibit-files=/run/rauc/inhibit-poll" >> /etc/rauc/system.conf
++    echo "interval-sec=600" >> /etc/rauc/system.conf
++    echo "max-interval-sec=6000" >> /etc/rauc/system.conf
++    echo "reboot-cmd=touch /run/rauc-poll-reboot-pending" >> /etc/rauc/system.conf
++  fi
++
+   if grep -q "ENABLE_COMPOSEFS 1" $BUILD_DIR/config.h; then
+     echo "" >> /etc/rauc/system.conf
+     echo "[artifacts.composefs]" >> /etc/rauc/system.conf
+@@ -236,6 +252,7 @@ echo "use ctrl-a x to exit and ctrl-a c to access the qemu monitor"
+ echo "system ready"
+ 
+ if [ -n "$SERVICE" ]; then
++  sleep 1
+   rauc status mark-good
+ fi
+ 
+diff --git a/src/config_file.c b/src/config_file.c
+index a83fd8ee..8c46d8ed 100644
+--- a/src/config_file.c
++++ b/src/config_file.c
+@@ -11,6 +11,7 @@
+ #include "mount.h"
+ #include "slot.h"
+ #include "utils.h"
++#include "polling.h"
+ 
+ G_DEFINE_QUARK(r-config-error-quark, r_config_error)
+ G_DEFINE_QUARK(r-slot-error-quark, r_slot_error)
+@@ -765,6 +766,111 @@ static gboolean parse_streaming_section(GKeyFile *key_file, RaucConfig *c, GErro
+ 	return TRUE;
+ }
+ 
++static gboolean parse_polling_section(GKeyFile *key_file, RaucConfig *c, GError **error)
++{
++	GError *ierror = NULL;
++
++	if (!g_key_file_has_group(key_file, "polling"))
++		return TRUE;
++
++	if (!ENABLE_STREAMING) {
++		g_set_error(error, R_CONFIG_ERROR, R_CONFIG_ERROR_POLLING,
++				"Polling not supported, recompile with -Dstreaming=true");
++		return FALSE;
++	}
++
++	c->polling_inhibit_files = key_file_consume_string_list(key_file, "polling", "inhibit-files", NULL, &ierror);
++	if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++
++	c->polling_candidate_criteria = key_file_consume_string_list(
++			key_file, "polling", "candidate-criteria", r_polling_supported_candidate_criteria, &ierror);
++	if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	} else if (!c->polling_candidate_criteria) {
++		c->polling_candidate_criteria = g_strdupv((GStrv)r_polling_default_candidate_criteria);
++	}
++
++	c->polling_install_criteria = key_file_consume_string_list(
++			key_file, "polling", "install-criteria", r_polling_supported_install_criteria, &ierror);
++	if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++
++	c->polling_reboot_criteria = key_file_consume_string_list(
++			key_file, "polling", "reboot-criteria", r_polling_supported_reboot_criteria, &ierror);
++	if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++
++	c->polling_url = key_file_consume_string(key_file, "polling", "url", NULL);
++	if (!c->polling_url) {
++		g_set_error(error, R_CONFIG_ERROR, R_CONFIG_ERROR_POLLING,
++				"Polling URL must be set if [polling] section exists");
++		return FALSE;
++	} else if (!g_str_has_prefix(c->polling_url, "http")) {
++		g_set_error(error, R_CONFIG_ERROR, R_CONFIG_ERROR_POLLING,
++				"Polling URL (%s) must be use HTTP(S)",
++				c->polling_url);
++		return FALSE;
++	}
++
++	gint interval_sec = key_file_consume_integer(key_file, "polling", "interval-sec", &ierror);
++	if (g_error_matches(ierror, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_KEY_NOT_FOUND)) {
++		interval_sec = 24*60*60; /* one day */
++		g_clear_error(&ierror);
++	} else if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++	if (interval_sec < 60) {
++		g_set_error(error, R_CONFIG_ERROR, R_CONFIG_ERROR_POLLING,
++				"Polling interval (%d s) must not be smaller than one minute",
++				interval_sec);
++		return FALSE;
++	}
++	gint max_interval_sec = key_file_consume_integer(key_file, "polling", "max-interval-sec", &ierror);
++	if (g_error_matches(ierror, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_KEY_NOT_FOUND)) {
++		max_interval_sec = interval_sec * 4;
++		g_clear_error(&ierror);
++	} else if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++	if (max_interval_sec <= interval_sec) {
++		g_set_error(error, R_CONFIG_ERROR, R_CONFIG_ERROR_POLLING,
++				"Maximum polling interval (%d s) must be larger than the normal polling interval (%d s)",
++				max_interval_sec,
++				interval_sec);
++		return FALSE;
++	}
++
++	c->polling_interval_ms = interval_sec * 1000;
++	c->polling_max_interval_ms = max_interval_sec * 1000;
++
++	c->polling_reboot_cmd = key_file_consume_string(key_file, "polling", "reboot-cmd", &ierror);
++	if (g_error_matches(ierror, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_KEY_NOT_FOUND)) {
++		c->polling_reboot_cmd = g_strdup("reboot");
++		g_clear_error(&ierror);
++	} else if (ierror) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++
++	if (!check_remaining_keys(key_file, "polling", &ierror)) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++	g_key_file_remove_group(key_file, "polling", NULL);
++
++	return TRUE;
++}
++
+ static gboolean parse_encryption_section(const gchar *filename, GKeyFile *key_file, RaucConfig *c, GError **error)
+ {
+ 	GError *ierror = NULL;
+@@ -1261,6 +1367,12 @@ static RaucConfig *parse_config(const gchar *filename, const gchar *data, gsize
+ 		return NULL;
+ 	}
+ 
++	/* parse [polling] section */
++	if (!parse_polling_section(key_file, c, &ierror)) {
++		g_propagate_error(error, ierror);
++		return NULL;
++	}
++
+ 	/* parse [encryption] section */
+ 	if (!parse_encryption_section(filename, key_file, c, &ierror)) {
+ 		g_propagate_error(error, ierror);
+@@ -1445,6 +1557,12 @@ void free_config(RaucConfig *config)
+ 	g_free(config->encryption_key);
+ 	g_free(config->encryption_cert);
+ 	g_list_free_full(config->loggers, (GDestroyNotify)r_event_log_free_logger);
++	g_free(config->polling_url);
++	g_strfreev(config->polling_inhibit_files);
++	g_strfreev(config->polling_candidate_criteria);
++	g_strfreev(config->polling_install_criteria);
++	g_strfreev(config->polling_reboot_criteria);
++	g_free(config->polling_reboot_cmd);
+ 	g_clear_pointer(&config->slots, g_hash_table_destroy);
+ 	g_free(config->custom_bootloader_backend);
+ 	g_free(config->file_checksum);
+diff --git a/src/install.c b/src/install.c
+index e1fcc4cf..86fe674d 100644
+--- a/src/install.c
++++ b/src/install.c
+@@ -48,6 +48,11 @@ static void install_args_update(RaucInstallArgs *args, const gchar *msg, ...)
+ 	g_return_if_fail(args);
+ 	g_return_if_fail(msg);
+ 
++	/* Without a notify function, there is nothing to do. This is used when
++	 * an installation is triggered by polling. */
++	if (!args->notify)
++		return;
++
+ 	va_start(list, msg);
+ 	formatted = g_strdup_vprintf(msg, list);
+ 	va_end(list);
+diff --git a/src/polling.c b/src/polling.c
+new file mode 100644
+index 00000000..f1a99458
+--- /dev/null
++++ b/src/polling.c
+@@ -0,0 +1,644 @@
++#include <glib.h>
++#include <stdio.h>
++
++#include "polling.h"
++#include "bundle.h"
++#include "config_file.h"
++#include "context.h"
++#include "install.h"
++#include "manifest.h"
++#include "service.h"
++#include "utils.h"
++
++G_DEFINE_QUARK(r-polling-error-quark, r_polling_error)
++
++RPoller *r_poller = NULL;
++
++typedef struct {
++	gint64 next_poll_time; /* CLOCK_BOOTTIME */
++	gboolean installation_running;
++
++	guint64 attempt_count;
++	guint64 recent_error_count; /* since last success */
++	gint64 last_attempt_time; /* CLOCK_BOOTTIME */
++	gint64 last_success_time; /* CLOCK_BOOTTIME */
++	gchar *last_error_message;
++	gboolean update_available;
++	gchar *summary;
++	gchar *attempted_hash; /* manifest hash of the attempted update */
++
++	/* from the last successful attempt */
++	RaucManifest *manifest;
++	guint64 bundle_size;
++	gchar *bundle_effective_url;
++	guint64 bundle_modified_time;
++	gchar *bundle_etag;
++
++	/* from the last installation */
++	gboolean must_reboot;
++} RPollingContext;
++
++typedef enum {
++	POLLING_DELAY_NORMAL = 0,
++	POLLING_DELAY_SHORT,
++	POLLING_DELAY_INITIAL,
++} RPollingDelay;
++
++static void polling_context_clear_manifest(RPollingContext *polling_context)
++{
++	g_return_if_fail(polling_context);
++
++	g_clear_pointer(&polling_context->manifest, free_manifest);
++	g_clear_pointer(&polling_context->bundle_effective_url, g_free);
++	g_clear_pointer(&polling_context->bundle_etag, g_free);
++}
++
++static void polling_reschedule(RPollingContext *polling_context, RPollingDelay delay)
++{
++	g_return_if_fail(polling_context);
++
++	gint64 delay_ms = 0;
++	g_autofree gchar *delay_type = NULL;
++
++	switch (delay) {
++		case POLLING_DELAY_NORMAL:
++			if (!polling_context->recent_error_count) {
++				delay_type = g_strdup_printf("normal delay");
++			} else {
++				delay_type = g_strdup_printf("backoff due to %"G_GUINT64_FORMAT " recent error(s)",
++						polling_context->recent_error_count);
++			}
++			delay_ms = r_context()->config->polling_interval_ms * (polling_context->recent_error_count+1);
++			delay_ms = MIN(delay_ms, r_context()->config->polling_max_interval_ms);
++			break;
++		case POLLING_DELAY_SHORT:
++			delay_type = g_strdup("short delay");
++			delay_ms = 30 * 1000;
++			break;
++		case POLLING_DELAY_INITIAL:
++			delay_type = g_strdup("initial delay");
++			delay_ms = r_context()->config->polling_interval_ms * g_random_double_range(0.1, 0.9);
++			break;
++		default:
++			g_assert_not_reached();
++	}
++
++	if (r_context()->mock.polling_speedup)
++		delay_ms = delay_ms / r_context()->mock.polling_speedup;
++
++	gint64 next = r_get_boottime() + delay_ms * 1000;
++	polling_context->next_poll_time = next;
++	r_poller_set_next_poll(r_poller, next);
++
++	g_autofree gchar *duration_str = r_format_duration(delay_ms / 1000);
++	g_message("scheduled next poll in no less than %s (%s)", duration_str, delay_type);
++}
++
++static gboolean polling_fetch(RPollingContext *polling_context, GError **error)
++{
++	GError *ierror = NULL;
++
++	g_return_val_if_fail(polling_context, FALSE);
++	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
++
++	/* fetch manifest */
++	g_auto(RaucBundleAccessArgs) access_args = {0};
++	access_args.http_info_headers = assemble_info_headers(NULL);
++	if (polling_context->bundle_etag) {
++		g_ptr_array_add(access_args.http_info_headers, g_strdup_printf("If-None-Match: %s", polling_context->bundle_etag));
++	}
++
++	g_autoptr(RaucBundle) bundle = NULL;
++	if (!check_bundle(r_context()->config->polling_url, &bundle, CHECK_BUNDLE_DEFAULT, &access_args, &ierror)) {
++		if (g_error_matches(ierror, R_NBD_ERROR, R_NBD_ERROR_NO_CONTENT)) {
++			g_clear_error(&ierror);
++			g_message("polling: no bundle available");
++			polling_context_clear_manifest(polling_context);
++			return TRUE;
++		} else if (g_error_matches(ierror, R_NBD_ERROR, R_NBD_ERROR_NOT_MODIFIED)) {
++			g_clear_error(&ierror);
++			g_message("polling: bundle not modified");
++			return TRUE;
++		} else {
++			g_propagate_error(error, ierror);
++			return FALSE;
++		}
++	}
++
++	if (!bundle->manifest) {
++		/* As we can only stream verity bundles, we should always have a manifest. */
++		g_message("polling failed: no manifest found");
++		g_set_error_literal(
++				error,
++				R_POLLING_ERROR, R_POLLING_ERROR_INVALID_BUNDLE,
++				"polled bundle has no manifest");
++		return FALSE;
++	}
++
++	g_clear_pointer(&polling_context->manifest, free_manifest);
++	polling_context->manifest = g_steal_pointer(&bundle->manifest);
++
++	g_assert(bundle->nbd_srv);
++	polling_context->bundle_size = bundle->nbd_srv->data_size;
++	polling_context->bundle_modified_time = bundle->nbd_srv->modified_time;
++	r_replace_strdup(&polling_context->bundle_effective_url, bundle->nbd_srv->effective_url);
++	r_replace_strdup(&polling_context->bundle_etag, bundle->nbd_srv->etag);
++
++	return TRUE;
++}
++
++static gboolean polling_check_candidate_criteria(RPollingContext *polling_context, GError **error)
++{
++	GError *ierror = NULL;
++
++	g_return_val_if_fail(polling_context, FALSE);
++	g_return_val_if_fail(polling_context->manifest, FALSE);
++	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
++
++	const gchar *const *criteria = (const gchar *const *)r_context()->config->polling_candidate_criteria;
++	g_assert(criteria);
++	const gchar *system_ver = r_context()->system_version;
++	g_assert(system_ver);
++	const gchar *update_ver = polling_context->manifest->update_version;
++	g_assert(update_ver);
++
++	if (g_strv_contains(criteria, "higher-semver")) {
++		if (!r_semver_less_equal(update_ver, system_ver, &ierror)) {
++			if (ierror) {
++				g_propagate_error(error, ierror);
++				return FALSE;
++			}
++			r_replace_strdup(&polling_context->summary, "update candidate found: higher semantic version");
++			return TRUE;
++		}
++	}
++
++	if (g_strv_contains(criteria, "different-version")) {
++		if (g_strcmp0(r_context()->system_version, polling_context->manifest->update_version) != 0) {
++			r_replace_strdup(&polling_context->summary, "update candidate found: different version");
++			return TRUE;
++		}
++	}
++
++	r_replace_strdup(&polling_context->summary, "no update candidate available");
++	return FALSE;
++}
++
++static gboolean polling_check_install_criteria(RPollingContext *polling_context, GError **error)
++{
++	GError *ierror = NULL;
++
++	g_return_val_if_fail(polling_context, FALSE);
++	g_return_val_if_fail(polling_context->manifest, FALSE);
++	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
++
++	const gchar *const *criteria = (const gchar *const *)r_context()->config->polling_install_criteria;
++	if (!criteria) {
++		g_debug("polling: no installation criteria");
++		return FALSE;
++	}
++
++	const gchar *system_ver = r_context()->system_version;
++	g_assert(system_ver);
++	const gchar *update_ver = polling_context->manifest->update_version;
++	g_assert(update_ver);
++
++	if (g_strv_contains(criteria, "higher-semver")) {
++		if (!r_semver_less_equal(update_ver, system_ver, &ierror)) {
++			if (ierror) {
++				g_propagate_error(error, ierror);
++				return FALSE;
++			}
++			g_message("polling: automatic installation: higher semantic version");
++			return TRUE;
++		}
++	}
++
++	if (g_strv_contains(criteria, "different-version")) {
++		if (g_strcmp0(r_context()->system_version, polling_context->manifest->update_version) != 0) {
++			g_message("polling: automatic installation: different version");
++			return TRUE;
++		}
++	}
++
++	if (g_strv_contains(criteria, "always")) {
++		g_message("polling: automatic installation");
++		return TRUE;
++	}
++
++	return FALSE;
++}
++
++static gboolean polling_check_reboot_criteria(const RaucInstallArgs *install_args)
++{
++	g_return_val_if_fail(install_args, FALSE);
++
++	const gchar *const *criteria = (const gchar *const *)r_context()->config->polling_reboot_criteria;
++	if (!criteria)
++		return FALSE;
++
++	if (g_strv_contains(criteria, "failed-update")) {
++		if (install_args->status_result != 0) {
++			g_message("polling: installation failed, triggering reboot");
++			return TRUE;
++		}
++	} else {
++		if (install_args->status_result != 0) {
++			g_message("polling: installation failed, suppressing reboot");
++			return FALSE;
++		}
++	}
++
++	if (g_strv_contains(criteria, "updated-slots")) {
++		if (install_args->updated_slots)
++			return TRUE;
++	}
++
++	if (g_strv_contains(criteria, "updated-artifacts")) {
++		if (install_args->updated_artifacts)
++			return TRUE;
++	}
++
++	return FALSE;
++}
++
++static gboolean polling_install_cleanup(gpointer data)
++{
++	g_return_val_if_fail(data, G_SOURCE_REMOVE);
++
++	RaucInstallArgs *args = data;
++	RPollingContext *polling_context = args->data;
++
++	g_return_val_if_fail(polling_context, G_SOURCE_REMOVE);
++
++	polling_context->installation_running = FALSE;
++
++	g_mutex_lock(&args->status_mutex);
++	if (args->status_result == 0) {
++		g_message("polling: installation of `%s` succeeded", args->name);
++	} else {
++		g_message("polling: installation of `%s` failed: %d", args->name, args->status_result);
++	}
++	/* TODO expose error via d-bus? */
++	r_installer_emit_completed(r_installer, args->status_result);
++	r_installer_set_operation(r_installer, "idle");
++	g_dbus_interface_skeleton_flush(G_DBUS_INTERFACE_SKELETON(r_installer));
++	if (polling_check_reboot_criteria(args)) {
++		polling_context->must_reboot = TRUE;
++	}
++	g_mutex_unlock(&args->status_mutex);
++
++	install_args_free(args);
++
++	polling_reschedule(polling_context, POLLING_DELAY_SHORT);
++	g_dbus_interface_skeleton_flush(G_DBUS_INTERFACE_SKELETON(r_poller));
++
++	return G_SOURCE_REMOVE;
++}
++
++/* This starts an installation in the background. On completion, the
++ * polling_install_cleanup callback is run.
++ **/
++static void polling_trigger_install(RPollingContext *polling_context)
++{
++	RaucInstallArgs *args = install_args_new();
++
++	g_return_if_fail(polling_context);
++	g_return_if_fail(polling_context->manifest);
++	g_return_if_fail(polling_context->manifest->hash);
++
++	args->name = g_strdup(r_context()->config->polling_url);
++	args->cleanup = polling_install_cleanup;
++	args->data = polling_context;
++	/* lock bundle via manifest hash */
++	args->require_manifest_hash = g_strdup(polling_context->manifest->hash);
++
++	r_installer_set_operation(r_installer, "installing");
++	install_run(args);
++	args = NULL; /* now owned by installer thread */
++	polling_context->installation_running = TRUE;
++}
++
++static gboolean polling_reboot(GError **error)
++{
++	GError *ierror = NULL;
++
++	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
++
++	const gchar *cmd = r_context()->config->polling_reboot_cmd;
++	g_assert(cmd);
++
++	g_auto(GStrv) argvp = NULL;
++	if (!g_shell_parse_argv(cmd, NULL, &argvp, &ierror)) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	}
++
++	g_autoptr(GPtrArray) args = g_ptr_array_new_full(10, g_free);
++	r_ptr_array_addv(args, argvp, TRUE);
++	g_ptr_array_add(args, NULL);
++
++	if (!r_subprocess_runv(args, G_SUBPROCESS_FLAGS_NONE, &ierror)) {
++		g_propagate_prefixed_error(
++				error,
++				ierror,
++				"failed to run reboot command ('%s'): ",
++				cmd
++				);
++		return FALSE;
++	}
++
++	return TRUE;
++}
++
++static gboolean polling_step(RPollingContext *polling_context, GError **error)
++{
++	GError *ierror = NULL;
++
++	g_return_val_if_fail(polling_context, FALSE);
++	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
++
++	g_clear_pointer(&polling_context->summary, g_free);
++	polling_context->update_available = FALSE;
++
++	if (!polling_fetch(polling_context, &ierror)) {
++		g_propagate_error(error, ierror);
++		return FALSE;
++	} else if (!polling_context->manifest) {
++		/* no error, but no manifest (e.g. HTTP 204) */
++		r_replace_strdup(&polling_context->summary, "no update bundle available");
++		return TRUE;
++	}
++
++	gboolean candidate = polling_check_candidate_criteria(polling_context, &ierror);
++	if (ierror) {
++		g_propagate_prefixed_error(error, ierror, "candidate criteria check failed: ");
++		return FALSE;
++	} else if (!candidate) {
++		g_message("polling: bundle is not a candidate");
++		return TRUE;
++	}
++	polling_context->update_available = TRUE;
++
++	gboolean install = polling_check_install_criteria(polling_context, &ierror);
++	if (ierror) {
++		g_propagate_prefixed_error(error, ierror, "installation criteria check failed: ");
++		return FALSE;
++	} else if (!install) {
++		g_message("polling: candidate needs to be explicitly confirmed");
++		return TRUE;
++	}
++
++	/* skip attempt if manifest hash is the same */
++	if (g_strcmp0(polling_context->manifest->hash, polling_context->attempted_hash) == 0) {
++		g_message("polling: manifest is unchanged, skipping installation");
++		return TRUE;
++	}
++
++	g_message("polling: starting installation of version '%s'", polling_context->manifest->update_version);
++	r_replace_strdup(&polling_context->attempted_hash, polling_context->manifest->hash);
++	polling_trigger_install(polling_context);
++
++	return TRUE;
++}
++
++static void polling_update_status(RPollingContext *polling_context)
++{
++	g_return_if_fail(polling_context);
++
++	g_auto(GVariantBuilder) builder = G_VARIANT_BUILDER_INIT(G_VARIANT_TYPE("a{sv}"));
++
++	g_variant_builder_add(&builder, "{sv}", "attempt-count", g_variant_new_uint64(polling_context->attempt_count));
++	g_variant_builder_add(&builder, "{sv}", "recent-error-count", g_variant_new_uint64(polling_context->recent_error_count));
++
++	g_variant_builder_add(&builder, "{sv}", "last-attempt-time", g_variant_new_uint64(polling_context->last_attempt_time));
++	g_variant_builder_add(&builder, "{sv}", "last-success-time", g_variant_new_uint64(polling_context->last_success_time));
++	if (polling_context->last_error_message)
++		g_variant_builder_add(&builder, "{sv}", "last-error-message", g_variant_new_string(polling_context->last_error_message));
++	g_variant_builder_add(&builder, "{sv}", "update-available", g_variant_new_boolean(polling_context->update_available));
++	if (polling_context->summary)
++		g_variant_builder_add(&builder, "{sv}", "summary", g_variant_new_string(polling_context->summary));
++	if (polling_context->attempted_hash)
++		g_variant_builder_add(&builder, "{sv}", "attempted-hash", g_variant_new_string(polling_context->attempted_hash));
++
++	if (polling_context->manifest) {
++		/* manifest dict */
++		g_variant_builder_add(&builder, "{sv}", "manifest", r_manifest_to_dict(polling_context->manifest));
++
++		/* bundle dict */
++		g_variant_builder_open(&builder, G_VARIANT_TYPE("{sv}"));
++		g_variant_builder_add(&builder, "s", "bundle");
++		g_variant_builder_open(&builder, G_VARIANT_TYPE("v"));
++		g_variant_builder_open(&builder, G_VARIANT_TYPE("a{sv}"));
++		if (polling_context->bundle_size)
++			g_variant_builder_add(&builder, "{sv}", "size", g_variant_new_uint64(polling_context->bundle_size));
++		if (polling_context->bundle_effective_url)
++			g_variant_builder_add(&builder, "{sv}", "effective-url", g_variant_new_string(polling_context->bundle_effective_url));
++		if (polling_context->bundle_modified_time)
++			g_variant_builder_add(&builder, "{sv}", "modified-time", g_variant_new_uint64(polling_context->bundle_modified_time));
++		if (polling_context->bundle_etag)
++			g_variant_builder_add(&builder, "{sv}", "etag", g_variant_new_string(polling_context->bundle_etag));
++		g_variant_builder_close(&builder); /* inner a{sv} */
++		g_variant_builder_close(&builder); /* inner v */
++		g_variant_builder_close(&builder); /* outer {sv} */
++	}
++
++	r_poller_set_status(r_poller, g_variant_builder_end(&builder));
++}
++
++static gboolean on_handle_poll(RPoller *interface, GDBusMethodInvocation *invocation)
++{
++	RPollingContext *polling_context = (RPollingContext *)g_object_get_data(G_OBJECT(interface), "r-poll");
++	g_assert(polling_context);
++
++	polling_reschedule(polling_context, POLLING_DELAY_SHORT);
++	g_dbus_interface_skeleton_flush(G_DBUS_INTERFACE_SKELETON(r_poller));
++	r_poller_complete_poll(interface, invocation);
++
++	return TRUE;
++}
++
++static gboolean polling_context_dispatch(gpointer user_data)
++{
++	g_return_val_if_fail(user_data, G_SOURCE_REMOVE);
++
++	RPollingContext *polling_context = user_data;
++	g_autoptr(GError) ierror = NULL;
++	gint64 now_boottime = r_get_boottime();
++
++	/* We keep the timeout in CLOCK_BOOTTIME, so that time spent in suspend
++	 * doesn't delay execution of the next polling attempt.
++	 * As the GLib event loop uses CLOCK_MONOTONIC, we need to keep manage our
++	 * own timeout and check it regularly.
++	 **/
++	if (now_boottime < polling_context->next_poll_time) {
++		return G_SOURCE_CONTINUE;
++	}
++
++	/* check for running installation */
++	if (polling_context->installation_running) {
++		return G_SOURCE_CONTINUE;
++	}
++
++	/* check busy state */
++	if (r_context_get_busy()) {
++		g_debug("context busy, will try again later");
++		polling_reschedule(polling_context, POLLING_DELAY_SHORT);
++		return G_SOURCE_CONTINUE;
++	}
++
++	/* check if the booted slot was marked good */
++	if (!r_service_booted_slot_is_good) {
++		g_debug("booted slot not marked good yet, will try again later");
++		polling_reschedule(polling_context, POLLING_DELAY_SHORT);
++		return G_SOURCE_CONTINUE;
++	}
++
++	/* check inhibit */
++	for (gchar **p = r_context()->config->polling_inhibit_files; p && *p; p++) {
++		if (g_file_test(*p, G_FILE_TEST_EXISTS)) {
++			g_debug("inhibited by %s, will try again later", *p);
++			polling_reschedule(polling_context, POLLING_DELAY_SHORT);
++			return G_SOURCE_CONTINUE;
++		}
++	}
++
++	/* check if we need to reboot */
++	if (polling_context->must_reboot) {
++		if (!polling_reboot(&ierror)) {
++			g_message("reboot failed: %s", ierror->message);
++			polling_reschedule(polling_context, POLLING_DELAY_SHORT);
++			return G_SOURCE_CONTINUE;
++		}
++
++		/* after triggering a reboot, we stop polling */
++		r_poller_set_next_poll(r_poller, 0);
++		return G_SOURCE_REMOVE;
++	}
++
++	/* poll once */
++	polling_context->last_attempt_time = now_boottime;
++	polling_context->attempt_count += 1;
++	/* TODO add some headers? recent errors? */
++	if (!polling_step(polling_context, &ierror)) {
++		g_message("polling failed: %s", ierror->message);
++		r_replace_strdup(&polling_context->last_error_message, ierror->message);
++		polling_context->recent_error_count += 1;
++	} else {
++		g_clear_pointer(&polling_context->last_error_message, g_free);
++		polling_context->last_success_time = r_get_boottime();
++		polling_context->recent_error_count = 0;
++	}
++
++	polling_update_status(polling_context);
++
++	if (!polling_context->installation_running) {
++		/* schedule next poll */
++		polling_reschedule(polling_context, POLLING_DELAY_NORMAL);
++	}
++
++	return G_SOURCE_CONTINUE;
++}
++
++static void polling_context_finalize(gpointer user_data)
++{
++	g_return_if_fail(user_data);
++
++	g_clear_pointer(&r_poller, g_object_unref);
++
++	RPollingContext *polling_context = user_data;
++	g_clear_pointer(&polling_context->last_error_message, g_free);
++	g_clear_pointer(&polling_context->summary, g_free);
++	g_clear_pointer(&polling_context->attempted_hash, g_free);
++	polling_context_clear_manifest(polling_context);
++	g_free(polling_context);
++}
++
++void r_polling_on_bus_acquired(GDBusConnection *connection)
++{
++	GError *ierror = NULL;
++
++	if (!r_context()->config->polling_url) {
++		return;
++	}
++
++	g_assert(r_poller);
++
++	g_signal_connect(r_poller, "handle-poll",
++			G_CALLBACK(on_handle_poll),
++			NULL);
++
++	if (!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(r_poller),
++			connection,
++			"/",
++			&ierror)) {
++		g_error("Failed to export interface: %s", ierror->message);
++		g_error_free(ierror);
++	}
++}
++
++gboolean r_polling_setup(GError **error)
++{
++	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
++
++	if (!r_context()->config->polling_url) {
++		g_set_error_literal(
++				error,
++				R_POLLING_ERROR, R_POLLING_ERROR_DISABLED,
++				"polling disabled (due to unset URL)");
++		return FALSE;
++	}
++
++	if (!r_context()->system_version) {
++		g_set_error_literal(
++				error,
++				R_POLLING_ERROR, R_POLLING_ERROR_CONFIG,
++				"system version not provided via system-info handler");
++		return FALSE;
++	}
++
++	guint interval = 10;
++	if (r_context()->mock.polling_speedup)
++		interval = interval / r_context()->mock.polling_speedup;
++
++	g_assert(r_poller == NULL);
++	r_poller = r_poller_skeleton_new();
++	RPollingContext *polling_context = g_new0(RPollingContext, 1);
++	g_timeout_add_seconds_full(
++			G_PRIORITY_LOW,
++			interval,
++			polling_context_dispatch,
++			polling_context,
++			polling_context_finalize);
++
++	g_object_set_data(G_OBJECT(r_poller), "r-poll", polling_context);
++
++	polling_update_status(polling_context);
++	polling_reschedule(polling_context, POLLING_DELAY_INITIAL);
++
++	g_message("polling enabled");
++
++	return TRUE;
++};
++
++const gchar * const r_polling_supported_candidate_criteria[] = {
++	"higher-semver",
++	"different-version",
++	NULL
++};
++const gchar * const r_polling_default_candidate_criteria[] = {
++	"higher-semver",
++	NULL
++};
++const gchar * const r_polling_supported_install_criteria[] = {
++	"always",
++	"higher-semver",
++	"different-version",
++	NULL
++};
++const gchar * const r_polling_supported_reboot_criteria[] = {
++	"updated-slots",
++	"updated-artifacts",
++	"failed-update",
++	NULL
++};
+diff --git a/src/service.c b/src/service.c
+index 68728b15..582ca1a5 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -9,11 +9,14 @@
+ #include "config_file.h"
+ #include "context.h"
+ #include "install.h"
++#include "manifest.h"
+ #include "mark.h"
++#include "nbd.h"
+ #include "rauc-installer-generated.h"
+ #include "service.h"
+ #include "status_file.h"
+ #include "utils.h"
++#include "polling.h"
+ 
+ G_DEFINE_QUARK(r-service-error-quark, r_service_error)
+ 
+@@ -546,6 +549,10 @@ static void send_progress_callback(gint percentage,
+ {
+ 	GVariant *progress_update_tuple;
+ 
++	/* Don't report progress when idle. This can happen when polling. */
++	if (g_strcmp0(r_installer_get_operation(r_installer), "idle") == 0)
++		return;
++
+ 	progress_update_tuple = g_variant_new("(isi)", percentage, message, nesting_depth);
+ 
+ 	r_installer_set_progress(r_installer, progress_update_tuple);
+@@ -606,6 +613,8 @@ static void r_on_bus_acquired(GDBusConnection *connection,
+ 	r_installer_set_compatible(r_installer, r_context()->config->system_compatible);
+ 	r_installer_set_variant(r_installer, r_context()->config->system_variant);
+ 	r_installer_set_boot_slot(r_installer, r_context()->bootslot);
++
++	r_polling_on_bus_acquired(connection);
+ }
+ 
+ static void r_on_name_acquired(GDBusConnection *connection,
+@@ -654,6 +663,7 @@ static gboolean r_on_signal(gpointer user_data)
+ 
+ gboolean r_service_run(GError **error)
+ {
++	GError *ierror = NULL;
+ 	gboolean service_return = TRUE;
+ 	GBusType bus_type = (!g_strcmp0(g_getenv("DBUS_STARTER_BUS_TYPE"), "session"))
+ 	                    ? G_BUS_TYPE_SESSION : G_BUS_TYPE_SYSTEM;
+@@ -665,6 +675,17 @@ gboolean r_service_run(GError **error)
+ 
+ 	r_installer = r_installer_skeleton_new();
+ 
++	if (!r_polling_setup(&ierror)) {
++		/* disabled polling is fine */
++		if (!g_error_matches(ierror, R_POLLING_ERROR, R_POLLING_ERROR_DISABLED)) {
++			g_propagate_prefixed_error(error, ierror, "failed to set up polling: ");
++			service_return = FALSE;
++			goto out;
++		} else {
++			g_clear_error(&ierror);
++		}
++	}
++
+ 	r_bus_name_id = g_bus_own_name(bus_type,
+ 			"de.pengutronix.rauc",
+ 			G_BUS_NAME_OWNER_FLAGS_NONE,
+@@ -682,6 +703,7 @@ gboolean r_service_run(GError **error)
+ 				"generic failure (check logs)");
+ 	}
+ 
++out:
+ 	if (r_bus_name_id)
+ 		g_bus_unown_name(r_bus_name_id);
+ 
+-- 
+2.47.3
+

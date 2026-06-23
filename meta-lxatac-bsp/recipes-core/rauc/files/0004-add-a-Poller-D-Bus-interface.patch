@@ -1,0 +1,56 @@
+From d35ba2bb02faf0fb75dd7970e28b36d8cf00d985 Mon Sep 17 00:00:00 2001
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Mon, 3 Mar 2025 18:57:55 +0100
+Subject: [PATCH 4/6] add a Poller D-Bus interface
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+Upstream-Status: Backport
+---
+ meson.build                        |  5 ++++-
+ src/de.pengutronix.rauc.Poller.xml | 18 ++++++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+ create mode 100644 src/de.pengutronix.rauc.Poller.xml
+
+diff --git a/meson.build b/meson.build
+index b9dbc933..9a89cdba 100644
+--- a/meson.build
++++ b/meson.build
+@@ -177,7 +177,10 @@ endif
+ conf.set10('ENABLE_OPENSSL_PKCS11_ENGINE', get_option('pkcs11_engine'))
+ 
+ gnome = import('gnome')
+-dbus_ifaces = files('src/de.pengutronix.rauc.Installer.xml')
++dbus_ifaces = files([
++  'src/de.pengutronix.rauc.Installer.xml',
++  'src/de.pengutronix.rauc.Poller.xml',
++])
+ dbus_sources = gnome.gdbus_codegen(
+   'rauc-installer-generated',
+   sources : dbus_ifaces,
+diff --git a/src/de.pengutronix.rauc.Poller.xml b/src/de.pengutronix.rauc.Poller.xml
+new file mode 100644
+index 00000000..a4eb9f3f
+--- /dev/null
++++ b/src/de.pengutronix.rauc.Poller.xml
+@@ -0,0 +1,18 @@
++<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "https://specifications.freedesktop.org/dbus/introspect-latest.dtd">
++<!-- SPDX-License-Identifier: CC0-1.0 -->
++<node>
++  <interface name="de.pengutronix.rauc.Poller">
++    <!--
++         Poll:
++
++         Schedules a poll soon.
++    -->
++    <method name="Poll"/>
++
++    <!-- NextPoll: Gives the next time the bundle location will be polled -->
++    <property name="NextPoll" type="x" access="read"/>
++
++    <!-- Status: Currently available information from the polled bundle location -->
++    <property name="Status" type="a{sv}" access="read"/>
++  </interface>
++</node>
+-- 
+2.47.3
+

@@ -4,6 +4,7 @@ DEPENDS += "openssl-native"
 RDEPENDS:${PN} += "bash"
 
 SRC_URI += " \
+    file://system-info-handler.sh \
     file://rauc-disable-cert.sh \
     file://rauc-enable-cert.sh \
     file://devel.cert.pem \
@@ -12,6 +13,9 @@ SRC_URI += " \
     "
 
 do_install:append() {
+    install -m 0755 ${UNPACKDIR}/system-info-handler.sh \
+        ${D}${nonarch_libdir}/rauc/
+
     install -D -m 0755 ${UNPACKDIR}/rauc-disable-cert.sh \
         ${D}${bindir}/rauc-disable-cert
 
