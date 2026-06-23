@@ -45,6 +45,11 @@ jobs:
           # Keep in mind that we are in the `build` directory because
           # `oe-init-build-env` implicitly `cd`s there.
           mv tmp/deploy/images/lxatac ../images
+
+          # Make sure we have a Linux Kernel BoM that we can use to filter out
+          # CVEs in files we did not compile.
+          bitbake linux-lxatac -c create_spdx
+
           mv tmp/deploy/spdx/3.0.1/lxatac/builds/build-linux-lxatac.spdx.json ../images
 
       - name: Print logs of failed jobs
