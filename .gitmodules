@@ -9,7 +9,7 @@
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
-	branch = master
+	branch = wrynose
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
