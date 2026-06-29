@@ -61,6 +61,17 @@ function process_migrate_lists () {
 	done
 }
 
+function insert_bundle_version () {
+	# The running system will not have a good idea about its current RAUC
+	# bundle version, which it does however need to check for updates.
+	# Provide the version by extracting it from the current manifest file and
+	# placing an override in the system-info handler.
+	VERSION_ID=$(grep '^version=' "${RAUC_BUNDLE_MOUNT_POINT:?}/manifest.raucm" | cut -d'=' -f2)
+
+	sed -i "s/^# <rauc-install-hook-version-override>/VERSION_ID=${VERSION_ID}/" \
+		"${RAUC_SLOT_MOUNT_POINT}/usr/lib/rauc/system-info-handler.sh"
+}
+
 case "$1" in
 	slot-post-install)
 		enable_certificates
@@ -90,6 +101,8 @@ case "$1" in
                 # The files should contain one file per line that should be
                 # migrated to the new slot.
 		process_migrate_lists
+
+		insert_bundle_version
 		;;
 	*)
 		exit 1

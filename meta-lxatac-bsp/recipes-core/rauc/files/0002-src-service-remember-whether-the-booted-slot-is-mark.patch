@@ -1,0 +1,61 @@
+From 71e0116a3ef84135ac410edafcaf4a75bbc69a1f Mon Sep 17 00:00:00 2001
+From: Jan Luebbe <jlu@pengutronix.de>
+Date: Mon, 20 Oct 2025 11:51:40 +0200
+Subject: [PATCH 2/6] src/service: remember whether the booted slot is marked
+ good
+
+This will be used to inhibit polling until we know that we have a
+good slot to fall back to.
+
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+Upstream-Status: Backport
+---
+ include/service.h | 8 ++++++++
+ src/service.c     | 8 ++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/include/service.h b/include/service.h
+index f2730f32..522b3354 100644
+--- a/include/service.h
++++ b/include/service.h
+@@ -21,3 +21,11 @@ gboolean r_service_run(GError **error)
+ G_GNUC_WARN_UNUSED_RESULT;
+ 
+ void set_last_error(const gchar *message);
++
++/* Track whether the running slot has been marked as good.
++ * This is used to inhibit polling until we have something to fall back to.
++ * Currently, this information is lost when restarting the service, so this
++ * approach should be reworked when we have explicit tracking of
++ * installation cycles.
++ **/
++extern gboolean r_service_booted_slot_is_good;
+diff --git a/src/service.c b/src/service.c
+index f9568163..68728b15 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -19,6 +19,7 @@ G_DEFINE_QUARK(r-service-error-quark, r_service_error)
+ 
+ GMainLoop *service_loop = NULL;
+ RInstaller *r_installer = NULL;
++gboolean r_service_booted_slot_is_good = FALSE;
+ guint r_bus_name_id = 0;
+ 
+ static gboolean service_install_notify(gpointer data)
+@@ -269,6 +270,13 @@ static gboolean r_on_handle_mark(RInstaller *interface,
+ 	}
+ 
+ 	res = mark_run(arg_state, arg_slot_identifier, &slot_name, &message);
++	if (res && g_strcmp0(arg_slot_identifier, "booted") == 0) {
++		if (g_strcmp0(arg_state, "good") == 0) {
++			r_service_booted_slot_is_good = TRUE;
++		} else if (g_strcmp0(arg_state, "bad") == 0) {
++			r_service_booted_slot_is_good = FALSE;
++		}
++	}
+ 
+ out:
+ 	if (res) {
+-- 
+2.47.3
+

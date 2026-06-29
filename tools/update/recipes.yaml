@@ -1,5 +1,7 @@
 recipes:
-  - recipe: "meta-lxatac-bsp/recipes-bsp/barebox/barebox.bbappend"
+  - recipes:
+      - "meta-lxatac-bsp/recipes-bsp/barebox/barebox.bbappend"
+      - "meta-lxatac-bsp/recipes-bsp/barebox/barebox-tools.bbappend"
     git_tag:
       url: "https://github.com/barebox/barebox.git"
       version_pattern: "^v([\\d+\\.]*\\d+)$"
@@ -7,13 +9,17 @@ recipes:
     tarball:
       url: "https://barebox.org/download/barebox-$PV.tar.bz2"
 
-  - recipe: "meta-lxatac-bsp/recipes-bsp/barebox/barebox-tools.bbappend"
+  - recipe: "meta-lxatac-bsp/recipes-kernel/linux/linux-lxatac_$PV.bb"
     git_tag:
-      url: "https://github.com/barebox/barebox.git"
+      url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
       version_pattern: "^v([\\d+\\.]*\\d+)$"
       version_order: semver
+
+      # Do not clone the git repository to find the newest version.
+      # This gives us less information about the release, but is much quicker.
+      basic: true
     tarball:
-      url: "https://barebox.org/download/barebox-$PV.tar.bz2"
+      url: "https://www.kernel.org/pub/linux/kernel/v7.x/linux-$PV.tar.xz"
 
   - recipe: "meta-lxatac-software/recipes-devtools/github-act-runner/github-act-runner_$PV.bb"
     git_tag:
@@ -43,7 +49,10 @@ recipes:
   - recipe: "meta-lxatac-software/recipes-rust/bottom/bottom_$PV.bb"
     git_tag:
       url: "https://github.com/ClementTsang/bottom.git"
-      version_pattern: "^([\\d+\\.]*\\d+)$"
+      # Stick to the 0.12.x series for now because 0.14.x requires at least
+      # rust version 1.95.0 (which we do not have yet) and 0.13.x also requires
+      # a newer rust version with `if let` support in match arms.
+      version_pattern: "^(0\\.12\\.[\\d+\\.]*\\d+)$"
       version_order: semver
 
   - recipe: "meta-lxatac-software/recipes-rust/tacd/tacd_git.bb"
