@@ -6,5 +6,6 @@ PACKAGECONFIG:append = " \
 "
 
 PACKAGECONFIG:remove = " \
+  osc-context \
   vconsole \
 "
