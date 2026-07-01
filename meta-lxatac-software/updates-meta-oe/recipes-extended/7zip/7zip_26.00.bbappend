@@ -1,0 +1,11 @@
+# This fixes a couple of CVEs when compared to 26.00. Namely:
+#   CVE-2026-48095
+#   CVE-2026-48092
+#   CVE-2026-48111
+#   CVE-2026-48103
+#   CVE-2026-48112
+#   CVE-2026-48101
+#   CVE-2026-48102
+#   CVE-2026-48104
+PV = "26.01"
+SRCREV = "8c63d71ff886bda90c86db28466287f977374237"
