@@ -95,6 +95,7 @@ case "$1" in
 		migrate /home/root/.bash_history
 		migrate /home/root/.ssh/authorized_keys
 		migrate /var/cache/lxa-iobus/lss-cache
+		migrate /etc/systemd/system/multi-user.target.wants/labgrid-coordinator.service
 
 		# Also allow the running system to specify additional files to
 		# migrate to the new slot via files in /etc/rauc/migrate.d.
