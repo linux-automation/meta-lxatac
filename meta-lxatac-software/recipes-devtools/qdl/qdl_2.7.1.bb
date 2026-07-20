@@ -11,7 +11,8 @@ DEPENDS = "libusb1 libxml2 libzip"
 
 inherit pkgconfig meson
 
-SRC_URI = "git://github.com/linux-msm/${BPN}.git;branch=master;protocol=https;tag=v${PV}"
-SRCREV = "f540e59dbeb462242239778ae0993549304f3abb"
+SRC_URI = "git://github.com/linux-msm/${BPN}.git;branch=${SRCBRANCH};protocol=https;tag=v${PV}"
+SRCREV = "a248f28ecd54f66c660bbc3a88657d4c62f1445d"
+SRCBRANCH = "qdl-2.7.y"
 
 BBCLASSEXTEND = "native nativesdk"
