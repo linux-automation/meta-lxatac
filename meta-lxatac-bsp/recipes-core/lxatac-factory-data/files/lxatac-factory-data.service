@@ -2,7 +2,7 @@
 Description=Gather and Distribute Factory Data
 DefaultDependencies=no
 After=systemd-remount-fs.service
-Before=systemd-udevd.service
+Before=NetworkManager.service
 
 [Service]
 Type=oneshot

@@ -6,9 +6,6 @@ interface-name=tac-bridge
 permissions=
 timestamp=0
 
-[ethernet]
-cloned-mac-address=preserve
-
 [bridge]
 multicast-snooping=false
 stp=false
