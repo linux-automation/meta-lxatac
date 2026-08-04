@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from contextlib import suppress
 import datetime
 import json
 import os
 import subprocess
 import sys
+from contextlib import suppress
 
 import common
 

@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
 import glob
 import hashlib
-from tempfile import TemporaryDirectory
-import re
 import os.path
+import re
 import subprocess
+from datetime import datetime
+from tempfile import TemporaryDirectory
 
 import requests
 import yaml
-
 
 BRANCH_PRIORITIES = tuple(
     (re.compile(pattern), prio)
@@ -134,7 +133,7 @@ class GitRepo:
             return {"commit_hash": self.refs().get(commit, commit)}
 
         else:
-            git_format, fields = zip(*self.LOG_FORMAT)
+            git_format, fields = zip(*self.LOG_FORMAT, strict=True)
             res = self._git("log", "-1", f"--format={'%x00'.join(git_format)}", commit)
 
             return dict(zip(fields, res.split("\x00"), strict=True))
@@ -418,7 +417,7 @@ def main(argv):
         if "recipe" in recipe_info:
             recipes.append(recipe_info["recipe"])
 
-        print(f"\n\nGenerate:", " ".join(recipes))
+        print("\n\nGenerate:", " ".join(recipes))
 
         fetch_info(recipe_info)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from jinja2 import Template, StrictUndefined
+from jinja2 import StrictUndefined, Template
 
 
 def filter_and_sort_packages(manifest):
