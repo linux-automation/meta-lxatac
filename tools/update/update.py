@@ -72,7 +72,7 @@ def semver_key(info):
 def branch_key(name):
     """Assign a priority to a branch name
 
-    A commit will likely be contained in multiple branches and we want to use
+    A commit will likely be contained in multiple branches, and we want to use
     the most descriptive one as SRCBRANCH in the recipes.
     Assign priorities to common branch names based on how descriptive they are.
     """
@@ -148,7 +148,7 @@ class GitRepo:
     def refs(self):
         if self._refs is None:
             # Use the local clone for information if there is one.
-            # Oterwise ask the server for a list of refs.
+            # Otherwise, ask the server for a list of refs.
             ref_list = (
                 self._git("show-ref")
                 if self._git_dir is not None
