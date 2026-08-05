@@ -14,9 +14,7 @@ def filter_and_sort_packages(manifest):
                 continue
 
             score_strs = list(
-                issue[v]
-                for v in ("scorev2", "scorev3", "scorev4")
-                if v in issue and issue[v] != "0.0"
+                issue[v] for v in ("scorev2", "scorev3", "scorev4") if v in issue and issue[v] != "0.0"
             ) + ["0.0"]
             major, minor = score_strs[0].split(".")
             issue["score"] = int(major) * 10 + int(minor)
@@ -37,9 +35,7 @@ def filter_and_sort_packages(manifest):
 
 
 def render(packages, template):
-    template = Template(
-        template, undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True
-    )
+    template = Template(template, undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
     output = template.render(packages=packages).strip() + "\n"
 
     return output

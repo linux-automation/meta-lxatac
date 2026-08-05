@@ -159,9 +159,7 @@ class GitRepo:
         return self._refs
 
     def refs_with_prefix(self, prefix):
-        return list(
-            ref.removeprefix(prefix) for ref in self.refs() if ref.startswith(prefix)
-        )
+        return list(ref.removeprefix(prefix) for ref in self.refs() if ref.startswith(prefix))
 
     def branches(self):
         return self.refs_with_prefix("refs/heads/")
@@ -195,9 +193,7 @@ def fetch_git_branch(info):
 
     version_pattern = info.get("version_pattern")
     describe = info.get("describe")
-    version = (
-        re.match(version_pattern, describe)[1] if version_pattern and describe else ""
-    )
+    version = re.match(version_pattern, describe)[1] if version_pattern and describe else ""
 
     if version:
         info["pv"] = f"{version}+git"
@@ -285,18 +281,12 @@ def fetch_github_release(recipe_info):
 
     for version in versions:
         tag = version["tag"]
-        tag_info = get_json(
-            f"https://api.github.com/repos/{project}/git/matching-refs/tags/{tag}"
-        )
+        tag_info = get_json(f"https://api.github.com/repos/{project}/git/matching-refs/tags/{tag}")
         commit_info = get_json(tag_info[0]["object"]["url"])
 
         version["commit_hash"] = commit_info["sha"]
 
-        who = (
-            commit_info.get("committer")
-            or commit_info.get("author")
-            or commit_info.get("tagger")
-        )
+        who = commit_info.get("committer") or commit_info.get("author") or commit_info.get("tagger")
         commit_date = who["date"].replace("T", " ").replace("Z", " +0000")
         version["commit_date"] = commit_date
         version["commit_timestamp"] = datetime.fromisoformat(commit_date).timestamp()
@@ -370,11 +360,7 @@ def get_old_recipes(recipe):
     recipe_regex = re.escape(recipe).replace("\\$PV", "[\\d+\\.]*\\d+")
     recipe_regex = re.compile(recipe_regex)
 
-    return list(
-        old_recipe
-        for old_recipe in glob.glob(recipe_glob)
-        if recipe_regex.fullmatch(old_recipe)
-    )
+    return list(old_recipe for old_recipe in glob.glob(recipe_glob) if recipe_regex.fullmatch(old_recipe))
 
 
 def write_recipe(recipe, recipe_info):
