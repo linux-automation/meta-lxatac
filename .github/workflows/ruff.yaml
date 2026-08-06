@@ -1,0 +1,17 @@
+name: ruff
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '10 21 * * 4'
+
+jobs:
+  ruff:
+    name: Python Format and Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 -m pip install ruff
+      - run: ruff format --check
+      - run: ruff check

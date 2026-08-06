@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from contextlib import suppress
 import datetime
 import json
 import os
 import subprocess
 import sys
+from contextlib import suppress
 
 import common
 
@@ -73,11 +73,11 @@ def main(*manifest_paths):
 
             annotation = {}
 
-            # Check if we had an annotation for this vulnerarbility before
+            # Check if we had an annotation for this vulnerability before
             with suppress(FileNotFoundError), open(annot_old_path) as fd:
                 annotation = json.load(fd)
 
-            # Check if we alrady touched the annotation this time around
+            # Check if we already touched the annotation this time around
             with suppress(FileNotFoundError), open(annot_path) as fd:
                 annotation = json.load(fd)
 

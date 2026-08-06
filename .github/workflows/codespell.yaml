@@ -13,4 +13,4 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: python3 -m pip install codespell
-      - run: codespell meta-lxatac-bsp meta-lxatac-software .github oe-init-build-env README.md
+      - run: codespell .

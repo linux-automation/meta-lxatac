@@ -64,9 +64,13 @@ TEMPLATE = """
                 <div><strong>Description:</strong> {{ issue.description | striptags | escape }}</div>
                 <div class="meta"><strong>Vector String:</strong> {{ issue.vectorString | escape }}</div>
                 {% if package.name == "linux-lxatac" %}
-                  <div><a href="https://kernel-team.pages.debian.net/kernel-sec/{{ issue.id | escape }}.html">Debian Kernel Security Tracker</a></div>
+                  <div><a href="https://kernel-team.pages.debian.net/kernel-sec/{{ issue.id | escape }}.html">
+                    Debian Kernel Security Tracker
+                  </a></div>
                 {% endif %}
-                <div><a href="https://security-tracker.debian.org/tracker/{{ issue.id | escape }}">Debian Security Tracker</a></div>
+                <div><a href="https://security-tracker.debian.org/tracker/{{ issue.id | escape }}">
+                  Debian Security Tracker
+                </a></div>
               </td>
             </tr>
           {% endfor %}

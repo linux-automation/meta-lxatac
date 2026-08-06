@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
 import glob
 import hashlib
-from tempfile import TemporaryDirectory
-import re
 import os.path
+import re
 import subprocess
+from datetime import datetime
+from tempfile import TemporaryDirectory
 
 import requests
 import yaml
-
 
 BRANCH_PRIORITIES = tuple(
     (re.compile(pattern), prio)
@@ -72,7 +71,7 @@ def semver_key(info):
 def branch_key(name):
     """Assign a priority to a branch name
 
-    A commit will likely be contained in multiple branches and we want to use
+    A commit will likely be contained in multiple branches, and we want to use
     the most descriptive one as SRCBRANCH in the recipes.
     Assign priorities to common branch names based on how descriptive they are.
     """
@@ -134,7 +133,7 @@ class GitRepo:
             return {"commit_hash": self.refs().get(commit, commit)}
 
         else:
-            git_format, fields = zip(*self.LOG_FORMAT)
+            git_format, fields = zip(*self.LOG_FORMAT, strict=True)
             res = self._git("log", "-1", f"--format={'%x00'.join(git_format)}", commit)
 
             return dict(zip(fields, res.split("\x00"), strict=True))
@@ -148,7 +147,7 @@ class GitRepo:
     def refs(self):
         if self._refs is None:
             # Use the local clone for information if there is one.
-            # Oterwise ask the server for a list of refs.
+            # Otherwise, ask the server for a list of refs.
             ref_list = (
                 self._git("show-ref")
                 if self._git_dir is not None
@@ -160,9 +159,7 @@ class GitRepo:
         return self._refs
 
     def refs_with_prefix(self, prefix):
-        return list(
-            ref.removeprefix(prefix) for ref in self.refs() if ref.startswith(prefix)
-        )
+        return list(ref.removeprefix(prefix) for ref in self.refs() if ref.startswith(prefix))
 
     def branches(self):
         return self.refs_with_prefix("refs/heads/")
@@ -196,9 +193,7 @@ def fetch_git_branch(info):
 
     version_pattern = info.get("version_pattern")
     describe = info.get("describe")
-    version = (
-        re.match(version_pattern, describe)[1] if version_pattern and describe else ""
-    )
+    version = re.match(version_pattern, describe)[1] if version_pattern and describe else ""
 
     if version:
         info["pv"] = f"{version}+git"
@@ -286,18 +281,12 @@ def fetch_github_release(recipe_info):
 
     for version in versions:
         tag = version["tag"]
-        tag_info = get_json(
-            f"https://api.github.com/repos/{project}/git/matching-refs/tags/{tag}"
-        )
+        tag_info = get_json(f"https://api.github.com/repos/{project}/git/matching-refs/tags/{tag}")
         commit_info = get_json(tag_info[0]["object"]["url"])
 
         version["commit_hash"] = commit_info["sha"]
 
-        who = (
-            commit_info.get("committer")
-            or commit_info.get("author")
-            or commit_info.get("tagger")
-        )
+        who = commit_info.get("committer") or commit_info.get("author") or commit_info.get("tagger")
         commit_date = who["date"].replace("T", " ").replace("Z", " +0000")
         version["commit_date"] = commit_date
         version["commit_timestamp"] = datetime.fromisoformat(commit_date).timestamp()
@@ -371,11 +360,7 @@ def get_old_recipes(recipe):
     recipe_regex = re.escape(recipe).replace("\\$PV", "[\\d+\\.]*\\d+")
     recipe_regex = re.compile(recipe_regex)
 
-    return list(
-        old_recipe
-        for old_recipe in glob.glob(recipe_glob)
-        if recipe_regex.fullmatch(old_recipe)
-    )
+    return list(old_recipe for old_recipe in glob.glob(recipe_glob) if recipe_regex.fullmatch(old_recipe))
 
 
 def write_recipe(recipe, recipe_info):
@@ -418,7 +403,7 @@ def main(argv):
         if "recipe" in recipe_info:
             recipes.append(recipe_info["recipe"])
 
-        print(f"\n\nGenerate:", " ".join(recipes))
+        print("\n\nGenerate:", " ".join(recipes))
 
         fetch_info(recipe_info)
 
