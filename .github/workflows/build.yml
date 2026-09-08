@@ -30,6 +30,11 @@ jobs:
           # Apply default config provided by our custom runner images
           cp ~/.yocto/auto.conf conf/
 
+          # The perf build has caused us some grief in the past,
+          # especially because it failed rather late in the build process.
+          # Make it fail early instead.
+          bitbake perf
+
           # Build all images that are relevant to us.
           bitbake \
             lxatac-core-image-base \
