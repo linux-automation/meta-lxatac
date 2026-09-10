@@ -15,8 +15,6 @@ SRC_URI[sha256sum] = "7d0e7ce14f98c43efe880cffbf354a59be45928fdf7170d7333c374ae9
 
 require recipes-kernel/linux/cve-exclusion.inc
 
-S = "${UNPACKDIR}/linux-${PV}"
-
 COMPATIBLE_MACHINE = "lxatac"
 
 # Track which files are compiled in so we can ignore CVEs that only
@@ -30,6 +28,23 @@ DEPENDS:append = " panel-shineworld-lh133k coreutils-native"
 
 # Some options depend on CONFIG_PAHOLE_VERSION, so need to make pahole-native available before do_kernel_configme
 do_kernel_configme[depends] += "pahole-native:do_populate_sysroot"
+
+# ${S} is not overridden, so it is the shared kernel source directory
+# (${STAGING_KERNEL_DIR}) set by kernel.bbclass, like in linux-yocto.
+# The kernel tarball, however, unpacks to ${UNPACKDIR}/linux-${PV}, so
+# move the unpacked source tree into ${S}. This keeps the source tree
+# directly in the shared location instead of relying on the move +
+# symlink workaround of do_symlink_kernsrc (which leaves a symlink in
+# ${WORKDIR} pointing into the shared source tree).
+python do_unpack:append() {
+    # do_unpack's cleandirs leaves ${S} behind as an empty directory,
+    # remove it so the source tree is moved to ${S} itself instead of
+    # into it. This fails loudly in do_unpack if the tarball does not
+    # unpack to the expected directory.
+    bb.utils.remove(d.getVar('S'), True)
+    bb.utils.rename(d.getVar('UNPACKDIR') + "/linux-" + d.getVar('PV'),
+                    d.getVar('S'))
+}
 
 do_copy_fw() {
     mkdir -p ${S}/firmware/
