@@ -126,6 +126,7 @@ IMAGE_INSTALL:append = "\
     tacd \
     tacd-webinterface \
     tac-gadget \
+    tac-tls \
     tcpdump \
     tmux \
     trace-cmd \

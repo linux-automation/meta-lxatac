@@ -1,0 +1,19 @@
+[Unit]
+Description=Generate self-signed TLS certificate for tacd and IOBus Server
+ConditionPathExists=!/srv/tacd/server.cert.pem
+RequiresMountsFor=/srv/tacd
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=install -d /srv/tacd
+ExecStart=/usr/bin/openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 \
+    -keyout /srv/tacd/server.key.pem \
+    -out /srv/tacd/server.cert.pem \
+    -days 36500 -nodes \
+    -subj "/CN=%H" \
+    -addext "subjectAltName=DNS:%H,DNS:%H.local"
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
