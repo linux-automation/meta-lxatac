@@ -14,10 +14,6 @@ TFA_INSTALL_TARGET += "stm32mp157c-lxa-tac-bl32 stm32mp157c-lxa-tac-fw-config"
 # TODO: Support specifying DTB_FILE_NAME in meta-arm
 TFA_DTB_NAME = "stm32mp157c-lxa-tac.dtb"
 
-# TODO: Add upstream TF-A support so we can drop the downstream patches and
-#       get rid of the compile switches.
-require files/patches/series.inc
-
 EXTRA_OEMAKE:append = " \
     ARCH=aarch32 \
     ARM_ARCH_MAJOR=7 \
