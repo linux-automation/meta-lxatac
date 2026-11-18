@@ -4,7 +4,7 @@
 # Do not modify it by hand, as the contents will be replaced when
 # running the update-modules task.
 
-LICENSE += "& Apache-2.0 & BSD-2-Clause & BSD-3-Clause & MIT & Zlib"
+LICENSE += "AND Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT AND Zlib"
 
 LIC_FILES_CHKSUM += "\
     file://pkg/mod/dario.cat/mergo@v1.0.2/LICENSE;md5=ff13e03bb57bf9c52645f2f942afa28b;spdx=BSD-3-Clause \
