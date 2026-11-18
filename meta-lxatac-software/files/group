@@ -1,4 +1,6 @@
 root:x:0:
+clock:x:977:
+adb:x:978:
 empower:x:979:
 audio:x:980:
 gpio:x:981:
