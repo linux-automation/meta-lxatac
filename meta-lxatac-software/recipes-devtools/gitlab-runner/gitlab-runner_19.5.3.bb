@@ -9,9 +9,9 @@ SRC_URI = "\
     file://gitlab-runner.service \
     "
 
-# Commit created 2026-06-29 18:56:18 +0100
-SRCREV = "5b1ba4d9a0dec0a0a67ba4b88fa88e7f21b1060f"
-SRCBRANCH = "18-11-stable"
+# Commit created 2026-11-05 14:38:04 +0000
+SRCREV = "33227fd48c5b411d0b49a74e129d187728abcc3b"
+SRCBRANCH = "19-5-stable"
 
 RDEPENDS:${PN}:append = " git"
 RDEPENDS:gitlab-runner-dev = "bash"
