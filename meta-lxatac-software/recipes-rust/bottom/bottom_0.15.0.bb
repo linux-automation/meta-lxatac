@@ -3,7 +3,7 @@ inherit cargo cargo-update-recipe-crates
 SRC_URI += "git://github.com/ClementTsang/bottom.git;protocol=https;branch=main;tag=${PV}"
 
 # Commit created 2025-12-31 17:46:26 -0500
-SRCREV = "2f0e9dea99232f0cb116dd1011d9ff1ba9495594"
+SRCREV = "4b6a033f430728a882c40588cd96499ed550a3f1"
 
 CARGO_SRC_DIR = ""
 
