@@ -1,4 +1,5 @@
 root:x:0:
+network:x:976:
 clock:x:977:
 adb:x:978:
 empower:x:979:
