@@ -5,8 +5,8 @@ LIC_FILES_CHKSUM = " \
     file://../LICENSE;md5=570a9b3749dd0463a1778803b12a6dce \
 "
 
-# Commit created 2026-07-31 08:53:56 +0200
-SRCREV = "df3958c92643f7e0b06ef1830b9bc2a5e55ab24a"
+# Commit created 2026-11-24 10:51:03 +0100
+SRCREV = "16f05c671e74afb082038c4c6a0f89bb650124fb"
 PV = "0.1.0+git${SRCPV}"
 
 S = "${UNPACKDIR}/${BP}/web"
