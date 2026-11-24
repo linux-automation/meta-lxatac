@@ -1,11 +1,11 @@
 [submodule "bitbake"]
 	path = bitbake
 	url = https://git.openembedded.org/bitbake
-	branch = 2.20
+	branch = master
 [submodule "openembedded-core"]
 	path = openembedded-core
 	url = https://git.openembedded.org/openembedded-core
-	branch = blacksail
+	branch = master
 [submodule "meta-ptx"]
 	path = meta-ptx
 	url = https://github.com/pengutronix/meta-ptx.git
@@ -13,7 +13,7 @@
 [submodule "meta-oe"]
 	path = meta-oe
 	url = https://github.com/openembedded/meta-openembedded.git
-	branch = blacksail
+	branch = master
 [submodule "meta-rauc"]
 	path = meta-rauc
 	url = https://github.com/rauc/meta-rauc.git
@@ -25,12 +25,12 @@
 [submodule "meta-virtualization"]
 	path = meta-virtualization
 	url = https://git.yoctoproject.org/meta-virtualization
-	branch = blacksail
+	branch = master
 [submodule "meta-selinux"]
 	path = meta-selinux
 	url = https://git.yoctoproject.org/meta-selinux
-	branch = blacksail
+	branch = master
 [submodule "meta-arm"]
 	path = meta-arm
 	url = https://git.yoctoproject.org/meta-arm
-	branch = blacksail
+	branch = master
