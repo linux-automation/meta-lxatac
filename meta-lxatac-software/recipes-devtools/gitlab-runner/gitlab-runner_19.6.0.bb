@@ -25,6 +25,10 @@ inherit go-mod go-mod-update-modules systemd
 
 SYSTEMD_SERVICE:${PN} = "gitlab-runner.service"
 
+# /usr/lib/go/src/gitlab.com/gitlab-org/gitlab-runner/helpers/docker/auth/auth_test.go
+# in package gitlab-runner-dev contains a reference to the build host HOME directory.
+OEQA_BUILDPATHS_SKIP = "/home/runner"
+
 do_install:append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/gitlab-runner.service ${D}${systemd_system_unitdir}/
