@@ -3,11 +3,11 @@ name: build
 on:
   pull_request:
     branches:
-      - wrynose
+      - blacksail
       - stable-*
   push:
     branches:
-      - wrynose
+      - blacksail
       - stable-*
 
 jobs:
